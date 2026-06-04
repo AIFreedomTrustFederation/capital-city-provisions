@@ -1,0 +1,1 @@
+export default function Footer(){return <footer className="footer"><p>Capital City Provisions</p><p>Premium ranch quality, modern convenience, and practical food security.</p></footer>}
