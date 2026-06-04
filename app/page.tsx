@@ -1,40 +1,9 @@
-const products = ['Prime beef bundles', 'Family freezer boxes', 'Poultry provisions', 'Pork selections', 'Seafood boxes', 'Bulk family packs'];
-const emails = ['orders@capitalcityprovisions.com', 'info@capitalcityprovisions.com', 'sales@capitalcityprovisions.com', 'wholesale@capitalcityprovisions.com', 'support@capitalcityprovisions.com'];
+const boxes=['Family Freezer Boxes','Premium Steakhouse Box','Surf And Turf Box','Ranch Reserve Box','Wholesale Provisioning','Preparedness Box'];
 
-export default function Home() {
-  return (
-    <main className="site">
-      <section className="hero">
-        <p className="eyebrow">Capital City Provisions</p>
-        <h1>Premium ranch quality, modern convenience, and practical food security.</h1>
-        <p className="lead">A hybrid provisioning company combining trusted American farm sourcing, luxury butcher-style presentation, and freezer-ready food solutions for families, businesses, and communities.</p>
-        <div className="actions">
-          <a href="#order">Reserve a Freezer Box</a>
-          <a href="#products">View Provisions</a>
-        </div>
-      </section>
-      <section id="products" className="section">
-        <p className="eyebrow">What We Supply</p>
-        <h2>Curated meats and provisions for everyday meals, special gatherings, and long-term household readiness.</h2>
-        <div className="grid">
-          {products.map((item) => <article key={item}><h3>{item}</h3><p>Premium sourcing, practical portions, dependable planning, and direct-to-customer convenience.</p></article>)}
-        </div>
-      </section>
-      <section className="section split">
-        <div><p className="eyebrow">The Mission</p><h2>Not just delivery. Provisioning with purpose.</h2></div>
-        <p>Capital City Provisions is being built as a premium food distribution brand that can serve household subscriptions, local delivery routes, community resilience, event needs, and future wholesale relationships without losing its farm-to-table trust.</p>
-      </section>
-      <section className="section split">
-        <div><p className="eyebrow">Brand Promise</p><h2>Ranch trust. Steakhouse polish. Freezer-box practicality.</h2></div>
-        <p>The goal is simple: make high-quality food feel accessible, reliable, and worth gathering around while giving customers a stronger way to stock their homes.</p>
-      </section>
-      <section id="order" className="cta">
-        <h2>Reserve your first freezer box.</h2>
-        <p>Use the right address for your need. Each branded inbox can be routed to the company operator inbox behind the scenes.</p>
-        <div className="grid">
-          {emails.map((email) => <article key={email}><h3>{email.split('@')[0]}</h3><p><a href={`mailto:${email}`}>{email}</a></p></article>)}
-        </div>
-      </section>
-    </main>
-  );
-}
+export default function Home(){return <main className="site">
+<section className="hero poster-frame"><p className="badge">Premium Meat Delivery • Freezer Boxes • Wholesale</p><p className="eyebrow">Capital City Provisions</p><h1>Premium ranch direct meat delivery.</h1><p className="lead">Hand Trimmed • Cut With Care • Portion Controlled</p><p className="lead heartbeat">Delivered With A Heartbeat</p><div className="actions"><a href="/freezer-boxes">Shop Freezer Boxes</a><a href="/wholesale">Wholesale Accounts</a></div></section>
+<section className="section split"><div><p className="eyebrow">The Pitch</p><h2>Luxury steakhouse branding meets practical food security.</h2></div><p>Capital City Provisions is built to feel like a premium butcher, ranch-direct subscription, and family provisioning company in one brand.</p></section>
+<section className="section"><p className="eyebrow">Signature Boxes</p><h2>Simple premium offers customers understand fast.</h2><div className="grid">{boxes.map((box)=><article key={box} className="marble"><h3>{box}</h3><p>Premium sourcing, practical portions, and a polished brand experience built for repeat orders.</p></article>)}</div></section>
+<section className="section split"><div><p className="eyebrow">Why It Works</p><h2>Not grocery delivery. Not meal kits. Provisioning.</h2></div><p>The same brand can sell to families, serious home cooks, churches, lodges, food trucks, restaurants, events, and wholesale buyers.</p></section>
+<section className="cta poster-frame"><p className="eyebrow">Founder Pitch</p><h2>A premium food brand with subscription, delivery, and wholesale upside.</h2><p>Start with freezer boxes and direct orders, then expand into routes, subscriptions, and wholesale accounts.</p><a href="mailto:orders@capitalcityprovisions.com">Request Launch Info</a></section>
+</main>}
