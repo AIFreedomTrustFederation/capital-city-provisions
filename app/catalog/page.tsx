@@ -1,0 +1,1 @@
+export default function CatalogPage(){return <main className="site"><section className="hero"><p className="eyebrow">Catalog</p><h1>Premium meats and freezer-box solutions.</h1><p className="lead">Prime beef bundles, poultry, pork, seafood, and family freezer boxes.</p></section></main>}
