@@ -1,0 +1,1 @@
+export default function DeliveryPage(){return <main className="site"><section className="hero"><p className="eyebrow">Delivery</p><h1>Local delivery and freezer-box provisioning.</h1><p className="lead">Built for household subscriptions, scheduled routes, and future regional delivery.</p></section></main>}
