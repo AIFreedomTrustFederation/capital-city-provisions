@@ -30,7 +30,7 @@ export default function Home() {
       <section id="order" className="cta">
         <h2>Reserve your first freezer box.</h2>
         <p>Online ordering, subscriptions, and delivery scheduling are being prepared. Early customers can request availability, product options, and launch updates.</p>
-        <a href="mailto:aifreedomtrust@gmail.com">Contact Us</a>
+        <a href="mailto:hello@capitalcityprovisions.com">Contact Us</a>
       </section>
     </main>
   );
