@@ -1,4 +1,5 @@
 const products = ['Prime beef bundles', 'Family freezer boxes', 'Poultry provisions', 'Pork selections', 'Seafood boxes', 'Bulk family packs'];
+const emails = ['orders@capitalcityprovisions.com', 'info@capitalcityprovisions.com', 'sales@capitalcityprovisions.com', 'wholesale@capitalcityprovisions.com', 'support@capitalcityprovisions.com'];
 
 export default function Home() {
   return (
@@ -29,8 +30,10 @@ export default function Home() {
       </section>
       <section id="order" className="cta">
         <h2>Reserve your first freezer box.</h2>
-        <p>Online ordering, subscriptions, and delivery scheduling are being prepared. Early customers can request availability, product options, and launch updates.</p>
-        <a href="mailto:hello@capitalcityprovisions.com">Contact Us</a>
+        <p>Use the right address for your need. Each branded inbox can be routed to the company operator inbox behind the scenes.</p>
+        <div className="grid">
+          {emails.map((email) => <article key={email}><h3>{email.split('@')[0]}</h3><p><a href={`mailto:${email}`}>{email}</a></p></article>)}
+        </div>
       </section>
     </main>
   );
