@@ -1,0 +1,1 @@
+export default function ContactPage(){return <main className="site"><section className="hero"><p className="eyebrow">Contact</p><h1>Reach the right department.</h1><p className="lead">orders@capitalcityprovisions.com · info@capitalcityprovisions.com · sales@capitalcityprovisions.com · wholesale@capitalcityprovisions.com · support@capitalcityprovisions.com</p></section></main>}
