@@ -1,0 +1,1 @@
+export default function Navbar(){return <nav className="nav"><a className="brand" href="/">Capital City Provisions</a><div><a href="/about">About</a><a href="/catalog">Catalog</a><a href="/delivery">Delivery</a><a href="/contact">Contact</a></div></nav>}
