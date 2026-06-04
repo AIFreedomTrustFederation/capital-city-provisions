@@ -1,0 +1,1 @@
+export default function AboutPage(){return <main className="site"><section className="hero"><p className="eyebrow">About</p><h1>Provisioning with purpose.</h1><p className="lead">Capital City Provisions blends ranch trust, steakhouse polish, and freezer-box practicality.</p></section></main>}
