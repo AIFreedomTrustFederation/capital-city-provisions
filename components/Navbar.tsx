@@ -1,1 +1,1 @@
-export default function Navbar(){return <nav className="nav"><a className="brand" href="/">Capital City Provisions</a><div><a href="/about">About</a><a href="/catalog">Catalog</a><a href="/delivery">Delivery</a><a href="/contact">Contact</a></div></nav>}
+export default function Navbar(){return <nav className="nav"><a className="brand" href="/">Capital City Provisions</a><div><a href="/">Home</a><a href="/freezer-boxes">Boxes</a><a href="/catalog">Meats</a><a href="/wholesale">Wholesale</a><a href="/contact">Contact</a></div></nav>}
