@@ -1,21 +1,22 @@
-const boxes=['Family Freezer Box','Premium Steakhouse Box','Surf And Turf Box','Ranch Reserve Box'];
-const meats=['Prime Beef','Chicken','Seafood','Pork','Bundles'];
-const trust=['Ranch Direct','Hand Trimmed','Portion Controlled','Delivered With A Heartbeat'];
-const partners=['Restaurants','Churches','Lodges','Food Trucks','Caterers','Community Events'];
-const engine=[
- {title:'Customer Delivery Map',href:'/delivery-map',text:'Check route status, fill percentage, service area, and delivery estimates.'},
- {title:'Driver Manifest',href:'/driver',text:'View daily route stops, load weight, delivery order, and checklist.'},
- {title:'Dispatch Engine',href:'/ops',text:'Manage inventory reservations, truck fill, route priority, and dispatch readiness.'},
- {title:'Owner Reports',href:'/reports',text:'Track revenue, route performance, inventory health, and conversion metrics.'}
+const trust=[
+ {title:'Ranch Direct',text:'No middlemen. Just honest meat.'},
+ {title:'Always Frozen',text:'Flash frozen for maximum freshness.'},
+ {title:'Delivered With A Heartbeat',text:'From our ranch route to your door.'},
+ {title:'Premium Quality',text:'The highest standard in every cut.'}
 ];
+const boxes=[
+ {name:'Starter Box',size:'7 cu ft',text:'Perfect for individuals or small families.'},
+ {name:'Family Box',size:'15 cu ft',text:'Great for families who love quality meat.'},
+ {name:'Rancher Box',size:'20 cu ft',text:'Ideal for serious meat lovers and homesteads.'},
+ {name:'Owner Box',size:'30 cu ft',text:'Maximum storage for big families or partners.'}
+];
+const meats=['Beef','Pork','Chicken','Lamb','Bundles'];
 
-export default function Home(){return <main className="site">
-<section className="hero poster-frame hero-grid"><div className="hero-copy"><p className="badge">Premium Meat Delivery • Freezer Boxes • Wholesale</p><p className="eyebrow">Capital City Provisions</p><h1>Premium ranch direct meat delivery.</h1><p className="lead">Hand Trimmed • Cut With Care • Portion Controlled</p><p className="lead heartbeat">Delivered With A Heartbeat</p><div className="actions"><a href="/freezer-boxes">Reserve Freezer Box</a><a href="/delivery-map">Check Delivery Area</a></div></div><div className="hero-art"><img src="/images/capital-city-hero.png" alt="Capital City Provisions premium steak delivery poster"/></div></section>
-<section className="trust-strip">{trust.map((item)=><article key={item}><h3>{item}</h3><p>Premium quality, practical portions, and dependable delivery planning.</p></article>)}</section>
-<section className="section"><p className="eyebrow">Choose Your Box</p><h2>Freezer boxes built for families, serious cooks, and long-term household readiness.</h2><div className="grid">{boxes.map((box)=><article key={box} className="marble"><h3>{box}</h3><p>Curated provisions with premium sourcing, polished presentation, and repeat-order potential.</p><a href="/freezer-boxes">View Details</a></article>)}</div></section>
-<section className="section"><p className="eyebrow">Delivery Intelligence</p><h2>Customer, driver, dispatch, and owner tools connected to one operating engine.</h2><div className="grid">{engine.map((item)=><article key={item.title} className="marble"><h3>{item.title}</h3><p>{item.text}</p><a href={item.href}>Open</a></article>)}</div></section>
-<section className="section"><p className="eyebrow">Premium Ranch Direct Meats</p><h2>Everything customers expect from a premium provisioning company.</h2><div className="product-row">{meats.map((item)=><article key={item}><h3>{item}</h3><p>Shop {item.toLowerCase()} selections, bundles, and freezer-ready portions.</p></article>)}</div></section>
-<section className="section split"><div><p className="eyebrow">Why It Works</p><h2>Not grocery delivery. Not meal kits. Provisioning.</h2></div><p>The same brand can serve families, serious home cooks, restaurants, churches, lodges, food trucks, events, and wholesale buyers without losing its premium ranch-direct identity.</p></section>
-<section className="section"><p className="eyebrow">Wholesale & Community Accounts</p><h2>Built for recurring relationships, not one-time orders.</h2><div className="grid">{partners.map((p)=><article key={p}><h3>{p}</h3><p>Request pricing, availability, recurring delivery planning, and account support.</p></article>)}</div></section>
-<section className="cta poster-frame"><p className="eyebrow">Founder Pitch</p><h2>A premium food brand with subscription, delivery, and wholesale upside.</h2><p>Start with freezer boxes and direct orders, then expand into routes, subscriptions, and wholesale accounts.</p><div className="actions"><a href="/delivery-map">Check Delivery Map</a><a href="/ops">Open Dispatch Engine</a></div></section>
+export default function Home(){return <main className="site mock-home">
+<section className="mock-hero"><div className="mock-poster"><img src="/images/capital-city-hero.png" alt="Capital City Provisions poster"/></div><div className="mock-copy"><p className="eyebrow">Capital City Provisions</p><h1>Premium Ranch Direct Meat Delivery</h1><p className="script">Delivered With A Heartbeat</p><div className="actions"><a href="/freezer-boxes">Reserve Freezer Box</a><a href="/wholesale">Wholesale Accounts</a></div></div></section>
+<section className="trust-strip mock-trust">{trust.map((item)=><article key={item.title}><div className="mock-icon">◇</div><h3>{item.title}</h3><p>{item.text}</p></article>)}</section>
+<section className="section mock-section"><p className="eyebrow">Our Freezer Boxes</p><h2>Freezer boxes built for families, partners, and long-term household readiness.</h2><div className="grid mock-box-grid">{boxes.map((box)=><article key={box.name} className="marble mock-product-card"><div className="freezer-visual"><div className="freezer-lid"></div><div className="freezer-body"><span>CCP</span></div></div><h3>{box.name}</h3><p className="box-size">({box.size})</p><p>{box.text}</p><a href="/freezer-boxes">View Details</a></article>)}</div><div className="actions center"><a href="/freezer-boxes">Compare All Boxes</a></div></section>
+<section className="section mock-section"><p className="eyebrow">Premium Ranch Direct Meats</p><h2>Premium proteins for freezer stocking, family meals, and wholesale partners.</h2><div className="product-row meat-row">{meats.map((item)=><article key={item} className="meat-card"><div className="meat-visual"></div><h3>{item}</h3><p>Shop {item}</p></article>)}</div><div className="actions center"><a href="/catalog">View All Products</a></div></section>
+<section className="section wholesale-panel"><div><p className="eyebrow">Partner With Capital City Provisions</p><h2>Wholesale accounts available for restaurants, retailers, bulk buyers, and community partners.</h2></div><ul><li>Premium ranch direct meats</li><li>Competitive wholesale pricing</li><li>Reliable delivery and consistent supply</li><li>Built on trust, quality, and partnership</li></ul><a href="/wholesale">Apply For Wholesale</a></section>
+<section className="cta poster-frame mock-footer-cta"><p className="eyebrow">Capital City Provisions</p><h2>Freezer boxes. Premium meats. Wholesale routes.</h2><p>Public pages stay beautiful. Operations, driver, reports, inventory, and dispatch engines remain connected behind the scenes.</p><div className="actions"><a href="/delivery-map">Delivery Map</a><a href="/ops">Operations</a></div></section>
 </main>}
