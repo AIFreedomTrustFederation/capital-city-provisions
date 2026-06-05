@@ -1,1 +1,5 @@
-export default function Navbar(){return <nav className="nav"><a className="brand" href="/">Capital City Provisions</a><div><a href="/">Home</a><a href="/freezer-boxes">Boxes</a><a href="/delivery-map">Delivery</a><a href="/driver">Driver</a><a href="/ops">Ops</a><a href="/reports">Reports</a><a href="/contact">Contact</a></div></nav>}
+'use client';
+import {useState} from 'react';
+
+const links=[['Home','/'],['Boxes','/freezer-boxes'],['Delivery','/delivery-map'],['Driver','/driver'],['Ops','/ops'],['Reports','/reports'],['Contact','/contact']];
+export default function Navbar(){const [open,setOpen]=useState(false);return <nav className="nav"><a className="brand" href="/">Capital City Provisions</a><button className="menu-button" onClick={()=>setOpen(!open)} aria-label="Toggle navigation">Menu</button><div className={open?'nav-links open':'nav-links'}>{links.map(([label,href])=><a key={href} href={href} onClick={()=>setOpen(false)}>{label}</a>)}</div></nav>}
