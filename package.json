@@ -10,10 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vercel/analytics": "latest",
+    "@vercel/analytics": "^1.1.4",
     "framer-motion": "latest",
     "lucide-react": "latest",
-    "next": "latest",
+    "next": "^9.3.3",
     "react": "latest",
     "react-dom": "latest"
   },
