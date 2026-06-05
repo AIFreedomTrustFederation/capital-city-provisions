@@ -21,23 +21,42 @@ function recommend(d:Record<string,string>){
   return {title:'Custom Freezer Restock',detail:'A personalized mix based on your household size, protein preference, and budget.',budget:d.budget||'$300-$500'};
 }
 
+function routePlan(address=''){
+  const zip=(address.match(/\d{5}/)?.[0]||'').trim();
+  const map:Record<string,{route:string;day:string;window:string}>={
+    '95628':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM'},
+    '95608':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM'},
+    '95661':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM'},
+    '95678':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM'},
+    '95765':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM'},
+    '95677':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM'},
+    '95648':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM'},
+    '95630':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM'},
+    '95662':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM'}
+  };
+  const found=map[zip];
+  if(found)return {...found,status:'Delivery available',restock:'Fresh stock planned Monday and Thursday',confirm:'Text confirmation should go out one day before delivery'};
+  return {route:'Expansion / Waitlist Route',day:'Next available grouped route',window:'To be confirmed',status:'Join waitlist',restock:'Scheduled after enough nearby leads are grouped',confirm:'Text confirmation should go out after route is approved'};
+}
+
 export default function LeadCapture(){
-  const [open,setOpen]=useState(false);const [light,setLight]=useState(false);const [step,setStep]=useState(0);const [value,setValue]=useState('');const [data,setData]=useState<Record<string,string>>({});const [sent,setSent]=useState(false);const [rec,setRec]=useState<any>(null);
+  const [open,setOpen]=useState(false);const [light,setLight]=useState(false);const [step,setStep]=useState(0);const [value,setValue]=useState('');const [data,setData]=useState<Record<string,string>>({});const [sent,setSent]=useState(false);const [rec,setRec]=useState<any>(null);const [route,setRoute]=useState<any>(null);
   useEffect(()=>{const t=setTimeout(()=>setOpen(true),1800);return()=>clearTimeout(t)},[]);
   useEffect(()=>{document.body.classList.toggle('light-mode',light)},[light]);
-  function finish(updated:Record<string,string>){const r=recommend(updated);setRec(r);const lead={...updated,recommendation:r.title,estimatedBudget:r.budget,createdAt:new Date().toISOString()};const body=Object.entries(lead).map(([k,v])=>`${k}: ${typeof v==='object'?JSON.stringify(v):v}`).join('\n');localStorage.setItem('ccp_latest_lead',JSON.stringify(lead));window.location.href=`mailto:aifreedomtrust@gmail.com?subject=${encodeURIComponent('Capital City Provisions Lead')}&body=${encodeURIComponent(body)}`;setSent(true)}
-  function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(step===3)setRec(recommend(updated));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
+  function finish(updated:Record<string,string>){const r=recommend(updated);const rp=routePlan(updated.address);setRec(r);setRoute(rp);const lead={...updated,recommendation:r.title,estimatedBudget:r.budget,route:rp.route,deliveryDay:rp.day,deliveryWindow:rp.window,routeStatus:rp.status,restockPlan:rp.restock,reminderPlan:rp.confirm,createdAt:new Date().toISOString()};const body=Object.entries(lead).map(([k,v])=>`${k}: ${v}`).join('\n');localStorage.setItem('ccp_latest_lead',JSON.stringify(lead));window.location.href=`mailto:aifreedomtrust@gmail.com?subject=${encodeURIComponent('Capital City Provisions Lead')}&body=${encodeURIComponent(body)}`;setSent(true)}
+  function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(step===3)setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(v));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
   return <>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
     <button className="lead-tab" onClick={()=>setOpen(true)}>Box Concierge</button>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
       <button className="lead-close" onClick={()=>setOpen(false)}>×</button>
-      <p className="eyebrow">No-Key Box Concierge</p><h2>Find your perfect freezer box.</h2>
+      <p className="eyebrow">No-Key Route Concierge</p><h2>Find your freezer box and delivery route.</h2>
       <div className="chat-window">
-        <div className="chat-bubble bot">{sent?'Your lead packet has been prepared. Your email app should open so you can send it directly.':current.bot}</div>
+        <div className="chat-bubble bot">{sent?'Your lead and route packet has been prepared. Your email app should open so you can send it directly.':current.bot}</div>
         {Object.entries(data).map(([k,v])=><div className="chat-bubble user" key={k}>{v}</div>)}
         {rec&&<div className="recommend-card"><p className="eyebrow">Recommended Plan</p><h3>{rec.title}</h3><p>{rec.detail}</p><strong>{rec.budget}</strong></div>}
+        {route&&<div className="recommend-card"><p className="eyebrow">Delivery Estimate</p><h3>{route.status}</h3><p>{route.route}</p><strong>{route.day} • {route.window}</strong><p>{route.restock}</p><p>{route.confirm}</p></div>}
       </div>
       {!sent&&<div className="chat-input">
         {current.type==='select'?<div className="choice-grid">{current.options?.map(o=><button key={o} onClick={()=>next(o)}>{o}</button>)}</div>:<><input value={value} onChange={e=>setValue(e.target.value)} type={current.type} placeholder={current.placeholder} onKeyDown={e=>{if(e.key==='Enter'&&value.trim())next()}}/><button onClick={()=>value.trim()&&next()}>Send</button></>}
