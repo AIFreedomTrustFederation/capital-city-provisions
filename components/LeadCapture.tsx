@@ -58,7 +58,7 @@ export default function LeadCapture(){
   function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(step===3)setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(v));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
   return <>
-    <style>{`@media(max-width:760px){.lead-tab{left:auto!important;right:14px!important;bottom:14px!important;width:auto!important;min-width:142px!important;padding:13px 18px!important;border-radius:999px!important}.lead-modal{padding-bottom:20px!important}}`}</style>
+    <style>{`@media(max-width:760px){.landing-art{max-height:178px!important}.landing-art img{aspect-ratio:2.15/1!important;max-height:158px!important;object-position:center 36%!important}.lead-tab{left:auto!important;right:14px!important;bottom:14px!important;width:auto!important;min-width:142px!important;padding:13px 18px!important;border-radius:999px!important}.lead-modal{padding-bottom:20px!important}}`}</style>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
     <button className="lead-tab" onClick={()=>setOpen(true)}>Find My Box</button>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
