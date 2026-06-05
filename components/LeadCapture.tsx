@@ -14,16 +14,17 @@ export default function LeadCapture(){
   const [open,setOpen]=useState(false);const [light,setLight]=useState(false);const [step,setStep]=useState(0);const [value,setValue]=useState('');const [data,setData]=useState<Record<string,string>>({});const [sent,setSent]=useState(false);
   useEffect(()=>{const t=setTimeout(()=>setOpen(true),1800);return()=>clearTimeout(t)},[]);
   useEffect(()=>{document.body.classList.toggle('light-mode',light)},[light]);
-  async function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(step<steps.length-1){setStep(step+1);return}await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(updated)}).catch(()=>null);setSent(true)}
+  function finish(updated:Record<string,string>){const body=Object.entries(updated).map(([k,v])=>`${k}: ${v}`).join('\n');localStorage.setItem('ccp_latest_lead',JSON.stringify({...updated,createdAt:new Date().toISOString()}));window.location.href=`mailto:aifreedomtrust@gmail.com?subject=${encodeURIComponent('Capital City Provisions Lead')}&body=${encodeURIComponent(body)}`;setSent(true)}
+  function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
   return <>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
     <button className="lead-tab" onClick={()=>setOpen(true)}>Ask Concierge</button>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
       <button className="lead-close" onClick={()=>setOpen(false)}>×</button>
-      <p className="eyebrow">AI-style Concierge</p><h2>Reserve your first freezer box.</h2>
+      <p className="eyebrow">No-Key Concierge</p><h2>Reserve your first freezer box.</h2>
       <div className="chat-window">
-        <div className="chat-bubble bot">{sent?'You are on the early access list. We will follow up with launch availability and next steps.':current.bot}</div>
+        <div className="chat-bubble bot">{sent?'Your lead packet has been prepared. Your email app should open so you can send it directly.':current.bot}</div>
         {Object.entries(data).map(([k,v])=><div className="chat-bubble user" key={k}>{v}</div>)}
       </div>
       {!sent&&<div className="chat-input">
