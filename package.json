@@ -10,10 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.1.4",
+    "@vercel/analytics": "latest",
     "framer-motion": "latest",
     "lucide-react": "latest",
-    "next": "^9.3.3",
+    "next": "latest",
     "react": "latest",
     "react-dom": "latest"
   },
@@ -24,7 +24,6 @@
     "autoprefixer": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
-    "playwright-core": "latest",
     "postcss": "latest",
     "tailwindcss": "latest",
     "typescript": "latest"
