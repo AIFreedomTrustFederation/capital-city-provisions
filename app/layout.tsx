@@ -1,6 +1,8 @@
 import './globals.css';
+import './premium.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import LeadCapture from '../components/LeadCapture';
 
 export const metadata = {
   title: 'Capital City Provisions',
@@ -10,7 +12,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body><Navbar />{children}<Footer /></body>
+      <body><Navbar />{children}<Footer /><LeadCapture /></body>
     </html>
   );
 }
