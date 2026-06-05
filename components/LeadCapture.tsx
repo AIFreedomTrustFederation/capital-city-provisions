@@ -2,30 +2,42 @@
 import {useEffect,useState} from 'react';
 
 const steps=[
-  {key:'interest',bot:'Hi, I’m the Capital City Provisions concierge. What can I help you with?',type:'select',options:['Family Freezer Box','Steak Lovers Club','Surf & Turf Club','Wholesale Account','Custom Freezer Restock']},
+  {key:'interest',bot:'Hi, I’m the Capital City Provisions concierge. What brings you here today?',type:'select',options:['Family Freezer Box','Steak Lovers Club','Surf & Turf Club','Wholesale Account','Custom Freezer Restock']},
+  {key:'familySize',bot:'How many people are you feeding?',type:'select',options:['1-2 people','3-4 people','5-6 people','7+ people','Wholesale / Event']},
+  {key:'proteins',bot:'Which proteins do you want most?',type:'select',options:['Mostly Beef','Beef + Chicken','Surf & Turf','Mixed Family Pack','Pork + Ribs','Custom Mix']},
+  {key:'budget',bot:'What monthly freezer budget feels comfortable?',type:'select',options:['$200-$300','$300-$500','$500-$750','$750-$1,000','$1,000+']},
   {key:'name',bot:'Perfect. What name should we put on the early access list?',type:'text',placeholder:'Full name'},
   {key:'email',bot:'What email should we send launch details to?',type:'email',placeholder:'Email address'},
-  {key:'phone',bot:'What phone number can we use for delivery or account follow-up?',type:'tel',placeholder:'Phone number'},
+  {key:'phone',bot:'What phone number can we use for delivery follow-up?',type:'tel',placeholder:'Phone number'},
   {key:'address',bot:'What delivery ZIP code or address should we check?',type:'text',placeholder:'ZIP code or delivery area'},
-  {key:'message',bot:'Anything specific you want us to know?',type:'text',placeholder:'Family size, preferred meats, wholesale needs...'}
+  {key:'message',bot:'Anything specific you want us to know?',type:'text',placeholder:'Favorite cuts, family needs, wholesale details...'}
 ];
 
+function recommend(d:Record<string,string>){
+  if((d.interest||'').includes('Wholesale')||(d.familySize||'').includes('Wholesale'))return {title:'Wholesale Provisioning Account',detail:'Best for restaurants, churches, lodges, caterers, food trucks, and events.',budget:'Custom account pricing'};
+  if((d.proteins||'').includes('Surf'))return {title:'Surf & Turf Club',detail:'Premium beef paired with seafood selections for elevated dinners and special occasions.',budget:d.budget||'$500-$750'};
+  if((d.interest||'').includes('Steak')||(d.proteins||'').includes('Mostly Beef'))return {title:'Steak Lovers Club',detail:'Ribeye, filet, New York strip, sirloin, and premium steakhouse-style cuts.',budget:d.budget||'$300-$500'};
+  if((d.familySize||'').includes('5')||(d.familySize||'').includes('7'))return {title:'Family Freezer Box',detail:'A practical freezer restock with beef, chicken, pork, and flexible portions.',budget:d.budget||'$500-$750'};
+  return {title:'Custom Freezer Restock',detail:'A personalized mix based on your household size, protein preference, and budget.',budget:d.budget||'$300-$500'};
+}
+
 export default function LeadCapture(){
-  const [open,setOpen]=useState(false);const [light,setLight]=useState(false);const [step,setStep]=useState(0);const [value,setValue]=useState('');const [data,setData]=useState<Record<string,string>>({});const [sent,setSent]=useState(false);
+  const [open,setOpen]=useState(false);const [light,setLight]=useState(false);const [step,setStep]=useState(0);const [value,setValue]=useState('');const [data,setData]=useState<Record<string,string>>({});const [sent,setSent]=useState(false);const [rec,setRec]=useState<any>(null);
   useEffect(()=>{const t=setTimeout(()=>setOpen(true),1800);return()=>clearTimeout(t)},[]);
   useEffect(()=>{document.body.classList.toggle('light-mode',light)},[light]);
-  function finish(updated:Record<string,string>){const body=Object.entries(updated).map(([k,v])=>`${k}: ${v}`).join('\n');localStorage.setItem('ccp_latest_lead',JSON.stringify({...updated,createdAt:new Date().toISOString()}));window.location.href=`mailto:aifreedomtrust@gmail.com?subject=${encodeURIComponent('Capital City Provisions Lead')}&body=${encodeURIComponent(body)}`;setSent(true)}
-  function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(step<steps.length-1){setStep(step+1);return}finish(updated)}
+  function finish(updated:Record<string,string>){const r=recommend(updated);setRec(r);const lead={...updated,recommendation:r.title,estimatedBudget:r.budget,createdAt:new Date().toISOString()};const body=Object.entries(lead).map(([k,v])=>`${k}: ${typeof v==='object'?JSON.stringify(v):v}`).join('\n');localStorage.setItem('ccp_latest_lead',JSON.stringify(lead));window.location.href=`mailto:aifreedomtrust@gmail.com?subject=${encodeURIComponent('Capital City Provisions Lead')}&body=${encodeURIComponent(body)}`;setSent(true)}
+  function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(step===3)setRec(recommend(updated));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
   return <>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
-    <button className="lead-tab" onClick={()=>setOpen(true)}>Ask Concierge</button>
+    <button className="lead-tab" onClick={()=>setOpen(true)}>Box Concierge</button>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
       <button className="lead-close" onClick={()=>setOpen(false)}>×</button>
-      <p className="eyebrow">No-Key Concierge</p><h2>Reserve your first freezer box.</h2>
+      <p className="eyebrow">No-Key Box Concierge</p><h2>Find your perfect freezer box.</h2>
       <div className="chat-window">
         <div className="chat-bubble bot">{sent?'Your lead packet has been prepared. Your email app should open so you can send it directly.':current.bot}</div>
         {Object.entries(data).map(([k,v])=><div className="chat-bubble user" key={k}>{v}</div>)}
+        {rec&&<div className="recommend-card"><p className="eyebrow">Recommended Plan</p><h3>{rec.title}</h3><p>{rec.detail}</p><strong>{rec.budget}</strong></div>}
       </div>
       {!sent&&<div className="chat-input">
         {current.type==='select'?<div className="choice-grid">{current.options?.map(o=><button key={o} onClick={()=>next(o)}>{o}</button>)}</div>:<><input value={value} onChange={e=>setValue(e.target.value)} type={current.type} placeholder={current.placeholder} onKeyDown={e=>{if(e.key==='Enter'&&value.trim())next()}}/><button onClick={()=>value.trim()&&next()}>Send</button></>}
