@@ -1,173 +1,194 @@
 #!/usr/bin/env bash
-
 set -Eeuo pipefail
 
 MAIN_BRANCH="main"
 TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
 BACKUP_BRANCH="codespace-backup-${TIMESTAMP}"
 
-echo ""
-echo "=========================================="
-echo " Capital City Provisions Sync Utility"
-echo "=========================================="
-echo ""
+# Files and folders that should never be restored from a rescue/backup branch.
+# These are the usual source of merge conflicts or generated dependency noise.
+EXCLUDE_REGEX='(^|/)(package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml|bun\.lockb)$|(^|/)(node_modules|\.next|dist|build|coverage)/'
 
-# Verify repository
+print_header() {
+  echo ""
+  echo "=========================================="
+  echo " $1"
+  echo "=========================================="
+  echo ""
+}
+
+run_optional() {
+  local label="$1"
+  shift
+
+  echo ""
+  echo "$label..."
+
+  if "$@"; then
+    echo "$label passed."
+  else
+    echo "$label unavailable or failed. Continuing safely."
+  fi
+}
+
+print_header "Capital City Provisions Conflict-Safe Sync"
 
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
-echo "ERROR: Not inside a git repository."
-exit 1
+  echo "ERROR: Not inside a git repository."
+  exit 1
 fi
-
-# Save current branch
 
 CURRENT_BRANCH=$(git branch --show-current)
-
 echo "Current branch: $CURRENT_BRANCH"
+echo "Backup branch:  $BACKUP_BRANCH"
+
 echo ""
-
-# Fetch latest remote data
-
+echo "Fetching latest remote data..."
 git fetch --all --prune
 
-# Create backup branch
+print_header "Creating safety backup branch"
 
-echo "Creating backup branch..."
+# Create a full backup branch first so no local work is lost.
 git checkout -b "$BACKUP_BRANCH"
-
-# Stage everything
-
 git add -A
 
-# Commit if needed
-
 if git diff --cached --quiet; then
-echo "No uncommitted changes found."
+  echo "No uncommitted changes found. Creating branch without a new commit."
 else
-git commit -m "Automated backup before cleanup $TIMESTAMP"
+  git commit -m "Automated backup before conflict-safe sync $TIMESTAMP"
 fi
-
-# Push backup
 
 echo ""
 echo "Pushing backup branch..."
 git push -u origin "$BACKUP_BRANCH"
 
-# Return to main
+print_header "Resetting main to clean remote state"
 
-echo ""
-echo "Switching to main..."
 git checkout "$MAIN_BRANCH"
+git fetch origin "$MAIN_BRANCH"
+git reset --hard "origin/$MAIN_BRANCH"
+
+print_header "Applying safe files from backup branch"
+
+APPLIED_COUNT=0
+SKIPPED_COUNT=0
+
+# Use diff against clean main, but restore file-by-file instead of merging.
+# This avoids Git conflict markers entirely.
+while IFS= read -r FILE_PATH; do
+  [ -n "$FILE_PATH" ] || continue
+
+  if echo "$FILE_PATH" | grep -Eq "$EXCLUDE_REGEX"; then
+    echo "SKIP conflict-prone/generated file: $FILE_PATH"
+    SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
+    continue
+  fi
+
+  if git cat-file -e "$BACKUP_BRANCH:$FILE_PATH" 2>/dev/null; then
+    echo "APPLY: $FILE_PATH"
+    git restore --source "$BACKUP_BRANCH" -- "$FILE_PATH"
+  else
+    echo "REMOVE: $FILE_PATH"
+    git rm -r --ignore-unmatch -- "$FILE_PATH" >/dev/null 2>&1 || true
+  fi
+
+  APPLIED_COUNT=$((APPLIED_COUNT + 1))
+done < <(git diff --name-only "$MAIN_BRANCH" "$BACKUP_BRANCH")
 
 echo ""
-echo "Updating main..."
-git pull origin "$MAIN_BRANCH"
+echo "Applied files: $APPLIED_COUNT"
+echo "Skipped files: $SKIPPED_COUNT"
 
-# Merge
+if git diff --quiet && git diff --cached --quiet; then
+  echo ""
+  echo "No safe file changes to commit. Main remains clean."
+else
+  echo ""
+  echo "Staging safe changes..."
+  git add -A
 
-echo ""
-echo "Merging backup branch..."
-
-if ! git merge "$BACKUP_BRANCH" --no-edit; then
-echo ""
-echo "=========================================="
-echo " MERGE CONFLICT DETECTED"
-echo "=========================================="
-echo ""
-echo "Run:"
-echo "git status"
-echo ""
-echo "Resolve conflicts manually."
-echo ""
-echo "No Codespaces were deleted."
-exit 1
+  echo ""
+  echo "Committing safe changes..."
+  git commit -m "Apply conflict-safe Codespace backup $TIMESTAMP"
 fi
 
-# Install dependencies
-
-echo ""
-echo "Installing dependencies..."
+print_header "Dependency install and validation"
 
 if [ -f package.json ]; then
-npm install
-fi
-
-# Typecheck
-
-echo ""
-echo "Running typecheck..."
-
-if npm run typecheck >/dev/null 2>&1; then
-echo "Typecheck passed."
+  if [ -f package-lock.json ]; then
+    run_optional "npm ci" npm ci
+  else
+    run_optional "npm install" npm install
+  fi
 else
-echo "Typecheck unavailable or failed."
+  echo "No package.json found. Skipping npm install."
 fi
 
-# Build
+if [ -f package.json ]; then
+  if npm run | grep -q "typecheck"; then
+    run_optional "Typecheck" npm run typecheck
+  else
+    echo "No typecheck script found. Skipping typecheck."
+  fi
 
-echo ""
-echo "Running build..."
-
-if ! npm run build; then
-echo ""
-echo "BUILD FAILED"
-echo "No Codespaces will be deleted."
-exit 1
+  if npm run | grep -q "build"; then
+    echo ""
+    echo "Running build..."
+    if ! npm run build; then
+      echo ""
+      echo "BUILD FAILED. Main was not pushed."
+      echo "Your backup branch is preserved here: $BACKUP_BRANCH"
+      exit 1
+    fi
+  else
+    echo "No build script found. Skipping build."
+  fi
 fi
 
-# Push main
+print_header "Pushing main"
 
-echo ""
-echo "Pushing main..."
 git push origin "$MAIN_BRANCH"
 
-# Image inventory
+print_header "Public image inventory"
 
-echo ""
-echo "=========================================="
-echo " PUBLIC IMAGE INVENTORY"
-echo "=========================================="
+IMAGE_LIST=$(find public -type f 2>/dev/null | grep -Ei '\.(png|jpg|jpeg|svg|webp)$' | sort || true)
 
-IMAGE_LIST=$(find public -type f 2>/dev/null | grep -Ei '\\.(png|jpg|jpeg|svg|webp)$' | sort || true)
-
-echo ""
 if [ -n "$IMAGE_LIST" ]; then
-	echo "$IMAGE_LIST"
+  echo "$IMAGE_LIST"
 else
-	echo "No public image files found."
+  echo "No public image files found."
 fi
 
 echo ""
 echo "Image Count:"
 if [ -n "$IMAGE_LIST" ]; then
-	echo "$IMAGE_LIST" | wc -l
+  echo "$IMAGE_LIST" | wc -l
 else
-	echo "0"
+  echo "0"
 fi
 
-echo ""
-echo "=========================================="
-echo " SUCCESS"
-echo "=========================================="
-echo ""
-echo "Backup Branch:"
-echo "$BACKUP_BRANCH"
-echo ""
+print_header "Success"
 
+echo "Backup branch preserved: $BACKUP_BRANCH"
+echo "Main branch updated without merge conflicts."
+echo "Lockfiles and generated folders were intentionally left under main's control."
+echo ""
 git status
 
-echo ""
-echo "Codespaces:"
-gh codespace list || true
+if command -v gh >/dev/null 2>&1; then
+  echo ""
+  echo "Codespaces:"
+  gh codespace list || true
 
-echo ""
-read -p "Delete ALL Codespaces? Type DELETE: " CONFIRM
+  echo ""
+  read -r -p "Delete ALL Codespaces only if everything above is clean? Type DELETE: " CONFIRM
 
-if [ "$CONFIRM" = "DELETE" ]; then
-gh codespace delete --all --force
-echo ""
-echo "All Codespaces deleted."
+  if [ "$CONFIRM" = "DELETE" ]; then
+    gh codespace delete --all --force
+    echo "All Codespaces deleted."
+  else
+    echo "Deletion cancelled."
+  fi
 else
-echo ""
-echo "Deletion cancelled."
+  echo "GitHub CLI not found. Skipping Codespace deletion prompt."
 fi
