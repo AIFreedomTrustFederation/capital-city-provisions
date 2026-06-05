@@ -1,3 +1,5 @@
+import QuickRouteCapture from '../components/QuickRouteCapture';
+
 const trust=[
   {title:'Ranch Direct',text:'Premium proteins sourced from trusted American producers.'},
   {title:'Freezer Ready',text:'Curated boxes built for real households and long-term stocking.'},
@@ -34,7 +36,8 @@ export default function Home(){return <main className="site landing-page">
       <p className="eyebrow">Capital City Provisions</p>
       <h1>Premium Meat Delivery & Freezer Boxes</h1>
       <p className="lead">Ranch-direct beef, poultry, pork, seafood, and family freezer boxes delivered with care across local delivery routes.</p>
-      <div className="actions hero-actions"><a href="/freezer-boxes">Reserve Freezer Box</a><a href="/delivery-map">Check My Route</a></div>
+      <div className="actions hero-actions"><a href="/freezer-boxes">Reserve Freezer Box</a><a href="#quick-route">Check My Route</a></div>
+      <QuickRouteCapture />
       <div className="hero-stats" aria-label="Service highlights">
         <span><strong>4</strong> freezer box sizes</span>
         <span><strong>4</strong> local routes</span>
@@ -81,5 +84,5 @@ export default function Home(){return <main className="site landing-page">
     <a href="/wholesale">Apply For Wholesale</a>
   </section>
 
-  <section className="cta poster-frame final-cta"><p className="eyebrow">Find Your Box</p><h2>Start with a route check and a freezer plan.</h2><p>Use the Box Concierge or reserve a freezer box to get matched with the right delivery route.</p><div className="actions"><a href="/freezer-boxes">Reserve Freezer Box</a><a href="/delivery-map">Check My Route</a></div></section>
+  <section className="cta poster-frame final-cta"><p className="eyebrow">Find Your Box</p><h2>Start with a route check and a freezer plan.</h2><p>Use the Box Concierge or reserve a freezer box to get matched with the right delivery route.</p><div className="actions"><a href="/freezer-boxes">Reserve Freezer Box</a><a href="#quick-route">Check My Route</a></div></section>
 </main>}
