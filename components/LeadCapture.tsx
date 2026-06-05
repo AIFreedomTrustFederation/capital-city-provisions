@@ -2,14 +2,14 @@
 import {useEffect,useState} from 'react';
 
 const steps=[
-  {key:'interest',bot:"Hi, I'm the Capital City Provisions concierge. What brings you here today?",type:'select',options:['Family Freezer Box','Steak Lovers Club','Surf & Turf Club','Wholesale Account','Custom Freezer Restock']},
+  {key:'address',bot:'What delivery ZIP code should we check first?',type:'text',placeholder:'ZIP code or delivery area'},
   {key:'familySize',bot:'How many people are you feeding?',type:'select',options:['1-2 people','3-4 people','5-6 people','7+ people','Wholesale / Event']},
+  {key:'name',bot:'Great. What name should we put on the route request?',type:'text',placeholder:'Full name'},
+  {key:'email',bot:'What email should we send freezer-box details to?',type:'email',placeholder:'Email address'},
+  {key:'phone',bot:'What phone number can we use for delivery follow-up?',type:'tel',placeholder:'Phone number'},
+  {key:'interest',bot:'Now let us match the right box. What brings you here today?',type:'select',options:['Family Freezer Box','Steak Lovers Club','Surf & Turf Club','Wholesale Account','Custom Freezer Restock']},
   {key:'proteins',bot:'Which proteins do you want most?',type:'select',options:['Mostly Beef','Beef + Chicken','Surf & Turf','Mixed Family Pack','Pork + Ribs','Custom Mix']},
   {key:'budget',bot:'What monthly freezer budget feels comfortable?',type:'select',options:['$200-$300','$300-$500','$500-$750','$750-$1,000','$1,000+']},
-  {key:'name',bot:'Perfect. What name should we put on the early access list?',type:'text',placeholder:'Full name'},
-  {key:'email',bot:'What email should we send launch details to?',type:'email',placeholder:'Email address'},
-  {key:'phone',bot:'What phone number can we use for delivery follow-up?',type:'tel',placeholder:'Phone number'},
-  {key:'address',bot:'What delivery ZIP code or address should we check?',type:'text',placeholder:'ZIP code or delivery area'},
   {key:'message',bot:'Anything specific you want us to know?',type:'text',placeholder:'Favorite cuts, family needs, wholesale details...'}
 ];
 
@@ -55,15 +55,15 @@ export default function LeadCapture(){
       setError('We saved this on your device, but the lead did not reach the server. Please try again or use the contact page.');
     }finally{setSending(false)}
   }
-  function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(step===3)setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(v));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
+  function next(v=value){const current=steps[step];const updated={...data,[current.key]:v};setData(updated);setValue('');if(current.key==='familySize')setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(v));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
   return <>
     <style>{`@media(max-width:760px){.landing-art{max-height:158px!important}.landing-art img{aspect-ratio:2.25/1!important;max-height:138px!important;object-position:center 36%!important}.lead-tab{left:auto!important;right:14px!important;bottom:14px!important;width:auto!important;min-width:142px!important;padding:13px 18px!important;border-radius:999px!important}.lead-modal{padding-bottom:20px!important}}`}</style>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
-    <button className="lead-tab" onClick={()=>setOpen(true)}>Find My Box</button>
+    <button className="lead-tab" onClick={()=>setOpen(true)}>Build My Box</button>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
       <button className="lead-close" onClick={()=>setOpen(false)} aria-label="Close concierge">x</button>
-      <p className="eyebrow">Route Concierge</p><h2>Find your freezer box and delivery route.</h2>
+      <p className="eyebrow">Route Concierge</p><h2>Check your route and build your box.</h2>
       <div className="chat-window">
         <div className="chat-bubble bot">{sent?'Your freezer-box request was received. We will use your route and box details for follow-up.':sending?'Sending your freezer-box request...':current.bot}</div>
         {Object.entries(data).map(([k,v])=><div className="chat-bubble user" key={k}>{v}</div>)}
