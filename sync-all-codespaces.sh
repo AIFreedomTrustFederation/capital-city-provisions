@@ -128,24 +128,22 @@ echo "=========================================="
 echo " PUBLIC IMAGE INVENTORY"
 echo "=========================================="
 
-find public -type f 
-( -iname "*.png" 
--o -iname "*.jpg" 
--o -iname "*.jpeg" 
--o -iname "*.svg" 
--o -iname "*.webp" ) 
-| sort || true
+IMAGE_LIST=$(find public -type f 2>/dev/null | grep -Ei '\\.(png|jpg|jpeg|svg|webp)$' | sort || true)
+
+echo ""
+if [ -n "$IMAGE_LIST" ]; then
+	echo "$IMAGE_LIST"
+else
+	echo "No public image files found."
+fi
 
 echo ""
 echo "Image Count:"
-
-find public -type f 
-( -iname "*.png" 
--o -iname "*.jpg" 
--o -iname "*.jpeg" 
--o -iname "*.svg" 
--o -iname "*.webp" ) 
-| wc -l || true
+if [ -n "$IMAGE_LIST" ]; then
+	echo "$IMAGE_LIST" | wc -l
+else
+	echo "0"
+fi
 
 echo ""
 echo "=========================================="
