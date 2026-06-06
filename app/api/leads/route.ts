@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createOrder } from '../../../lib/ccp-database';
 
 type Lead = Record<string, any>;
 
@@ -123,6 +124,28 @@ function buildSheetRow(lead: Lead, routing: LeadRouting) {
   };
 }
 
+function lifecycleFromLead(lead: Lead, routing: LeadRouting) {
+  if (routing.bucket === 'giveaway' || routing.bucket === 'support' || routing.bucket === 'general') return null;
+  const budgetText = clean(lead.estimatedBudget || lead.budget);
+  const budgetMatch = budgetText.match(/\$?([0-9,]+)/g)?.pop()?.replace(/[$,]/g, '');
+  const value = Number(budgetMatch || 0) || (routing.bucket === 'wholesale' ? 1000 : 500);
+  return createOrder({
+    customerName: clean(lead.name) || 'New Lead',
+    phone: clean(lead.phone),
+    zip: clean(lead.zip || lead.address),
+    routeId: clean(lead.route)?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'route-intake',
+    box: clean(lead.recommendation || lead.interest) || 'Freezer Box',
+    status: routing.bucket === 'waitlist-route' ? 'quoted' : 'ordered',
+    fulfillment: 'pending',
+    value,
+    deliveryDate: clean(lead.deliveryDay) || 'TBD',
+    deliveryWindow: clean(lead.deliveryWindow) || 'TBD',
+    products: clean(lead.proteins).split(',').filter(Boolean).map((protein, index) => ({ sku: `LEAD-${index + 1}`, name: protein.trim(), qty: 1, unit: 'preference', fulfilled: 0 })),
+    notes: clean(lead.message),
+    promo: clean(lead.promoCode),
+  });
+}
+
 async function postJson(url: string | undefined, body: unknown) {
   if (!url) return { configured: false, ok: false };
 
@@ -141,9 +164,10 @@ export async function POST(request: Request) {
     const createdAt = new Date().toISOString();
     const enrichedLead = { createdAt, source: 'capital-city-provisions-site', ...lead };
     const routing = classifyLead(enrichedLead);
+    const lifecycleOrder = lifecycleFromLead(enrichedLead, routing);
     const ownerText = buildOwnerText(enrichedLead, routing);
-    const sheetRow = buildSheetRow(enrichedLead, routing);
-    const payload = { ...enrichedLead, routing, ownerText, sheetRow };
+    const sheetRow = { ...buildSheetRow(enrichedLead, routing), lifecycleOrderId: lifecycleOrder?.id || '' };
+    const payload = { ...enrichedLead, routing, ownerText, sheetRow, lifecycleOrder };
 
     const [ownerWebhook, sheetWebhook] = await Promise.allSettled([
       postJson(process.env.LEADS_WEBHOOK_URL, {
@@ -160,6 +184,7 @@ export async function POST(request: Request) {
       message: 'Lead received',
       lead: payload,
       routing,
+      lifecycleOrder,
       notifications: {
         ownerWebhook: ownerWebhook.status === 'fulfilled' ? ownerWebhook.value : { configured: !!process.env.LEADS_WEBHOOK_URL, ok: false },
         googleSheets: sheetWebhook.status === 'fulfilled' ? sheetWebhook.value : { configured: !!process.env.LEADS_GOOGLE_SHEETS_WEBHOOK_URL, ok: false },
