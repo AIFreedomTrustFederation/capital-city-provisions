@@ -4,7 +4,8 @@ import {useMemo,useState} from 'react';
 type ChatMessage={role:'user'|'assistant'|'system';content:string};
 type LocalAIConciergeProps={context?:Record<string,any>};
 
-const MODEL_ID='Llama-3.2-1B-Instruct-q4f16_1-MLC';
+const PREFERRED_MODELS=['Llama-3.2-1B-Instruct-q4f16_1-MLC','Qwen2.5-1.5B-Instruct-q4f16_1-MLC','Phi-3.5-mini-instruct-q4f16_1-MLC','Llama-3.1-8B-Instruct-q4f16_1-MLC'];
+const FALLBACK_MODEL='Llama-3.1-8B-Instruct-q4f16_1-MLC';
 const FALLBACK_ANSWERS=[
   ['giveaway','The freezer giveaway is free to enter. No purchase is necessary, and buying does not improve your odds. The cheesecake offer is separate.'],
   ['cheesecake','The cheesecake thank-you gift is a limited order bonus for qualifying first freezer-box orders reserved within 48 hours of a route check, while supplies last.'],
@@ -14,6 +15,12 @@ const FALLBACK_ANSWERS=[
 ];
 
 function webGpuSupported(){return typeof navigator!=='undefined'&&'gpu' in navigator;}
+
+function chooseModel(webllm:any){
+  const models=webllm?.prebuiltAppConfig?.model_list||[];
+  const ids=models.map((model:any)=>model?.model_id).filter(Boolean);
+  return PREFERRED_MODELS.find(id=>ids.includes(id))||ids.find((id:string)=>/1b|1\.5b|phi|smol/i.test(id)&&/instruct/i.test(id))||ids.find((id:string)=>/instruct/i.test(id))||FALLBACK_MODEL;
+}
 
 function fallbackReply(prompt:string,context:Record<string,any>){
   const lower=prompt.toLowerCase();
@@ -34,6 +41,7 @@ export default function LocalAIConcierge({context={}}:LocalAIConciergeProps){
   const [input,setInput]=useState('What freezer box should I start with?');
   const [messages,setMessages]=useState<ChatMessage[]>([{role:'assistant',content:'I can help pick a box, explain your route, and keep the cheesecake offer and giveaway rules clear. I run locally when your browser supports WebGPU.'}]);
   const [mode,setMode]=useState<'rules'|'local-ai'>('rules');
+  const [modelName,setModelName]=useState('Not loaded');
   const aiContext=useMemo(()=>context,[context]);
 
   async function startLocalAI(){
@@ -41,7 +49,9 @@ export default function LocalAIConcierge({context={}}:LocalAIConciergeProps){
     setLoading(true);setStatus('Loading open-source local model on this device...');
     try{
       const webllm=await import('@mlc-ai/web-llm');
-      const nextEngine=await webllm.CreateMLCEngine(MODEL_ID,{initProgressCallback:(report:any)=>setStatus(report?.text||'Preparing local AI model...')});
+      const selectedModel=chooseModel(webllm);
+      setModelName(selectedModel);
+      const nextEngine=await webllm.CreateMLCEngine(selectedModel,{initProgressCallback:(report:any)=>setStatus(report?.text||'Preparing local AI model...')});
       setEngine(nextEngine);setReady(true);setMode('local-ai');setStatus('Local AI ready. No API key or external AI server is being used for chat.');
     }catch(error){
       setStatus('Local model could not load on this device. Rules mode is active.');setMode('rules');
@@ -67,10 +77,10 @@ export default function LocalAIConcierge({context={}}:LocalAIConciergeProps){
 
   return <section className="local-ai-panel">
     <div className="local-ai-head"><div><p className="eyebrow">Local AI Concierge</p><h3>Open-source AI built into the website.</h3><p>Runs in-browser with WebGPU when available. Falls back to the site rules when a device cannot load the model.</p></div><button onClick={startLocalAI} disabled={loading||ready}>{ready?'AI Ready':loading?'Loading...':'Start Local AI'}</button></div>
-    <div className="ai-status"><span>{mode==='local-ai'?'Local LLM':'Rules Mode'}</span><p>{status}</p></div>
+    <div className="ai-status"><span>{mode==='local-ai'?'Local LLM':'Rules Mode'}</span><p>{status}</p><p>Model: {modelName}</p></div>
     <div className="local-ai-chat">{messages.map((m,index)=><div key={index} className={`ai-bubble ${m.role}`}>{m.content}</div>)}</div>
     <form onSubmit={ask} className="local-ai-input"><input value={input} onChange={e=>setInput(e.target.value)} placeholder="Ask about boxes, routes, giveaway, cheesecake, or wholesale..."/><button type="submit">Ask</button></form>
-    <div className="ai-prompts"><button onClick={()=>setInput('Can I enter the giveaway without buying?')}>Giveaway</button><button onClick={()=>setInput('Which freezer box fits a family of five?')}>Family box</button><button onClick={()=>setInput('How does the cheesecake offer work?')}>Cheesecake</button><button onClick={()=>setInput('I run a food truck. What should I do?')}>Wholesale</button></div>
+    <div className="ai-prompts"><button type="button" onClick={()=>setInput('Can I enter the giveaway without buying?')}>Giveaway</button><button type="button" onClick={()=>setInput('Which freezer box fits a family of five?')}>Family box</button><button type="button" onClick={()=>setInput('How does the cheesecake offer work?')}>Cheesecake</button><button type="button" onClick={()=>setInput('I run a food truck. What should I do?')}>Wholesale</button></div>
     <style>{`.local-ai-panel{display:grid;gap:14px;border:1px solid #b8892d88;border-radius:22px;background:linear-gradient(180deg,#090706,#130a06);padding:16px;box-shadow:inset 0 0 0 1px #f8e7b014}.local-ai-head{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start}.local-ai-head h3{margin:0;color:#f8e7b0}.local-ai-head p{margin:6px 0 0!important}.local-ai-head button,.local-ai-input button,.ai-prompts button{border:1px solid #f8e7b0;background:linear-gradient(135deg,#facc15,#a16207);color:#160b04;border-radius:999px;padding:11px 14px;font-weight:900}.local-ai-head button:disabled{opacity:.7}.ai-status{border:1px solid #b8892d66;border-radius:16px;padding:10px;background:#050403}.ai-status span{color:#d4af37;font-weight:900}.ai-status p{margin:4px 0 0!important;font-size:.9rem!important}.local-ai-chat{display:grid;gap:9px;max-height:260px;overflow:auto;padding-right:4px}.ai-bubble{border:1px solid #b8892d55;border-radius:16px;padding:10px 12px;line-height:1.45}.ai-bubble.user{margin-left:10%;background:#1f1409;color:#fff7ed}.ai-bubble.assistant{margin-right:10%;background:#050403;color:#ded2bd}.local-ai-input{display:grid;grid-template-columns:1fr auto;gap:10px}.local-ai-input input{min-width:0;border:1px solid #b8892d;background:#050403;color:#fff7ed;border-radius:999px;padding:13px 15px;font:inherit}.ai-prompts{display:flex;flex-wrap:wrap;gap:8px}.ai-prompts button{padding:9px 11px;background:#080605;color:#f8e7b0;border-color:#d4af37}@media(max-width:760px){.local-ai-head,.local-ai-input{grid-template-columns:1fr}.local-ai-head button,.local-ai-input button{width:100%}.ai-bubble.user,.ai-bubble.assistant{margin-left:0;margin-right:0}}`}</style>
   </section>
 }
