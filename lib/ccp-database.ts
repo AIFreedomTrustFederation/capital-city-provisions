@@ -1,3 +1,4 @@
+import { buildKnowledgeContext } from './ai-knowledge';
 import { customerSnapshot, driverSnapshot, ownerSnapshot, opsOrders, opsRoutes } from './ops-memory';
 
 export type LifecycleStatus='lead'|'quoted'|'ordered'|'paid'|'scheduled'|'packed'|'loaded'|'out-for-delivery'|'partially-fulfilled'|'delivered'|'issue'|'restock-needed'|'cancelled';
@@ -141,5 +142,5 @@ export function aiTrainingDataset(input:DatabaseInput={}){
 
 export function fullSystemSnapshot(input:DatabaseInput={}){
   const mode=input.mode||'live';
-  return {...ownerSnapshot(),mode,database:getDatabase({mode}),orderLifecycle:getOrderLifecycle(undefined,{mode}),ownerReport:generateOwnerReport({mode}),trainingDataset:aiTrainingDataset({mode}),sampleAvailable:true,customerSample:customerSnapshot(),driverSample:driverSnapshot()};
+  return {...ownerSnapshot(),mode,database:getDatabase({mode}),orderLifecycle:getOrderLifecycle(undefined,{mode}),ownerReport:generateOwnerReport({mode}),trainingDataset:aiTrainingDataset({mode}),aiKnowledge:buildKnowledgeContext('owner'),sampleAvailable:true,customerSample:customerSnapshot(),driverSample:driverSnapshot()};
 }
