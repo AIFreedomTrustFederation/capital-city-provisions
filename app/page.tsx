@@ -1,10 +1,10 @@
 import QuickRouteCapture from '../components/QuickRouteCapture';
 
 const trust=[
-  {title:'Ranch Direct',text:'Premium proteins sourced from trusted American producers.'},
-  {title:'Freezer Ready',text:'Curated boxes built for real households and long-term stocking.'},
-  {title:'Route Delivery',text:'Grouped local routes keep delivery practical, reliable, and fresh.'},
-  {title:'Wholesale Capable',text:'Recurring provisioning for restaurants, caterers, churches, and events.'}
+  {title:'Premium American Protein',text:'Beef, poultry, pork, seafood, and freezer-box staples sourced for quality and consistency.'},
+  {title:'Hand Trimmed',text:'Portion-controlled cuts prepared around real family meals and freezer confidence.'},
+  {title:'Refrigerated Route Delivery',text:'Grouped local routes keep delivery practical, reliable, and fresh across the Sacramento region.'},
+  {title:'Food Security Ready',text:'Household and wholesale plans built for everyday meals, events, and long-term stocking.'}
 ];
 
 const boxes=[
@@ -22,7 +22,7 @@ const proteins=[
 
 const routes=[
   {area:'Roseville',status:'Confirmed route',day:'Wednesday'},
-  {area:'Rocklin / Lincoln',status:'Almost full',day:'Thursday'},
+  {area:'Rocklin / Lincoln',status:'Only a few delivery slots remaining',day:'Thursday'},
   {area:'Fair Oaks / Carmichael',status:'Collecting nearby orders',day:'Tuesday'},
   {area:'Folsom / Orangevale',status:'Building route',day:'Friday'}
 ];
@@ -30,17 +30,18 @@ const routes=[
 const steps=['Choose a freezer box','Check your route','Reserve your delivery','Stock your freezer'];
 
 export default function Home(){return <main className="site landing-page">
-  <section className="landing-hero poster-frame">
+  <section className="landing-hero poster-frame premium-orbit">
     <div className="hero-copy">
-      <p className="badge">Sacramento-area freezer box delivery</p>
+      <p className="badge">Sacramento-area premium protein delivery</p>
       <p className="eyebrow">Capital City Provisions</p>
-      <h1>Premium Meat Delivery & Freezer Boxes</h1>
-      <p className="lead">Ranch-direct beef, poultry, pork, seafood, and family freezer boxes delivered with care across local delivery routes.</p>
+      <h1><span className="gold-text">Premium Proteins.</span><br/>Delivered With A Heartbeat.</h1>
+      <p className="lead">Hand-trimmed, portion-controlled beef, chicken, pork, seafood, and freezer boxes delivered with warm local service across Sacramento-area routes.</p>
+      <p className="heartbeat-line">Hand Trimmed • Portion Controlled • Freezer Ready</p>
       <div className="actions hero-actions"><a href="/freezer-boxes">Reserve Freezer Box</a><a href="#quick-route">Check My Route</a></div>
       <QuickRouteCapture />
       <div className="hero-stats" aria-label="Service highlights">
         <span><strong>4</strong> freezer box sizes</span>
-        <span><strong>4</strong> local routes</span>
+        <span><strong>Route</strong> local delivery</span>
         <span><strong>Bulk</strong> wholesale support</span>
       </div>
     </div>
@@ -55,8 +56,8 @@ export default function Home(){return <main className="site landing-page">
   <section className="section landing-section" id="boxes">
     <div className="section-heading">
       <p className="eyebrow">Freezer Boxes</p>
-      <h2>Pick the box that fits your household.</h2>
-      <p className="lead">Every box is positioned around practical freezer confidence: the right amount of premium protein, ready when your family needs it.</p>
+      <h2>Fill your freezer with confidence.</h2>
+      <p className="lead">Every box is built around practical food security: premium protein, clean portions, and a delivery route your household can count on.</p>
     </div>
     <div className="box-grid">{boxes.map((box)=><article key={box.name} className="marble box-card">
       <img src={box.image} alt={`${box.name} freezer provisioning option`}/>
@@ -70,7 +71,7 @@ export default function Home(){return <main className="site landing-page">
   </section>
 
   <section className="section route-section" id="delivery">
-    <div className="route-copy"><p className="eyebrow">Delivery Areas</p><h2>Route-based delivery keeps promises realistic.</h2><p className="lead">Customers can see whether a route is confirmed, almost full, or still collecting nearby orders before reserving a box.</p><div className="actions"><a href="/delivery-map">See Delivery Map</a><a href="/contact">Ask About My Area</a></div></div>
+    <div className="route-copy"><p className="eyebrow">Delivery Areas</p><h2>Route-based delivery keeps promises realistic.</h2><p className="lead">Customers can see whether a route is confirmed, nearly full, or still collecting nearby orders before reserving a box.</p><div className="actions"><a href="/delivery-map">See Delivery Map</a><a href="/contact">Ask About My Area</a></div></div>
     <div className="route-list">{routes.map((route)=><article key={route.area}><h3>{route.area}</h3><p>{route.status}</p><strong>{route.day}</strong></article>)}</div>
   </section>
 
@@ -80,7 +81,7 @@ export default function Home(){return <main className="site landing-page">
   </section>
 
   <section className="section wholesale-panel">
-    <div><p className="eyebrow">Wholesale</p><h2>Provision serious kitchens, churches, caterers, lodges, food trucks, and events.</h2><p className="lead">Recurring accounts can request pricing, availability, delivery planning, and bulk freezer support.</p></div>
+    <div><p className="eyebrow">Wholesale</p><h2>Wholesale protein supply solutions.</h2><p className="lead">Provision serious kitchens, churches, caterers, lodges, food trucks, corporate events, and community accounts with recurring availability and route planning.</p></div>
     <a href="/wholesale">Apply For Wholesale</a>
   </section>
 
