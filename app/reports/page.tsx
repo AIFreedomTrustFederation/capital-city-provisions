@@ -1,1 +1,6 @@
-export default function Reports(){return <main className="site"><section className="section"><p className="eyebrow">Owner Reports</p><h1>Business Command Center</h1><p className="lead">Monitor route performance, inventory health, truck utilization, and revenue trends.</p><div className="grid"><article><h3>Weekly Revenue</h3><p>$12,450</p></article><article><h3>Truck Utilization</h3><p>87%</p></article><article><h3>Inventory Health</h3><p>92%</p></article><article><h3>Lead Conversion</h3><p>31%</p></article></div></section><section className="section"><p className="eyebrow">Operations Metrics</p><h2>Profit-first delivery.</h2><div className="grid"><article className="marble"><h3>Best Route</h3><p>Roseville</p><p>$5,100 revenue</p></article><article className="marble"><h3>Inventory Risk</h3><p>Seafood</p><p>Restock soon</p></article><article className="marble"><h3>Route Fill</h3><p>80% average</p></article><article className="marble"><h3>Dispatch Readiness</h3><p>3 routes ready</p></article></div></section></main>}
+import RoleAIWorkspace from '../../components/RoleAIWorkspace';
+import { ownerSnapshot } from '../../lib/ops-memory';
+
+export const metadata={title:'Reports | Capital City Provisions',description:'Daily reports, route learning, order exports, driver turn-ins, and owner priorities.'};
+
+export default function ReportsPage(){return <RoleAIWorkspace role="owner" title="Reports And Route Learning" subtitle="Turn daily activity into clear owner reports, route training notes, exports, and next actions." memory={ownerSnapshot()}/>}
