@@ -60,10 +60,12 @@ export default function Footer(){return <footer className="footer">
       <p className="footer-note">No purchase necessary for giveaway entry. Cheesecake order bonuses are separate from giveaway odds.</p>
     </section>
     <nav className="footer-grid" aria-label="Footer navigation">
-      {sections.map(section=><div className="footer-section" key={section.title}>
+      {sections.map(section=><section className="footer-column" key={section.title} aria-label={section.title}>
         <h3>{section.title}</h3>
-        {section.links.map(([label,href])=><a key={href} href={href}>{label}</a>)}
-      </div>)}
+        <ul>
+          {section.links.map(([label,href])=><li key={href}><a href={href}>{label}</a></li>)}
+        </ul>
+      </section>)}
     </nav>
   </div>
 </footer>}
