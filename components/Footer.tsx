@@ -7,4 +7,4 @@ const links=[
   ['Wholesale','/wholesale']
 ];
 
-export default function Footer(){return <footer className="footer"><p>Capital City Provisions</p><p>Premium ranch quality, modern convenience, and practical food security.</p><div className="footer-links">{links.map(([label,href])=><a key={href} href={href}>{label}</a>)}</div><p>AI box planning support available through the on-site Box Concierge.</p></footer>}
+export default function Footer(){return <footer className="footer"><p>Capital City Provisions</p><p>Premium ranch quality, modern convenience, and practical food security.</p><p>{links.map(([label,href],index)=><span key={href}>{index>0?' | ':''}<a href={href}>{label}</a></span>)}</p><p>AI box planning support available through the on-site Box Concierge.</p></footer>}
