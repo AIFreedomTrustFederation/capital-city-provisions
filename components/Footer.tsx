@@ -5,23 +5,23 @@ const sections=[
   {
     title:'Shop By Need',
     links:[
-      ['Freezer Boxes','/freezer-boxes'],
-      ['Family Freezer Boxes','/family-freezer-boxes'],
+      ['Home Stock Boxes','/freezer-boxes'],
+      ['Family Boxes','/family-freezer-boxes'],
       ['Steak Delivery','/steak-delivery'],
-      ['Food Security Plans','/food-security-freezer-boxes']
+      ['Prepared Households','/food-security-freezer-boxes']
     ]
   },
   {
-    title:'Delivery And Routes',
+    title:'Delivery',
     links:[
-      ['How Delivery Works','/how-delivery-works'],
-      ['Delivery Area','/delivery-map'],
+      ['How It Works','/how-delivery-works'],
+      ['Delivery Areas','/delivery-map'],
       ['Meat Delivery Sacramento','/meat-delivery-sacramento'],
       ['Beef Delivery Sacramento','/beef-delivery-sacramento']
     ]
   },
   {
-    title:'Business Accounts',
+    title:'Business',
     links:[
       ['Wholesale Supply','/wholesale'],
       ['Wholesale Sacramento','/wholesale-meat-supplier-sacramento'],
@@ -29,9 +29,9 @@ const sections=[
     ]
   },
   {
-    title:'Trust And Help',
+    title:'Help',
     links:[
-      ['About / Founder Story','/about'],
+      ['About','/about'],
       ['Reviews','/reviews'],
       ['FAQ','/faq'],
       ['Contact','/contact']
@@ -68,8 +68,8 @@ export default function Footer(){
     <div className="footer-inner">
       <section className="footer-brand" aria-label="Capital City Provisions summary">
         <p className="footer-logo">Capital City Provisions</p>
-        <p>Premium ranch quality, modern convenience, practical food security, and ethical local route incentives for Sacramento-area families and partners.</p>
-        <p className="footer-note">No purchase necessary for giveaway entry. Cheesecake order bonuses are separate from giveaway odds.</p>
+        <p>Curated cuts, smarter delivery, and stocked-home planning for Sacramento-area families, kitchens, and community buyers.</p>
+        <p className="footer-note">No purchase necessary for giveaway entry. Cheesecake bonuses are separate from giveaway odds.</p>
       </section>
       <nav className="footer-grid" aria-label="Footer navigation">
         {sections.map(section=><section className={open[section.title]?'footer-column open':'footer-column'} key={section.title} aria-label={section.title}>
