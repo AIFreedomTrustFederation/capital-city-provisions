@@ -2,6 +2,55 @@ import AccessGate from '../../components/AccessGate';
 import RoleAIWorkspace from '../../components/RoleAIWorkspace';
 import { fullSystemSnapshot } from '../../lib/ccp-database';
 
-export const metadata={title:'Owner Command Center | Capital City Provisions',description:'Owner AI workspace for orders, routes, reports, driver turn-ins, lead priority, route learning, and system database records.'};
+export const metadata={title:'Owner Command Center | Capital City Provisions',description:'Owner workspace for live orders, route health, profit signals, restock risk, driver turn-ins, reports, exports, and AI route learning.'};
 
-export default function OwnerPage(){return <AccessGate role="owner"><RoleAIWorkspace role="owner" title="Owner Command Center" subtitle="Chat with orders, routes, reports, turn-ins, lifecycle records, restock issues, route learning notes, and daily priorities from one place." memory={fullSystemSnapshot()}/></AccessGate>}
+function money(value:number){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(value||0)}
+
+export default function OwnerPage(){
+  const live=fullSystemSnapshot();
+  const sample=fullSystemSnapshot({mode:'sample'});
+  const report=live.ownerReport;
+  const sampleReport=sample.ownerReport;
+  const liveCounts={customers:live.database.customers.length,orders:live.database.orders.length,turnIns:live.database.driverUpdates.length,issues:live.database.restockIssues.length,learning:live.database.learningEvents.length};
+  const hasLiveData=Object.values(liveCounts).some(Boolean);
+  return <AccessGate role="owner">
+    <main className="site page-flow ops-shell">
+      <section className="page-hero poster-frame ops-hero">
+        <div>
+          <p className="eyebrow">Owner command</p>
+          <h1>Run the day from one clean control room.</h1>
+          <p className="lead">Live customer intake, delivery routes, driver turn-ins, restock issues, profit signals, and AI learning notes stay separated from the public site.</p>
+          <div className="actions"><a href="#owner-ai">Open Owner AI</a><a href="#owner-report">Review Report</a></div>
+        </div>
+        <img src="/images/capital-city-hero.png" alt="Capital City Provisions owner command center"/>
+      </section>
+
+      <section className="section ops-grid" id="owner-report">
+        <div className="route-list ops-cards owner-summary">
+          <article><p className="eyebrow">Live orders</p><h3>{liveCounts.orders}</h3><p>{hasLiveData?'Real records are active in the live memory.':'Live database is ready and empty until real intake arrives.'}</p></article>
+          <article><p className="eyebrow">Revenue</p><h3>{money(report.revenue)}</h3><p>Estimated profit: {money(report.estimatedProfit)} at {report.margin}% margin.</p></article>
+          <article><p className="eyebrow">Restock risk</p><h3>{report.restockIssues}</h3><p>{report.ownerActions[0]}</p></article>
+          <article><p className="eyebrow">Training records</p><h3>{live.trainingDataset.records.length}</h3><p>Order, driver, and learning events become reviewed training material.</p></article>
+        </div>
+        <aside className="ops-side">
+          <p className="eyebrow">Sample mode</p>
+          <h2>{sample.database.orders.length} demo orders</h2>
+          <p>Use the sample database to practice routing, reports, and AI prompts without mixing demo data into live customer records.</p>
+          <p><strong>{money(sampleReport.revenue)}</strong> sample revenue scheduled.</p>
+        </aside>
+      </section>
+
+      <section className="section">
+        <p className="eyebrow">Owner workflow</p>
+        <h2>What the system should surface first.</h2>
+        <div className="route-list ops-cards">
+          {report.ownerActions.map(action=><article key={action}><h3>Action</h3><p>{action}</p></article>)}
+        </div>
+      </section>
+
+      <section id="owner-ai">
+        <RoleAIWorkspace role="owner" title="Owner AI Workspace" subtitle="Ask about orders, routes, driver turn-ins, restock issues, exports, profit, daily priorities, and route-learning signals." memory={live}/>
+      </section>
+    </main>
+  </AccessGate>
+}
