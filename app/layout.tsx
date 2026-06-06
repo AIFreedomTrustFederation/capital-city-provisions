@@ -1,6 +1,5 @@
 import './globals.css';
 import './premium.css';
-import './hero-fix.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import LeadCapture from '../components/LeadCapture';
