@@ -30,7 +30,11 @@ function fallbackRecommendation(input:ConciergeInput){
     const issueStops=stops.filter((stop:any)=>states?.[stop.id]?.status==='issue'||states?.[stop.id]?.fulfillment==='partial'||states?.[stop.id]?.fulfillment==='restock-blocked'||states?.[stop.id]?.issue);
     const nextStop=openStops.find((stop:any)=>states?.[stop.id]?.status==='out-for-delivery')||openStops.sort((a:any,b:any)=>(b.value||0)-(a.value||0))[0]||activeStop;
     const intent=clean(input.intent);
-    const driverAnswer=intent==='customerText'
+    const driverAnswer=intent==='driver-sales-route'
+      ? input.salesIntent==='queue'
+        ? `Queue guidance: confirm ${activeStop.customer||'the current stop'} is handled, then capture ${input.lead?.name||'the next lead'} with ZIP, protein interest, box size, callback time, and route fit. Reserve the next sale only after the customer understands final confirmation comes from the team.`
+        : `Sales script: keep it short and local. "Your area is already active on our route. I can note the box you want, queue the next freezer plan, and have the team confirm route timing and final details before anything is locked in."`
+      : intent==='customerText'
       ? `Text draft: Hi, this is Capital City Provisions. Your ${activeStop.box||'order'} is on today's ${activeStop.routeName||'route'}. We are heading your way in the ${activeStop.window||'delivery'} window. Reply with any gate, parking, or drop-off note.`
       : intent==='issue'
         ? issueStops.length?`Issue review: ${issueStops.map((stop:any)=>`${stop.id} ${stop.customer}: ${states?.[stop.id]?.fulfillment||'issue'} ${states?.[stop.id]?.issue||''}`.trim()).join(' | ')}`:'No issue stops are flagged yet. Mark partial, restock-blocked, or add a voice issue as soon as a shortage appears.'
