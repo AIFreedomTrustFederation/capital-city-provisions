@@ -1,17 +1,17 @@
 export const metadata={
   title:'Food Security Freezer Boxes | Capital City Provisions',
-  description:'Freezer stocking, emergency meal planning, monthly provisioning, and family food security boxes for Sacramento-area households.'
+  description:'Stocked-home planning, emergency meal support, monthly provisioning, and practical protein boxes for Sacramento-area households.'
 };
 
 const needs=[
-  {title:'Families',text:'Build a dependable protein reserve around weekly dinners, school nights, and fewer emergency grocery trips.'},
-  {title:'Emergency Meals',text:'Keep freezer-ready proteins available for power weeks, tight schedules, and household backup planning.'},
-  {title:'Monthly Provisioning',text:'Plan a recurring freezer cadence by budget, route, family size, and preferred proteins.'},
-  {title:'Freezer Planning',text:'Match the box size to freezer capacity so the order is useful, organized, and realistic.'}
+  {title:'Families',text:'Keep useful protein on hand for school nights, work weeks, and the nights nobody wants to shop.'},
+  {title:'Backup Meals',text:'Build a reliable reserve for schedule crunches, tighter weeks, and unexpected guests.'},
+  {title:'Monthly Planning',text:'Set a simple cadence around budget, household size, and the cuts you actually cook.'},
+  {title:'Space Strategy',text:'Match the order to available storage so the box is organized, useful, and easy to work through.'}
 ];
 
 export default function FoodSecurityFreezerBoxesPage(){return <main className="site page-flow">
-  <section className="page-hero poster-frame"><div><p className="eyebrow">Food Security</p><h1>Freezer stocking for families who plan ahead.</h1><p className="lead">Capital City Provisions helps households turn premium protein delivery into a practical food-security plan.</p><div className="actions"><a href="/family-freezer-boxes">View Freezer Boxes</a><a href="/#quick-route">Check My Route</a></div></div><img src="/images/freezer-rancher.png" alt="Food security freezer box"/></section>
-  <section className="section"><p className="eyebrow">Freezer Stocking</p><h2>Everyday meals and backup meals in one plan.</h2><div className="delivery-grid">{needs.map(need=><article key={need.title} className="marble"><h3>{need.title}</h3><p>{need.text}</p></article>)}</div></section>
-  <section className="cta poster-frame final-cta"><p className="eyebrow">Start Planning</p><h2>Use your ZIP and household size first.</h2><p>The Box Concierge captures route, family size, protein preferences, phone, and monthly budget for follow-up.</p><div className="actions"><a href="/#quick-route">Check My ZIP</a><a href="/freezer-boxes">Compare Boxes</a></div></section>
+  <section className="page-hero poster-frame"><div><p className="eyebrow">Food Security</p><h1>Stocked-home planning without the panic.</h1><p className="lead">A practical way to keep real meals available for busy weeks, emergencies, and long-range household planning.</p><div className="actions"><a href="/family-freezer-boxes">View Boxes</a><a href="/#quick-route">Check ZIP</a></div></div><img src="/images/freezer-rancher.png" alt="Stocked-home planning box"/></section>
+  <section className="section"><p className="eyebrow">Home Reserve</p><h2>Everyday meals and backup options in one system.</h2><div className="delivery-grid">{needs.map(need=><article key={need.title} className="marble"><h3>{need.title}</h3><p>{need.text}</p></article>)}</div></section>
+  <section className="cta poster-frame final-cta"><p className="eyebrow">Plan Ahead</p><h2>Start with ZIP, household size, and budget.</h2><p>The concierge captures the essentials so follow-up can be specific instead of generic.</p><div className="actions"><a href="/#quick-route">Check ZIP</a><a href="/freezer-boxes">Compare Boxes</a></div></section>
 </main>}
