@@ -12,20 +12,36 @@ The website now has a database-shaped operating system for the full customer-to-
 - Owner reports: revenue, estimated cost, estimated profit, margin, open orders, delivered orders, partial orders, restock issues, route efficiency, future restock, and owner actions.
 - AI learning events: route conversion notes, delivery notes, restock risk, customer signals, and owner-reviewed training records.
 
-## Current persistence mode
+## Live database vs sample database
 
-The current implementation uses a database adapter with seeded sample data and runtime memory. This proves the full workflow in Vercel without forcing a database vendor too early.
+The system now separates the real database from the sample database.
 
-For production persistence, connect this adapter to a central database such as Vercel Postgres, Supabase Postgres, Neon, or another SQL database. Vercel serverless functions cannot reliably write back to repository files at runtime, so a real shared database is required for live multi-user driver/owner/customer state.
+- The **live database starts empty** and should only contain real customer/order/driver/delivery records created by the system.
+- The **sample database** exists for testing screens, reports, driver updates, restock issues, and AI prompts.
+- `/system-database` shows live-empty mode.
+- `/system-database/sample` shows seeded sample mode.
+- `/api/db/orders`, `/api/db/driver-update`, `/api/db/reports`, and `/api/db/training` use live mode by default.
+- Add `?sample=1` to use demo data intentionally.
+
+## Open-source persistence target
+
+The repo now includes a PostgreSQL-compatible open-source schema:
+
+- `database/schema.sql` creates the live system database tables.
+- `database/seed-sample.sql` creates optional demo data only.
+- `database/README.md` explains live and sample modes.
+
+For production persistence, connect the database adapter to open-source PostgreSQL, self-hosted Supabase, Neon-compatible Postgres, or another Postgres-compatible database. Vercel serverless functions cannot reliably write live business records back into repository files at runtime, so a shared database is required for real multi-user customer/driver/owner state.
 
 ## Main files
 
-- `lib/ccp-database.ts` contains schema types, seeded data, lifecycle updates, reports, and training dataset generation.
+- `lib/ccp-database.ts` contains schema types, live/sample runtime stores, lifecycle updates, reports, and training dataset generation.
 - `/api/db/orders` creates and reads order lifecycle records.
 - `/api/db/driver-update` records driver delivery and fulfillment updates.
 - `/api/db/reports` generates owner reports and optional full training snapshots.
 - `/api/db/training` exports the AI training dataset.
-- `/system-database` provides the owner/driver command center UI.
+- `/system-database` provides the live owner/driver command center UI.
+- `/system-database/sample` provides the sample database UI.
 
 ## Learning loop
 
