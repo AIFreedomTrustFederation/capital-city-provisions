@@ -13,7 +13,12 @@ const links=[
   ['Reviews','/reviews'],
   ['FAQ','/faq'],
   ['Delivery Area','/delivery-map'],
-  ['AI Route Concierge','/ai-route-concierge']
+  ['Customer AI','/customer-concierge'],
+  ['AI Route Concierge','/ai-route-concierge'],
+  ['Ops Hub','/ops'],
+  ['Driver Ops','/driver'],
+  ['Owner Command','/owner'],
+  ['Reports','/reports']
 ];
 
 export default function Footer(){return <footer className="footer"><p>Capital City Provisions</p><p>Premium ranch quality, modern convenience, practical food security, and ethical local route incentives.</p><p>{links.map(([label,href],index)=><span key={href}>{index>0?' | ':''}<a href={href}>{label}</a></span>)}</p><p>No purchase necessary for giveaway entry. Cheesecake order bonuses are separate from giveaway odds.</p></footer>}
