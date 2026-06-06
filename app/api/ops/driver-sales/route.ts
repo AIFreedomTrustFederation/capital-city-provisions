@@ -23,6 +23,9 @@ export async function POST(request:Request){
       sourceCustomer:clean(input.sourceCustomer),
       routeId:clean(input.routeId),
       leadName:clean(input.leadName),
+      email:clean(input.email),
+      phone:clean(input.phone),
+      address:clean(input.address),
       zip:clean(input.zip),
       area:clean(input.area),
       need:clean(input.need),
@@ -30,18 +33,25 @@ export async function POST(request:Request){
       estimatedValue:Number(input.estimatedValue||0),
       status:input.status,
       temperature:input.temperature,
-      note:clean(input.note)
+      note:clean(input.note),
+      ownerOverride:clean(input.ownerOverride),
+      aiInstruction:clean(input.aiInstruction),
+      driverRoutePlan:clean(input.driverRoutePlan)
     },{mode});
     const ownerText=[
       `Driver sales queue: ${lead.status}`,
       `Driver: ${lead.driver}`,
       `Lead: ${lead.leadName}`,
+      `Contact: ${lead.phone||'no phone'} ${lead.email||'no email'}`,
+      `Address: ${lead.address||'no address'}`,
       `Area / ZIP: ${lead.area} ${lead.zip}`,
       `Need: ${lead.need}`,
       `Offer: ${lead.offer}`,
       `Estimated value: ${lead.estimatedValue}`,
       `Source stop: ${lead.sourceStopId||'none'}`,
-      `Note: ${lead.note}`
+      `Note: ${lead.note}`,
+      `Owner override: ${lead.ownerOverride||'none'}`,
+      `Driver route plan: ${lead.driverRoutePlan||'none'}`
     ].join('\n');
     const [ownerWebhook,sheetWebhook]=await Promise.allSettled([
       postJson(process.env.OPS_WEBHOOK_URL||process.env.LEADS_WEBHOOK_URL,{text:ownerText,driverSalesLead:lead}),
