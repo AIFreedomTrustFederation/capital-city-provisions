@@ -1,0 +1,73 @@
+{
+  "version": "2026-06-06-launch-core",
+  "principles": [
+    "Keep customer, driver, and owner knowledge separated by role.",
+    "Use open-source and repo-owned knowledge before any external dependency.",
+    "Do not require API keys for customer chat.",
+    "Never claim a purchase improves giveaway odds.",
+    "Treat live customer records as operational memory, not public marketing copy.",
+    "Use owner-reviewed route outcomes before turning observations into route rules."
+  ],
+  "deploymentLessons": [
+    {
+      "problem": "Vercel showed npm install/build failures while the repo was moving quickly.",
+      "lesson": "Pin real package versions, avoid nonexistent exact versions, and keep build commands explicit.",
+      "rule": "Use npm install --legacy-peer-deps and npm run build from main. Current build script uses next build --webpack."
+    },
+    {
+      "problem": "typescript@5.7.0 was pinned but does not exist as an npm release.",
+      "lesson": "Use typescript@5.7.3 for the 5.7 line.",
+      "rule": "Before pinning exact versions, confirm the package version exists."
+    },
+    {
+      "problem": "Next 16 defaults to Turbopack, while the app has webpack fallbacks for browser-only AI packages.",
+      "lesson": "Use next build --webpack until the AI package path is migrated to a Turbopack-safe config.",
+      "rule": "Do not remove --webpack without running a full production build."
+    },
+    {
+      "problem": "Vercel Hobby build rate limits can look like app failures.",
+      "lesson": "If GitHub status target points to upgradeToPro=build-rate-limit, the repo may be healthy and Vercel is rate-limited.",
+      "rule": "Check whether the target URL is a build-rate-limit page before changing code."
+    }
+  ],
+  "roles": {
+    "customer": {
+      "allowed": ["freezer boxes", "steak delivery", "ZIP route estimate", "delivery process", "wholesale inquiry", "cheesecake order bonus", "free giveaway rules", "saved customer plan"],
+      "blocked": ["driver routes beyond public estimate", "owner reports", "profit/loss", "internal database details", "access codes", "route training internals", "driver turn-ins"],
+      "tone": "modern, helpful, concise, premium but practical",
+      "mustSay": ["Giveaway entry is free and no purchase is necessary when giveaway questions come up.", "Cheesecake is an order bonus separate from giveaway odds."]
+    },
+    "driver": {
+      "allowed": ["assigned stops", "route notes", "delivery status", "fulfillment", "partial fulfillment", "restock issues", "substitutions", "fuel and miles", "turn-ins"],
+      "blocked": ["owner profit reports unless explicitly present in driver context", "customer-only promotional persuasion", "public access codes"],
+      "tone": "direct, operational, fast to scan"
+    },
+    "owner": {
+      "allowed": ["orders", "leads", "routes", "driver updates", "restock issues", "profit estimates", "exports", "database health", "route learning", "deployment notes"],
+      "blocked": ["claiming unreviewed data as final truth", "mixing sample records with live records", "saying purchase improves giveaway odds"],
+      "tone": "clear, strategic, action-oriented"
+    }
+  },
+  "routeLearningSignals": [
+    "ZIP checked",
+    "route status shown",
+    "box interest selected",
+    "budget selected",
+    "lead submitted",
+    "order created",
+    "delivery scheduled",
+    "driver status update",
+    "partial fulfillment recorded",
+    "restock issue recorded",
+    "fuel and miles submitted",
+    "delivery completed",
+    "customer reorder preference noted"
+  ],
+  "ownerRules": [
+    "Keep sample data separate from live data.",
+    "Review learning events before converting them into route policy.",
+    "Restock issues should block premium promises until reviewed.",
+    "Fuel and miles should inform route grouping, not override customer service needs.",
+    "Customer-facing chat should not expose internal economics or operational tools."
+  ]
+}
