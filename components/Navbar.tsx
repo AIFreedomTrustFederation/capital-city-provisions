@@ -2,12 +2,12 @@
 import {useState} from 'react';
 
 const links=[
-  ['Boxes','/freezer-boxes'],
-  ['How Delivery Works','/how-delivery-works'],
+  ['Boxes','/family-freezer-boxes'],
+  ['Steak','/steak-delivery'],
+  ['How It Works','/how-delivery-works'],
   ['Delivery Area','/delivery-map'],
-  ['Reviews','/reviews'],
-  ['FAQ','/faq'],
   ['Wholesale','/wholesale'],
+  ['FAQ','/faq'],
   ['Contact','/contact']
 ];
 
