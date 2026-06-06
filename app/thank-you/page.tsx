@@ -1,15 +1,28 @@
+import CustomerConfirmation from '../../components/CustomerConfirmation';
+
 export const metadata={
-  title:'Thank You | Capital City Provisions',
-  description:'Your Capital City Provisions route and freezer-box request was received. See what happens next and continue planning your box.'
+  title:'Request Saved | Capital City Provisions',
+  description:'Your Capital City Provisions stocked-home request is saved. Review next steps, continue your box, and enter the giveaway free.'
 };
 
-const next=['We review your ZIP and route status.','We match the request to freezer-box size, protein preference, and budget.','If you shared a phone number, your lead is ready for SMS follow-up.','Confirmed and nearly full routes get priority follow-up.'];
-const email=['Subject: Your Capital City Provisions route request','Thanks for checking your delivery route with Capital City Provisions. We received your ZIP, freezer-box interest, and preferred follow-up details. Your 48-hour cheesecake thank-you offer may apply to a qualifying first freezer-box order while supplies last. Giveaway entry is free and separate; no purchase is necessary and purchase does not improve odds.'];
-const promos=['Cheesecake thank-you gift: qualifying first freezer-box orders reserved within 48 hours of route check may receive a free cheesecake while supplies last.','Freezer giveaway: enter free on the giveaway page. No purchase necessary. Purchase does not improve odds.','SMS-ready fields: name, email, phone, ZIP, route, budget, box interest, promo code, and deadline are now captured for follow-up.'];
+const next=[
+  {title:'We check the route.',text:'Your ZIP tells us whether the area is confirmed, nearly full, building, or waitlist.'},
+  {title:'We shape the box.',text:'Household size, proteins, budget, and timing guide the first stocked-home recommendation.'},
+  {title:'We confirm before pack-out.',text:'Delivery timing, substitutions, and any premium cut limits are clarified before the route is packed.'},
+  {title:'You stay in control.',text:'You can continue, edit, export, or clear saved details from this device.'}
+];
+const promos=[
+  {title:'Cheesecake thank-you gift',text:'A qualifying first stocked-home order reserved within the stated window may receive a cheesecake while supplies last.'},
+  {title:'Free giveaway entry',text:'Giveaway entry is free. No purchase is necessary, and buying does not improve odds.'},
+  {title:'Clear follow-up',text:'Name, contact, ZIP, route, plan interest, budget, and timing help us avoid repeated questions.'}
+];
+const emailSubject='Subject: Your Capital City Provisions request is saved';
+const emailBody='Thanks for checking your route with Capital City Provisions. We saved your ZIP, stocked-home interest, and follow-up details so the next step is clear. Cheesecake order bonuses are separate from giveaway entry. Giveaway entry is free; no purchase is necessary and purchase does not improve odds.';
 
 export default function ThankYouPage(){return <main className="site page-flow">
-  <section className="page-hero poster-frame"><div><p className="eyebrow">Request Received</p><h1>Your freezer-box request is in.</h1><p className="lead">We will use your delivery ZIP, route status, box preferences, and promo timing to plan the next follow-up.</p><div className="actions"><a href="/family-freezer-boxes">Continue Box Planning</a><a href="/giveaway">Enter Giveaway Free</a><a href="/how-delivery-works">How Delivery Works</a></div></div><img src="/images/capital-city-hero.png" alt="Capital City Provisions confirmation"/></section>
-  <section className="section route-section"><div><p className="eyebrow">What Happens Next</p><h2>Route first, box second, follow-up third.</h2><p className="lead">This confirmation page gives customers a clear handoff after submitting a route or box request.</p></div><div className="route-list">{next.map(item=><article key={item}><h3>{item}</h3><p>Designed to reduce confusion after lead capture.</p></article>)}</div></section>
-  <section className="section route-section"><div><p className="eyebrow">Promotions</p><h2>Clear, separate, and trackable.</h2><p className="lead">Order bonuses create urgency. Giveaway entry remains free and separate.</p></div><div className="route-list">{promos.map(item=><article key={item}><h3>{item}</h3><p>Built for transparent customer follow-up.</p></article>)}</div></section>
-  <section className="section"><p className="eyebrow">Thank-You Email Language</p><h2>Ready for automation.</h2><div className="route-list">{email.map(line=><article key={line}><h3>{line}</h3><p>Use this language for the first email or SMS-adjacent follow-up workflow.</p></article>)}</div><div className="actions"><a href="/official-rules">Official Rules</a><a href="/contact">Contact Sales</a></div></section>
+  <section className="page-hero poster-frame"><div><p className="eyebrow">Request Saved</p><h1>Your stocked-home plan is ready to continue.</h1><p className="lead">We saved the useful pieces: route, box interest, budget, and follow-up details. Nothing needs to pop up again unless you open it.</p><div className="actions"><a href="#saved-confirmation">Review Saved Plan</a><a href="/giveaway">Enter Giveaway Free</a><a href="/how-delivery-works">How Delivery Works</a></div></div><img src="/images/capital-city-hero.png" alt="Capital City Provisions confirmation"/></section>
+  <CustomerConfirmation/>
+  <section className="section route-section"><div><p className="eyebrow">What Happens Next</p><h2>Simple, local, and route-aware.</h2><p className="lead">The next step is based on your ZIP and the kind of box you want, not a generic checkout script.</p></div><div className="route-list">{next.map(item=><article key={item.title}><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></section>
+  <section className="section route-section"><div><p className="eyebrow">Offers And Giveaway</p><h2>Separated clearly.</h2><p className="lead">Order bonuses can reward fast follow-through. Giveaway entry stays free and separate.</p></div><div className="route-list">{promos.map(item=><article key={item.title}><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></section>
+  <section className="section"><p className="eyebrow">Follow-Up Language</p><h2>Ready for the first message.</h2><div className="route-list"><article><h3>{emailSubject}</h3><p>{emailBody}</p></article></div><div className="actions"><a href="/official-rules">Official Rules</a><a href="/contact">Contact Sales</a></div></section>
 </main>}
