@@ -1,4 +1,5 @@
 import AccessGate from '../../components/AccessGate';
+import OwnerLeadDashboard from '../../components/OwnerLeadDashboard';
 import RoleAIWorkspace from '../../components/RoleAIWorkspace';
 import { fullSystemSnapshot } from '../../lib/ccp-database';
 
@@ -20,10 +21,12 @@ export default function OwnerPage(){
           <p className="eyebrow">Owner command</p>
           <h1>Run the day from one clean control room.</h1>
           <p className="lead">Live customer intake, delivery routes, driver turn-ins, restock issues, profit signals, and AI learning notes stay separated from the public site.</p>
-          <div className="actions"><a href="#owner-ai">Open Owner AI</a><a href="#owner-report">Review Report</a></div>
+          <div className="actions"><a href="#owner-leads">Lead Board</a><a href="#owner-ai">Open Owner AI</a><a href="#owner-report">Review Report</a></div>
         </div>
         <img src="/images/capital-city-hero.png" alt="Capital City Provisions owner command center"/>
       </section>
+
+      <OwnerLeadDashboard snapshot={live} sample={sample}/>
 
       <section className="section ops-grid" id="owner-report">
         <div className="route-list ops-cards owner-summary">
