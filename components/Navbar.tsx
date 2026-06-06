@@ -1,7 +1,15 @@
 'use client';
 import {useState} from 'react';
 
-const links=[['Boxes','/freezer-boxes'],['Delivery','/delivery-map'],['Wholesale','/wholesale'],['Contact','/contact']];
+const links=[
+  ['Boxes','/freezer-boxes'],
+  ['How Delivery Works','/how-delivery-works'],
+  ['Delivery Area','/delivery-map'],
+  ['Reviews','/reviews'],
+  ['FAQ','/faq'],
+  ['Wholesale','/wholesale'],
+  ['Contact','/contact']
+];
 
 export default function Navbar(){
   const [open,setOpen]=useState(false);
