@@ -91,7 +91,7 @@ export default function LeadCapture(){
   function next(v=value){const current=steps[step];const normalized=current.key==='address'?cleanZip(v)||v:v;const updated={...data,[current.key]:normalized};if(current.key==='address'&&cleanZip(normalized)){updated.zip=cleanZip(normalized);localStorage.setItem(ZIP_STORAGE_KEY,updated.zip);window.dispatchEvent(new CustomEvent('ccp:delivery-zip',{detail:{zip:updated.zip}}))}setData(updated);setValue('');if(current.key==='familySize')setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(normalized));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
   return <>
-    <style>{`@media(max-width:760px){.landing-art{max-height:158px!important}.landing-art img{aspect-ratio:2.25/1!important;max-height:138px!important;object-position:center 36%!important}.lead-tab{left:auto!important;right:14px!important;bottom:14px!important;width:auto!important;min-width:142px!important;padding:13px 18px!important;border-radius:999px!important}.lead-modal{padding-bottom:20px!important}}`}</style>
+    <style>{`@media(max-width:760px){.lead-tab{left:auto!important;right:14px!important;bottom:14px!important;width:auto!important;min-width:142px!important;padding:13px 18px!important;border-radius:999px!important}.lead-modal{padding-bottom:20px!important}}`}</style>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
     <button className="lead-tab" onClick={()=>setOpen(true)}>{hasSavedLead&&!sent?'Continue My Box':'Build My Box'}</button>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
