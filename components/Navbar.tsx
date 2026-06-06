@@ -4,6 +4,7 @@ import {useState} from 'react';
 const links=[
   ['Boxes','/freezer-boxes'],
   ['Steak','/steak-delivery'],
+  ['How It Works','/how-delivery-works'],
   ['Delivery','/delivery-map'],
   ['Wholesale','/wholesale'],
   ['Giveaway','/giveaway'],
