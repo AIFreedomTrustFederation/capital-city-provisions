@@ -15,7 +15,7 @@ export default function DriverPage(){
           <p className="eyebrow">Driver route</p>
           <h1>Run the route, update the status, close the day.</h1>
           <p className="lead">Driver access stays focused on assigned stops, delivery notes, fulfillment updates, restock problems, fuel/miles, and turn-ins.</p>
-          <div className="actions"><a href="#mobile-route">Work Stops</a><a href="/driver-sales">Sales Route Mode</a><a href="#turn-in-mobile">Turn In Day</a><a href="#driver-ai">Ask Driver AI</a></div>
+          <div className="actions"><a href="#mobile-route">Work Stops</a><a className="mobile-sales-entry" href="/driver-sales">Sales Route Mode</a><a href="#turn-in-mobile">Turn In Day</a><a href="#driver-ai">Ask Driver AI</a></div>
         </div>
         <img src="/images/capital-city-hero.png" alt="Capital City Provisions driver route workflow"/>
       </section>
@@ -30,7 +30,7 @@ export default function DriverPage(){
             <p>{route.priority}</p>
           </article>)}
         </div>
-        <aside className="ops-side"><p className="eyebrow">Today</p><h2>{stops.length} stops</h2><p>Use the mobile stop cards first, then open Sales Route Mode when a delivery creates a new box or wholesale opportunity.</p><a className="ops-button" href="/driver-sales">Open Sales Route Mode</a></aside>
+        <aside className="ops-side"><p className="eyebrow">Today</p><h2>{stops.length} stops</h2><p>Use the mobile stop cards first, then open Sales Route Mode from your phone when a delivery creates a new box or wholesale opportunity.</p><a className="ops-button mobile-sales-entry" href="/driver-sales">Open Sales Route Mode</a></aside>
       </section>
 
       <DriverMobileWorkflow memory={memory}/>
@@ -44,6 +44,7 @@ export default function DriverPage(){
       <section id="driver-ai">
         <RoleAIWorkspace role="driver" title="Driver Ops" subtitle="Ask about assigned routes, stop order, customer notes, fulfillment issues, restock flags, fuel efficiency, and turn-ins." memory={memory}/>
       </section>
+      <style>{`@media(min-width:781px){.mobile-sales-entry{display:none!important}}`}</style>
     </main>
   </AccessGate>
 }
