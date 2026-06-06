@@ -1,3 +1,6 @@
+'use client';
+import {useEffect,useState} from 'react';
+
 const sections=[
   {
     title:'Shop By Need',
@@ -52,20 +55,30 @@ const sections=[
   }
 ];
 
-export default function Footer(){return <footer className="footer">
-  <div className="footer-inner">
-    <section className="footer-brand" aria-label="Capital City Provisions summary">
-      <p className="footer-logo">Capital City Provisions</p>
-      <p>Premium ranch quality, modern convenience, practical food security, and ethical local route incentives for Sacramento-area families and partners.</p>
-      <p className="footer-note">No purchase necessary for giveaway entry. Cheesecake order bonuses are separate from giveaway odds.</p>
-    </section>
-    <nav className="footer-grid" aria-label="Footer navigation">
-      {sections.map(section=><section className="footer-column" key={section.title} aria-label={section.title}>
-        <h3>{section.title}</h3>
-        <ul>
-          {section.links.map(([label,href])=><li key={href}><a href={href}>{label}</a></li>)}
-        </ul>
-      </section>)}
-    </nav>
-  </div>
-</footer>}
+export default function Footer(){
+  const [open,setOpen]=useState<Record<string,boolean>>({});
+  useEffect(()=>{
+    const desktop=window.matchMedia('(min-width: 761px)');
+    const sync=()=>setOpen(Object.fromEntries(sections.map(section=>[section.title,desktop.matches])));
+    sync();
+    desktop.addEventListener('change',sync);
+    return()=>desktop.removeEventListener('change',sync);
+  },[]);
+  return <footer className="footer">
+    <div className="footer-inner">
+      <section className="footer-brand" aria-label="Capital City Provisions summary">
+        <p className="footer-logo">Capital City Provisions</p>
+        <p>Premium ranch quality, modern convenience, practical food security, and ethical local route incentives for Sacramento-area families and partners.</p>
+        <p className="footer-note">No purchase necessary for giveaway entry. Cheesecake order bonuses are separate from giveaway odds.</p>
+      </section>
+      <nav className="footer-grid" aria-label="Footer navigation">
+        {sections.map(section=><section className={open[section.title]?'footer-column open':'footer-column'} key={section.title} aria-label={section.title}>
+          <button className="footer-heading" onClick={()=>setOpen(current=>({...current,[section.title]:!current[section.title]}))} aria-expanded={!!open[section.title]}>{section.title}<span aria-hidden="true">+</span></button>
+          <ul>
+            {section.links.map(([label,href])=><li key={href}><a href={href}>{label}</a></li>)}
+          </ul>
+        </section>)}
+      </nav>
+    </div>
+  </footer>
+}
