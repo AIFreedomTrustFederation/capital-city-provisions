@@ -1,25 +1,69 @@
-const links=[
-  ['Freezer Giveaway','/giveaway'],
-  ['Official Rules','/official-rules'],
-  ['Family Freezer Boxes','/family-freezer-boxes'],
-  ['Steak Delivery','/steak-delivery'],
-  ['Meat Delivery Sacramento','/meat-delivery-sacramento'],
-  ['Freezer Boxes Sacramento','/freezer-boxes-sacramento'],
-  ['Beef Delivery Sacramento','/beef-delivery-sacramento'],
-  ['Wholesale Supplier Sacramento','/wholesale-meat-supplier-sacramento'],
-  ['Food Security Boxes','/food-security-freezer-boxes'],
-  ['About','/about'],
-  ['How Delivery Works','/how-delivery-works'],
-  ['Reviews','/reviews'],
-  ['FAQ','/faq'],
-  ['Delivery Area','/delivery-map'],
-  ['Customer AI','/customer-concierge'],
-  ['AI Route Concierge','/ai-route-concierge'],
-  ['Ops Hub','/ops'],
-  ['System Database','/system-database'],
-  ['Driver Ops','/driver'],
-  ['Owner Command','/owner'],
-  ['Reports','/reports']
+const sections=[
+  {
+    title:'Shop By Need',
+    links:[
+      ['Freezer Boxes','/freezer-boxes'],
+      ['Family Freezer Boxes','/family-freezer-boxes'],
+      ['Steak Delivery','/steak-delivery'],
+      ['Food Security Plans','/food-security-freezer-boxes']
+    ]
+  },
+  {
+    title:'Delivery And Routes',
+    links:[
+      ['How Delivery Works','/how-delivery-works'],
+      ['Delivery Area','/delivery-map'],
+      ['Meat Delivery Sacramento','/meat-delivery-sacramento'],
+      ['Beef Delivery Sacramento','/beef-delivery-sacramento']
+    ]
+  },
+  {
+    title:'Business Accounts',
+    links:[
+      ['Wholesale Supply','/wholesale'],
+      ['Wholesale Sacramento','/wholesale-meat-supplier-sacramento'],
+      ['Contact Wholesale','/contact']
+    ]
+  },
+  {
+    title:'Trust And Help',
+    links:[
+      ['About / Founder Story','/about'],
+      ['Reviews','/reviews'],
+      ['FAQ','/faq'],
+      ['Contact','/contact']
+    ]
+  },
+  {
+    title:'Promotions',
+    links:[
+      ['Freezer Giveaway','/giveaway'],
+      ['Official Rules','/official-rules'],
+      ['Box Concierge','/customer-concierge']
+    ]
+  },
+  {
+    title:'Team Access',
+    links:[
+      ['Driver Gate','/internal-access?role=driver&returnTo=/driver'],
+      ['Owner Gate','/internal-access?role=owner&returnTo=/owner'],
+      ['Reports Gate','/internal-access?role=owner&returnTo=/reports']
+    ]
+  }
 ];
 
-export default function Footer(){return <footer className="footer"><p>Capital City Provisions</p><p>Premium ranch quality, modern convenience, practical food security, and ethical local route incentives.</p><p>{links.map(([label,href],index)=><span key={href}>{index>0?' | ':''}<a href={href}>{label}</a></span>)}</p><p>No purchase necessary for giveaway entry. Cheesecake order bonuses are separate from giveaway odds.</p></footer>}
+export default function Footer(){return <footer className="footer">
+  <div className="footer-inner">
+    <section className="footer-brand" aria-label="Capital City Provisions summary">
+      <p className="footer-logo">Capital City Provisions</p>
+      <p>Premium ranch quality, modern convenience, practical food security, and ethical local route incentives for Sacramento-area families and partners.</p>
+      <p className="footer-note">No purchase necessary for giveaway entry. Cheesecake order bonuses are separate from giveaway odds.</p>
+    </section>
+    <nav className="footer-grid" aria-label="Footer navigation">
+      {sections.map(section=><div className="footer-section" key={section.title}>
+        <h3>{section.title}</h3>
+        {section.links.map(([label,href])=><a key={href} href={href}>{label}</a>)}
+      </div>)}
+    </nav>
+  </div>
+</footer>}
