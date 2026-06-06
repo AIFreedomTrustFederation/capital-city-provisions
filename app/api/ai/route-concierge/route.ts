@@ -21,6 +21,26 @@ function routePlan(zip=''){
 }
 
 function fallbackRecommendation(input:ConciergeInput){
+  if(clean(input.role)==='driver'){
+    const stops=Array.isArray(input.stops)?input.stops:[];
+    const states=input.stopStates||{};
+    const turnIn=input.turnIn||{};
+    const activeStop=input.activeStop||stops[0]||{};
+    const openStops=stops.filter((stop:any)=>states?.[stop.id]?.status!=='delivered');
+    const issueStops=stops.filter((stop:any)=>states?.[stop.id]?.status==='issue'||states?.[stop.id]?.fulfillment==='partial'||states?.[stop.id]?.fulfillment==='restock-blocked'||states?.[stop.id]?.issue);
+    const nextStop=openStops.find((stop:any)=>states?.[stop.id]?.status==='out-for-delivery')||openStops.sort((a:any,b:any)=>(b.value||0)-(a.value||0))[0]||activeStop;
+    const intent=clean(input.intent);
+    const driverAnswer=intent==='customerText'
+      ? `Text draft: Hi, this is Capital City Provisions. Your ${activeStop.box||'order'} is on today's ${activeStop.routeName||'route'}. We are heading your way in the ${activeStop.window||'delivery'} window. Reply with any gate, parking, or drop-off note.`
+      : intent==='issue'
+        ? issueStops.length?`Issue review: ${issueStops.map((stop:any)=>`${stop.id} ${stop.customer}: ${states?.[stop.id]?.fulfillment||'issue'} ${states?.[stop.id]?.issue||''}`.trim()).join(' | ')}`:'No issue stops are flagged yet. Mark partial, restock-blocked, or add a voice issue as soon as a shortage appears.'
+        : intent==='turnIn'
+          ? `Turn-in prep: delivered ${Object.values(states).filter((state:any)=>state.status==='delivered').length}/${stops.length}, missed ${turnIn.missed||'0'}, rescheduled ${turnIn.rescheduled||'0'}, miles ${turnIn.milesDriven||'not entered'}. Add payments and owner follow-up before submitting.`
+          : intent==='route'
+            ? `Route summary: ${stops.length} stops, ${openStops.length} open, ${issueStops.length} issue flags. Keep call-ahead notes current, handle premium boxes carefully, and close restock blockers before turn-in.`
+            : nextStop?.id?`Next best move: work ${nextStop.id} for ${nextStop.customer}. Box: ${nextStop.box}. ${nextStop.notes||'Confirm delivery details before arrival.'}`:'All visible stops are marked delivered. Start the turn-in and flag owner follow-up.';
+    return {driverAnswer,role:'driver',source:'driver-rules-fallback',nextStop:nextStop?.id||null,openStops:openStops.length,issueStops:issueStops.length};
+  }
   const zip=clean(input.zip||input.address);
   const route=routePlan(zip);
   const budget=clean(input.budget)||'$300-$500';
