@@ -26,7 +26,7 @@ export default function DriverSalesPage(){
         </div>
       </section>
       <DriverSalesRouteMode memory={memory}/>
-      <style>{`@media(min-width:781px){.sales-mobile-hero{display:none!important}}@media(max-width:780px){.sales-desktop-lock{display:none!important}}`}</style>
+      <style>{`@media(min-width:781px){.sales-mobile-hero,.sales-route-mode{display:none!important}}@media(max-width:780px){.sales-desktop-lock{display:none!important}}`}</style>
     </main>
   </AccessGate>
 }
