@@ -3,6 +3,10 @@ import {useEffect,useState} from 'react';
 
 type Route={route:string;day:string;window:string;status:string;message:string};
 
+const ZIP_STORAGE_KEY='ccp_delivery_zip';
+const ROUTE_LEAD_KEY='ccp_quick_route_lead';
+const PROMPT_PAGE_KEY='ccp_route_prompt_page';
+
 function routePlan(zip=''):Route{
   const clean=(zip.match(/\d{5}/)?.[0]||'').trim();
   const routes:Record<string,Route>={
@@ -26,6 +30,16 @@ function nextStep(route:Route){
   return 'We will use this route request to plan your freezer-box follow-up.';
 }
 
+function pagePromptKey(){return `${PROMPT_PAGE_KEY}:${window.location.pathname}`;}
+
+function saveZip(zip:string){
+  const clean=(zip.match(/\d{5}/)?.[0]||'').trim();
+  if(!clean)return '';
+  localStorage.setItem(ZIP_STORAGE_KEY,clean);
+  window.dispatchEvent(new CustomEvent('ccp:delivery-zip',{detail:{zip:clean}}));
+  return clean;
+}
+
 export default function QuickRouteCapture(){
   const [zip,setZip]=useState('');
   const [route,setRoute]=useState<Route|null>(null);
@@ -34,24 +48,37 @@ export default function QuickRouteCapture(){
   const [prompt,setPrompt]=useState(false);
 
   useEffect(()=>{
-    const timer=setTimeout(()=>setPrompt(true),10000);
-    const onScroll=()=>{if(window.scrollY>520)setPrompt(true)};
+    const saved=localStorage.getItem(ZIP_STORAGE_KEY)||'';
+    if(saved)setZip(saved);
+
+    const currentPageKey=pagePromptKey();
+    const maybePrompt=()=>{
+      if(route||localStorage.getItem(ZIP_STORAGE_KEY)||sessionStorage.getItem(currentPageKey))return;
+      sessionStorage.setItem(currentPageKey,'shown');
+      setPrompt(true);
+    };
+
+    const timer=setTimeout(maybePrompt,10000);
+    const onScroll=()=>{if(window.scrollY>520)maybePrompt()};
     window.addEventListener('scroll',onScroll,{passive:true});
     return()=>{clearTimeout(timer);window.removeEventListener('scroll',onScroll)};
-  },[]);
+  },[route]);
 
   function checkZip(e?:React.FormEvent){
     e?.preventDefault();
-    if(!zip.trim())return;
-    setRoute(routePlan(zip));
+    const clean=saveZip(zip);
+    if(!clean)return;
+    setZip(clean);
+    setRoute(routePlan(clean));
     setPrompt(false);
   }
 
   async function holdRoute(e:React.FormEvent){
     e.preventDefault();
-    const plan=route||routePlan(zip);
-    const lead={...details,address:zip,interest:'Quick route check',recommendation:'Freezer box route follow-up',route:plan.route,deliveryDay:plan.day,deliveryWindow:plan.window,routeStatus:plan.status,message:'Quick capture from landing page'};
-    localStorage.setItem('ccp_quick_route_lead',JSON.stringify(lead));
+    const clean=saveZip(zip);
+    const plan=route||routePlan(clean);
+    const lead={...details,address:clean,zip:clean,interest:'Quick route check',recommendation:'Freezer box route follow-up',route:plan.route,deliveryDay:plan.day,deliveryWindow:plan.window,routeStatus:plan.status,message:'Quick capture from landing page',source:'delivery-zip-popup'};
+    localStorage.setItem(ROUTE_LEAD_KEY,JSON.stringify(lead));
     await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});
     setSent(true);
   }
@@ -65,7 +92,7 @@ export default function QuickRouteCapture(){
       </form>
       {route&&<div className="quick-result">
         <strong>{route.status}</strong>
-        <span>{route.route} · {route.day} · {route.window}</span>
+        <span>{route.route} - {route.day} - {route.window}</span>
         <p>{route.message}</p>
         {!sent?<form onSubmit={holdRoute} className="quick-hold">
           <input value={details.name} onChange={e=>setDetails({...details,name:e.target.value})} placeholder="Name" aria-label="Name" required/>
