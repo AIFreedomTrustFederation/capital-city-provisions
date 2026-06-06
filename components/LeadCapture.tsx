@@ -52,6 +52,7 @@ export default function LeadCapture(){
   const [open,setOpen]=useState(false);const [light,setLight]=useState(false);const [step,setStep]=useState(0);const [value,setValue]=useState('');const [data,setData]=useState<Record<string,string>>({});const [sent,setSent]=useState(false);const [sending,setSending]=useState(false);const [rec,setRec]=useState<any>(null);const [route,setRoute]=useState<any>(null);const [error,setError]=useState('');const [hasSavedLead,setHasSavedLead]=useState(false);
   useEffect(()=>{const t=setTimeout(()=>{if(window.matchMedia('(min-width: 900px)').matches)setOpen(true)},1800);return()=>clearTimeout(t)},[]);
   useEffect(()=>{document.body.classList.toggle('light-mode',light)},[light]);
+  useEffect(()=>{const onOpen=()=>setOpen(true);window.addEventListener('ccp:open-lead',onOpen);return()=>window.removeEventListener('ccp:open-lead',onOpen)},[]);
   useEffect(()=>{
     const latest=localStorage.getItem(LATEST_LEAD_KEY);
     if(latest){setHasSavedLead(true);try{const saved=JSON.parse(latest);const savedData=compactSavedLead(saved);if(savedData.address){setData(current=>Object.keys(current).length?current:savedData);setRoute(routePlan(savedData.address));setRec(recommend(savedData));setStep(current=>current===0?Math.min(steps.length-1,2):current)}}catch(e){}}
@@ -70,9 +71,10 @@ export default function LeadCapture(){
   const current=steps[step];
   const aiContext={role:'customer',lead:data,recommendation:rec,route,promo:{code:'CHEESECAKE-48',deadlineHours:PROMO_HOURS},giveaway:{entryPath:'/giveaway',purchaseRequired:false,purchaseImprovesOdds:false},permissions:{customer:['box guidance','delivery route estimate','promo clarity','giveaway rules','wholesale inquiry']}};
   return <>
-    <style>{`@media(max-width:760px){.lead-tab{left:auto!important;right:14px!important;bottom:14px!important;width:auto!important;min-width:142px!important;padding:13px 18px!important;border-radius:999px!important}.lead-modal{padding-bottom:20px!important}}`}</style>
+    <style>{`@media(max-width:760px){.lead-tab{display:none!important}.lead-modal{padding-bottom:20px!important}}`}</style>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
     <button className="lead-tab" onClick={()=>setOpen(true)}>{hasSavedLead&&!sent?'Continue My Box':'Build My Box'}</button>
+    <div className="mobile-action-bar" aria-label="Quick actions"><button onClick={()=>setOpen(true)}>{hasSavedLead&&!sent?'Continue Box':'Build Box'}</button><a href="/#quick-route">Check ZIP</a></div>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
       <button className="lead-close" onClick={()=>setOpen(false)} aria-label="Close concierge">x</button>
       <p className="eyebrow">Route Concierge</p><h2>Check your route and build your box.</h2>
