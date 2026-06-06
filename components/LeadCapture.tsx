@@ -7,41 +7,41 @@ const LATEST_LEAD_KEY='ccp_latest_lead';
 const PROMO_HOURS=48;
 
 const steps=[
-  {key:'address',bot:'What delivery ZIP code should we check first?',type:'text',placeholder:'ZIP code or delivery area'},
+  {key:'address',bot:'What ZIP should we check first?',type:'text',placeholder:'ZIP code or delivery area'},
   {key:'familySize',bot:'How many people are you feeding?',type:'select',options:['1-2 people','3-4 people','5-6 people','7+ people','Wholesale / Event']},
-  {key:'name',bot:'Great. What name should we put on the route request?',type:'text',placeholder:'Full name'},
-  {key:'email',bot:'What email should we send freezer-box details to?',type:'email',placeholder:'Email address'},
-  {key:'phone',bot:'What phone number can we use for delivery follow-up?',type:'tel',placeholder:'Phone number'},
-  {key:'interest',bot:'Now let us match the right box. What brings you here today?',type:'select',options:['Family Freezer Box','Steak Lovers Club','Surf & Turf Club','Wholesale Account','Custom Freezer Restock']},
-  {key:'proteins',bot:'Which proteins do you want most?',type:'select',options:['Mostly Beef','Beef + Chicken','Surf & Turf','Mixed Family Pack','Pork + Ribs','Custom Mix']},
-  {key:'budget',bot:'What monthly freezer budget feels comfortable?',type:'select',options:['$200-$300','$300-$500','$500-$750','$750-$1,000','$1,000+']},
-  {key:'message',bot:'Anything specific you want us to know?',type:'text',placeholder:'Favorite cuts, family needs, wholesale details...'}
+  {key:'name',bot:'Great. What name should we use for follow-up?',type:'text',placeholder:'Full name'},
+  {key:'email',bot:'Where should we send the plan details?',type:'email',placeholder:'Email address'},
+  {key:'phone',bot:'What number works for delivery updates?',type:'tel',placeholder:'Phone number'},
+  {key:'interest',bot:'What are you trying to stock?',type:'select',options:['Family Box','Steak Cuts','Surf & Turf','Wholesale Account','Custom Restock']},
+  {key:'proteins',bot:'Which proteins should lead the box?',type:'select',options:['Mostly Beef','Beef + Chicken','Surf & Turf','Mixed Family Pack','Pork + Ribs','Custom Mix']},
+  {key:'budget',bot:'What monthly budget feels right?',type:'select',options:['$200-$300','$300-$500','$500-$750','$750-$1,000','$1,000+']},
+  {key:'message',bot:'Anything specific we should know?',type:'text',placeholder:'Favorite cuts, family needs, timing, wholesale details...'}
 ];
 
 function recommend(d:Record<string,string>){
-  if((d.interest||'').includes('Wholesale')||(d.familySize||'').includes('Wholesale'))return {title:'Wholesale Provisioning Account',detail:'Best for restaurants, churches, lodges, caterers, food trucks, and events.',budget:'Custom account pricing'};
-  if((d.proteins||'').includes('Surf'))return {title:'Surf & Turf Club',detail:'Premium beef paired with seafood selections for elevated dinners and special occasions.',budget:d.budget||'$500-$750'};
-  if((d.interest||'').includes('Steak')||(d.proteins||'').includes('Mostly Beef'))return {title:'Steak Lovers Club',detail:'Ribeye, filet, New York strip, sirloin, and premium steakhouse-style cuts.',budget:d.budget||'$300-$500'};
-  if((d.familySize||'').includes('5')||(d.familySize||'').includes('7'))return {title:'Family Freezer Box',detail:'A practical freezer restock with beef, chicken, pork, and flexible portions.',budget:d.budget||'$500-$750'};
-  return {title:'Custom Freezer Restock',detail:'A personalized mix based on your household size, protein preference, and budget.',budget:d.budget||'$300-$500'};
+  if((d.interest||'').includes('Wholesale')||(d.familySize||'').includes('Wholesale'))return {title:'Wholesale Supply Plan',detail:'Built for restaurants, churches, lodges, caterers, food trucks, and events.',budget:'Custom account pricing'};
+  if((d.proteins||'').includes('Surf'))return {title:'Surf & Turf Plan',detail:'Beef and seafood options for elevated dinners, hosting, and special occasions.',budget:d.budget||'$500-$750'};
+  if((d.interest||'').includes('Steak')||(d.proteins||'').includes('Mostly Beef'))return {title:'Steak Stock-Up',detail:'Ribeye, filet, New York strip, sirloin, and steakhouse-style cuts.',budget:d.budget||'$300-$500'};
+  if((d.familySize||'').includes('5')||(d.familySize||'').includes('7'))return {title:'Family Stock-Up',detail:'A useful mix of beef, chicken, pork, and flexible portions for the week ahead.',budget:d.budget||'$500-$750'};
+  return {title:'Custom Home Restock',detail:'A personalized mix shaped around household size, favorite proteins, and budget.',budget:d.budget||'$300-$500'};
 }
 
 function routePlan(address=''){
   const zip=(address.match(/\d{5}/)?.[0]||'').trim();
   const map:Record<string,any>={
-    '95628':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',status:'Delivery available',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
-    '95608':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',status:'Delivery available',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
-    '95661':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
-    '95678':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
-    '95765':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
-    '95677':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
-    '95648':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
-    '95630':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',status:'Building route',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'},
-    '95662':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',status:'Building route',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'}
+    '95628':{route:'Fair Oaks / Carmichael',day:'Tuesday',window:'3-7 PM',status:'Available',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 spots open'},
+    '95608':{route:'Fair Oaks / Carmichael',day:'Tuesday',window:'3-7 PM',status:'Available',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 spots open'},
+    '95661':{route:'Roseville',day:'Wednesday',window:'2-6 PM',status:'Confirmed',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed'},
+    '95678':{route:'Roseville',day:'Wednesday',window:'2-6 PM',status:'Confirmed',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed'},
+    '95765':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 spots open'},
+    '95677':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 spots open'},
+    '95648':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 spots open'},
+    '95630':{route:'Folsom / Orangevale',day:'Friday',window:'2-6 PM',status:'Opening soon',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Opening soon'},
+    '95662':{route:'Folsom / Orangevale',day:'Friday',window:'2-6 PM',status:'Opening soon',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Opening soon'}
   };
   const found=map[zip];
-  if(found)return {...found,restock:'Fresh stock planned Monday and Thursday',confirm:'Text confirmation should go out one day before delivery'};
-  return {route:'Expansion / Waitlist Route',day:'Next available grouped route',window:'To be confirmed',status:'Join waitlist',capacity:12,reserved:0,slotsRemaining:12,fill:0,badge:'Waitlist',restock:'Scheduled after enough nearby leads are grouped',confirm:'Text confirmation should go out after route is approved'};
+  if(found)return {...found,restock:'Fresh stock is planned Monday and Thursday.',confirm:'Delivery timing is confirmed before pack-out.'};
+  return {route:'Expansion Area',day:'Next grouped delivery',window:'To be confirmed',status:'Waitlist',capacity:12,reserved:0,slotsRemaining:12,fill:0,badge:'Waitlist',restock:'We open new clusters when nearby demand is strong enough.',confirm:'Follow-up goes out after the area is approved.'};
 }
 
 function cleanZip(value=''){return (value.match(/\d{5}/)?.[0]||'').trim();}
@@ -63,13 +63,13 @@ export default function LeadCapture(){
   },[]);
   async function finish(updated:Record<string,string>){
     const r=recommend(updated);const rp=routePlan(updated.address);setRec(r);setRoute(rp);setSending(true);setError('');
-    const lead={...updated,zip:cleanZip(updated.address),recommendation:r.title,estimatedBudget:r.budget,route:rp.route,deliveryDay:rp.day,deliveryWindow:rp.window,routeStatus:rp.status,routeBadge:rp.badge,routeFill:rp.fill,routeCapacity:rp.capacity,routeReserved:rp.reserved,routeSlotsRemaining:rp.slotsRemaining,restockPlan:rp.restock,reminderPlan:rp.confirm,smsReady:!!updated.phone,promoCode:'CHEESECAKE-48',couponOffer:'Free cheesecake with qualifying first freezer-box order within 48 hours of route check, while supplies last.',couponDeadlineHours:PROMO_HOURS,promoExpiresAt:promoExpiresAt(),giveawayAvailable:true,purchaseRequiredForGiveaway:false,purchaseImprovesGiveawayOdds:false,createdAt:new Date().toISOString()};
+    const lead={...updated,zip:cleanZip(updated.address),recommendation:r.title,estimatedBudget:r.budget,route:rp.route,deliveryDay:rp.day,deliveryWindow:rp.window,routeStatus:rp.status,routeBadge:rp.badge,routeFill:rp.fill,routeCapacity:rp.capacity,routeReserved:rp.reserved,routeSlotsRemaining:rp.slotsRemaining,restockPlan:rp.restock,reminderPlan:rp.confirm,smsReady:!!updated.phone,promoCode:'CHEESECAKE-48',couponOffer:'Free cheesecake with qualifying first stocked-home order within 48 hours of ZIP check, while supplies last.',couponDeadlineHours:PROMO_HOURS,promoExpiresAt:promoExpiresAt(),giveawayAvailable:true,purchaseRequiredForGiveaway:false,purchaseImprovesGiveawayOdds:false,createdAt:new Date().toISOString()};
     localStorage.setItem(LATEST_LEAD_KEY,JSON.stringify(lead));setHasSavedLead(true);
-    try{const response=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});if(!response.ok)throw new Error('Lead API failed');setSent(true)}catch(e){setError('We saved this on your device, but the lead did not reach the server. Please try again or use the contact page.')}finally{setSending(false)}
+    try{const response=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});if(!response.ok)throw new Error('Lead API failed');setSent(true)}catch(e){setError('We saved this on your device, but the request did not reach the server. Please try again or use the contact page.')}finally{setSending(false)}
   }
   function next(v=value){const current=steps[step];const normalized=current.key==='address'?cleanZip(v)||v:v;const updated={...data,[current.key]:normalized};if(current.key==='address'&&cleanZip(normalized)){updated.zip=cleanZip(normalized);localStorage.setItem(ZIP_STORAGE_KEY,updated.zip);window.dispatchEvent(new CustomEvent('ccp:delivery-zip',{detail:{zip:updated.zip}}))}setData(updated);setValue('');if(current.key==='familySize')setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(normalized));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
-  const aiContext={role:'customer',lead:data,recommendation:rec,route,promo:{code:'CHEESECAKE-48',deadlineHours:PROMO_HOURS},giveaway:{entryPath:'/giveaway',purchaseRequired:false,purchaseImprovesOdds:false},permissions:{customer:['box guidance','delivery route estimate','promo clarity','giveaway rules','wholesale inquiry']}};
+  const aiContext={role:'customer',lead:data,recommendation:rec,route,promo:{code:'CHEESECAKE-48',deadlineHours:PROMO_HOURS},giveaway:{entryPath:'/giveaway',purchaseRequired:false,purchaseImprovesOdds:false},permissions:{customer:['box guidance','delivery estimate','promo clarity','giveaway rules','wholesale inquiry']}};
   return <>
     <style>{`@media(max-width:760px){.lead-tab{display:none!important}.lead-modal{padding-bottom:20px!important}}`}</style>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
@@ -77,14 +77,14 @@ export default function LeadCapture(){
     <div className="mobile-action-bar" aria-label="Quick actions"><button onClick={()=>setOpen(true)}>{hasSavedLead&&!sent?'Continue Box':'Build Box'}</button><a href="/#quick-route">Check ZIP</a></div>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
       <button className="lead-close" onClick={()=>setOpen(false)} aria-label="Close concierge">x</button>
-      <p className="eyebrow">Route Concierge</p><h2>Check your route and build your box.</h2>
+      <p className="eyebrow">Box Concierge</p><h2>Check your ZIP and shape the right plan.</h2>
       <div className="chat-window">
-        <div className="chat-bubble bot">{sent?'Your freezer-box request was received. We will use your route and box details for follow-up.':sending?'Sending your freezer-box request...':hasSavedLead?'Welcome back. Your saved box details are ready to continue.':current.bot}</div>
+        <div className="chat-bubble bot">{sent?'Your request is in. We will use your area and plan details for follow-up.':sending?'Sending your request...':hasSavedLead?'Welcome back. Your saved plan is ready to continue.':current.bot}</div>
         {Object.entries(data).map(([k,v])=><div className="chat-bubble user" key={k}>{k==='address'?`Delivery ZIP: ${v}`:v}</div>)}
         {rec&&<div className="recommend-card"><p className="eyebrow">Recommended Plan</p><h3>{rec.title}</h3><p>{rec.detail}</p><strong>{rec.budget}</strong></div>}
-        {route&&<div className="recommend-card"><p className="eyebrow">Delivery Estimate</p><h3>{route.status}</h3><p>{route.route}</p><strong>{route.day} - {route.window}</strong><div className="mini-meter"><span>{route.badge}</span><i><b style={{width:`${route.fill}%`}}/></i><span>{route.reserved}/{route.capacity} grouped</span></div><p>{route.restock}</p><p>{route.confirm}</p><p>Cheesecake thank-you gift: qualifying first freezer-box orders reserved within 48 hours may receive a free cheesecake while supplies last.</p><p><a href="/giveaway">Free giveaway entry</a> is separate. No purchase necessary.</p></div>}
-        {(route||rec||hasSavedLead)&&!sent&&<LocalAIConcierge role="customer" context={aiContext}/>}
-        {sent&&<div className="recommend-card"><p className="eyebrow">Confirmation</p><h3>Next step saved.</h3><p>Review the confirmation page for what happens after your route and freezer-box request.</p><div className="actions"><a href="/thank-you">View Confirmation</a><a href="/giveaway">Enter Giveaway Free</a></div></div>}
+        {route&&<div className="recommend-card"><p className="eyebrow">Delivery Estimate</p><h3>{route.status}</h3><p>{route.route}</p><strong>{route.day} - {route.window}</strong><div className="mini-meter"><span>{route.badge}</span><i><b style={{width:`${route.fill}%`}}/></i><span>{route.reserved}/{route.capacity} grouped</span></div><p>{route.restock}</p><p>{route.confirm}</p><p>Cheesecake thank-you gift: qualifying first stocked-home orders within 48 hours may receive a free cheesecake while supplies last.</p><p><a href="/giveaway">Free giveaway entry</a> is separate. No purchase necessary.</p></div>}
+        {(route||rec||hasSavedLead)&&!sent&&<LocalAIConcierge role="customer" context={aiContext}/>} 
+        {sent&&<div className="recommend-card"><p className="eyebrow">Confirmation</p><h3>Next step saved.</h3><p>Review the confirmation page for what happens after your request.</p><div className="actions"><a href="/thank-you">View Confirmation</a><a href="/giveaway">Enter Giveaway Free</a></div></div>}
         {error&&<div className="recommend-card error-card"><h3>Submission issue</h3><p>{error}</p></div>}
       </div>
       {!sent&&<div className="chat-input">{current.type==='select'?<div className="choice-grid">{current.options?.map(o=><button key={o} onClick={()=>next(o)} disabled={sending}>{o}</button>)}</div>:<><input value={value} onChange={e=>setValue(e.target.value)} type={current.type} placeholder={current.placeholder} onKeyDown={e=>{if(e.key==='Enter'&&value.trim())next()}} disabled={sending}/><button onClick={()=>value.trim()&&next()} disabled={sending}>{sending?'Sending':'Send'}</button></>}</div>}
