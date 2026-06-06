@@ -3,6 +3,7 @@ import {useEffect,useState} from 'react';
 
 const ZIP_STORAGE_KEY='ccp_delivery_zip';
 const LATEST_LEAD_KEY='ccp_latest_lead';
+const PROMO_HOURS=48;
 
 const steps=[
   {key:'address',bot:'What delivery ZIP code should we check first?',type:'text',placeholder:'ZIP code or delivery area'},
@@ -26,23 +27,24 @@ function recommend(d:Record<string,string>){
 
 function routePlan(address=''){
   const zip=(address.match(/\d{5}/)?.[0]||'').trim();
-  const map:Record<string,{route:string;day:string;window:string}>={
-    '95628':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM'},
-    '95608':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM'},
-    '95661':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM'},
-    '95678':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM'},
-    '95765':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM'},
-    '95677':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM'},
-    '95648':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM'},
-    '95630':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM'},
-    '95662':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM'}
+  const map:Record<string,any>={
+    '95628':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
+    '95608':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
+    '95661':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
+    '95678':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
+    '95765':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95677':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95648':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95630':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'},
+    '95662':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'}
   };
   const found=map[zip];
-  if(found)return {...found,status:'Delivery available',restock:'Fresh stock planned Monday and Thursday',confirm:'Text confirmation should go out one day before delivery'};
-  return {route:'Expansion / Waitlist Route',day:'Next available grouped route',window:'To be confirmed',status:'Join waitlist',restock:'Scheduled after enough nearby leads are grouped',confirm:'Text confirmation should go out after route is approved'};
+  if(found)return {...found,status:found.fill>=80?'Almost full':'Delivery available',restock:'Fresh stock planned Monday and Thursday',confirm:'Text confirmation should go out one day before delivery'};
+  return {route:'Expansion / Waitlist Route',day:'Next available grouped route',window:'To be confirmed',status:'Join waitlist',capacity:12,reserved:0,slotsRemaining:12,fill:0,badge:'Waitlist',restock:'Scheduled after enough nearby leads are grouped',confirm:'Text confirmation should go out after route is approved'};
 }
 
 function cleanZip(value=''){return (value.match(/\d{5}/)?.[0]||'').trim();}
+function promoExpiresAt(){return new Date(Date.now()+PROMO_HOURS*60*60*1000).toISOString();}
 
 function compactSavedLead(saved:Record<string,string>){
   const keep=['address','zip','familySize','interest','proteins','budget','message'];
@@ -78,7 +80,7 @@ export default function LeadCapture(){
   },[]);
   async function finish(updated:Record<string,string>){
     const r=recommend(updated);const rp=routePlan(updated.address);setRec(r);setRoute(rp);setSending(true);setError('');
-    const lead={...updated,zip:cleanZip(updated.address),recommendation:r.title,estimatedBudget:r.budget,route:rp.route,deliveryDay:rp.day,deliveryWindow:rp.window,routeStatus:rp.status,restockPlan:rp.restock,reminderPlan:rp.confirm,smsReady:!!updated.phone,createdAt:new Date().toISOString()};
+    const lead={...updated,zip:cleanZip(updated.address),recommendation:r.title,estimatedBudget:r.budget,route:rp.route,deliveryDay:rp.day,deliveryWindow:rp.window,routeStatus:rp.status,routeBadge:rp.badge,routeFill:rp.fill,routeCapacity:rp.capacity,routeReserved:rp.reserved,routeSlotsRemaining:rp.slotsRemaining,restockPlan:rp.restock,reminderPlan:rp.confirm,smsReady:!!updated.phone,promoCode:'CHEESECAKE-48',couponOffer:'Free cheesecake with qualifying first freezer-box order within 48 hours of route check, while supplies last.',couponDeadlineHours:PROMO_HOURS,promoExpiresAt:promoExpiresAt(),giveawayAvailable:true,purchaseRequiredForGiveaway:false,purchaseImprovesGiveawayOdds:false,createdAt:new Date().toISOString()};
     localStorage.setItem(LATEST_LEAD_KEY,JSON.stringify(lead));setHasSavedLead(true);
     try{
       const response=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});
@@ -101,13 +103,14 @@ export default function LeadCapture(){
         <div className="chat-bubble bot">{sent?'Your freezer-box request was received. We will use your route and box details for follow-up.':sending?'Sending your freezer-box request...':hasSavedLead?'Welcome back. Your saved box details are ready to continue.':current.bot}</div>
         {Object.entries(data).map(([k,v])=><div className="chat-bubble user" key={k}>{k==='address'?`Delivery ZIP: ${v}`:v}</div>)}
         {rec&&<div className="recommend-card"><p className="eyebrow">Recommended Plan</p><h3>{rec.title}</h3><p>{rec.detail}</p><strong>{rec.budget}</strong></div>}
-        {route&&<div className="recommend-card"><p className="eyebrow">Delivery Estimate</p><h3>{route.status}</h3><p>{route.route}</p><strong>{route.day} - {route.window}</strong><p>{route.restock}</p><p>{route.confirm}</p></div>}
-        {sent&&<div className="recommend-card"><p className="eyebrow">Confirmation</p><h3>Next step saved.</h3><p>Review the confirmation page for what happens after your route and freezer-box request.</p><div className="actions"><a href="/thank-you">View Confirmation</a></div></div>}
+        {route&&<div className="recommend-card"><p className="eyebrow">Delivery Estimate</p><h3>{route.status}</h3><p>{route.route}</p><strong>{route.day} - {route.window}</strong><div className="mini-meter"><span>{route.badge}</span><i><b style={{width:`${route.fill}%`}}/></i><span>{route.reserved}/{route.capacity} grouped</span></div><p>{route.restock}</p><p>{route.confirm}</p><p>Cheesecake thank-you gift: qualifying first freezer-box orders reserved within 48 hours may receive a free cheesecake while supplies last.</p><p><a href="/giveaway">Free giveaway entry</a> is separate. No purchase necessary.</p></div>}
+        {sent&&<div className="recommend-card"><p className="eyebrow">Confirmation</p><h3>Next step saved.</h3><p>Review the confirmation page for what happens after your route and freezer-box request.</p><div className="actions"><a href="/thank-you">View Confirmation</a><a href="/giveaway">Enter Giveaway Free</a></div></div>}
         {error&&<div className="recommend-card error-card"><h3>Submission issue</h3><p>{error}</p></div>}
       </div>
       {!sent&&<div className="chat-input">
         {current.type==='select'?<div className="choice-grid">{current.options?.map(o=><button key={o} onClick={()=>next(o)} disabled={sending}>{o}</button>)}</div>:<><input value={value} onChange={e=>setValue(e.target.value)} type={current.type} placeholder={current.placeholder} onKeyDown={e=>{if(e.key==='Enter'&&value.trim())next()}} disabled={sending}/><button onClick={()=>value.trim()&&next()} disabled={sending}>{sending?'Sending':'Send'}</button></>}
       </div>}
     </div></div>}
+    <style>{`.mini-meter{display:grid;gap:6px;margin:10px 0}.mini-meter span{font-weight:900;color:#f8e7b0}.mini-meter i{display:block;height:8px;border-radius:999px;background:#050403;border:1px solid #b8892d66;overflow:hidden}.mini-meter b{display:block;height:100%;max-width:100%;background:linear-gradient(90deg,#facc15,#ef4444)}`}</style>
   </>
 }
