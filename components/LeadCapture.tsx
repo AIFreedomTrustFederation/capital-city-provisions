@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useState} from 'react';
+import LocalAIConcierge from './LocalAIConcierge';
 
 const ZIP_STORAGE_KEY='ccp_delivery_zip';
 const LATEST_LEAD_KEY='ccp_latest_lead';
@@ -28,18 +29,18 @@ function recommend(d:Record<string,string>){
 function routePlan(address=''){
   const zip=(address.match(/\d{5}/)?.[0]||'').trim();
   const map:Record<string,any>={
-    '95628':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
-    '95608':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
-    '95661':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
-    '95678':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
-    '95765':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
-    '95677':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
-    '95648':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
-    '95630':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'},
-    '95662':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'}
+    '95628':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',status:'Delivery available',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
+    '95608':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',status:'Delivery available',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
+    '95661':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
+    '95678':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
+    '95765':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95677':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95648':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95630':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',status:'Building route',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'},
+    '95662':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',status:'Building route',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'}
   };
   const found=map[zip];
-  if(found)return {...found,status:found.fill>=80?'Almost full':'Delivery available',restock:'Fresh stock planned Monday and Thursday',confirm:'Text confirmation should go out one day before delivery'};
+  if(found)return {...found,restock:'Fresh stock planned Monday and Thursday',confirm:'Text confirmation should go out one day before delivery'};
   return {route:'Expansion / Waitlist Route',day:'Next available grouped route',window:'To be confirmed',status:'Join waitlist',capacity:12,reserved:0,slotsRemaining:12,fill:0,badge:'Waitlist',restock:'Scheduled after enough nearby leads are grouped',confirm:'Text confirmation should go out after route is approved'};
 }
 
@@ -92,6 +93,7 @@ export default function LeadCapture(){
   }
   function next(v=value){const current=steps[step];const normalized=current.key==='address'?cleanZip(v)||v:v;const updated={...data,[current.key]:normalized};if(current.key==='address'&&cleanZip(normalized)){updated.zip=cleanZip(normalized);localStorage.setItem(ZIP_STORAGE_KEY,updated.zip);window.dispatchEvent(new CustomEvent('ccp:delivery-zip',{detail:{zip:updated.zip}}))}setData(updated);setValue('');if(current.key==='familySize')setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(normalized));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
+  const aiContext={lead:data,recommendation:rec,route,promo:{code:'CHEESECAKE-48',deadlineHours:PROMO_HOURS},giveaway:{entryPath:'/giveaway',purchaseRequired:false,purchaseImprovesOdds:false}};
   return <>
     <style>{`@media(max-width:760px){.lead-tab{left:auto!important;right:14px!important;bottom:14px!important;width:auto!important;min-width:142px!important;padding:13px 18px!important;border-radius:999px!important}.lead-modal{padding-bottom:20px!important}}`}</style>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
@@ -104,6 +106,7 @@ export default function LeadCapture(){
         {Object.entries(data).map(([k,v])=><div className="chat-bubble user" key={k}>{k==='address'?`Delivery ZIP: ${v}`:v}</div>)}
         {rec&&<div className="recommend-card"><p className="eyebrow">Recommended Plan</p><h3>{rec.title}</h3><p>{rec.detail}</p><strong>{rec.budget}</strong></div>}
         {route&&<div className="recommend-card"><p className="eyebrow">Delivery Estimate</p><h3>{route.status}</h3><p>{route.route}</p><strong>{route.day} - {route.window}</strong><div className="mini-meter"><span>{route.badge}</span><i><b style={{width:`${route.fill}%`}}/></i><span>{route.reserved}/{route.capacity} grouped</span></div><p>{route.restock}</p><p>{route.confirm}</p><p>Cheesecake thank-you gift: qualifying first freezer-box orders reserved within 48 hours may receive a free cheesecake while supplies last.</p><p><a href="/giveaway">Free giveaway entry</a> is separate. No purchase necessary.</p></div>}
+        {(route||rec||hasSavedLead)&&!sent&&<LocalAIConcierge context={aiContext}/>}
         {sent&&<div className="recommend-card"><p className="eyebrow">Confirmation</p><h3>Next step saved.</h3><p>Review the confirmation page for what happens after your route and freezer-box request.</p><div className="actions"><a href="/thank-you">View Confirmation</a><a href="/giveaway">Enter Giveaway Free</a></div></div>}
         {error&&<div className="recommend-card error-card"><h3>Submission issue</h3><p>{error}</p></div>}
       </div>
