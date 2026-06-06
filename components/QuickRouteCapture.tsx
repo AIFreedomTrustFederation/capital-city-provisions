@@ -1,27 +1,30 @@
 'use client';
 import {useEffect,useState} from 'react';
 
-type Route={route:string;day:string;window:string;status:string;message:string};
+type Route={route:string;day:string;window:string;status:string;message:string;capacity:number;reserved:number;slotsRemaining:number;fill:number;badge:string};
 
 const ZIP_STORAGE_KEY='ccp_delivery_zip';
 const ROUTE_LEAD_KEY='ccp_quick_route_lead';
 const PROMPT_PAGE_KEY='ccp_route_prompt_page';
+const PROMO_HOURS=48;
 
 function routePlan(zip=''):Route{
   const clean=(zip.match(/\d{5}/)?.[0]||'').trim();
   const routes:Record<string,Route>={
-    '95628':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',status:'Delivery available',message:'We are collecting nearby orders for this route.'},
-    '95608':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',status:'Delivery available',message:'We are collecting nearby orders for this route.'},
-    '95661':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',message:'This route is active and ready for freezer-box reservations.'},
-    '95678':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',message:'This route is active and ready for freezer-box reservations.'},
-    '95765':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',message:'This route is close to dispatch-ready.'},
-    '95677':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',message:'This route is close to dispatch-ready.'},
-    '95648':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',message:'This route is close to dispatch-ready.'},
-    '95630':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',status:'Building route',message:'We are grouping nearby orders for profitable delivery.'},
-    '95662':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',status:'Building route',message:'We are grouping nearby orders for profitable delivery.'}
+    '95628':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',status:'Delivery available',message:'We are collecting nearby orders for this route.',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
+    '95608':{route:'Fair Oaks / Carmichael Route',day:'Tuesday',window:'3-7 PM',status:'Delivery available',message:'We are collecting nearby orders for this route.',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 route spots open'},
+    '95661':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',message:'This route is active and ready for freezer-box reservations.',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
+    '95678':{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',message:'This route is active and ready for freezer-box reservations.',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed route'},
+    '95765':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',message:'This route is close to dispatch-ready.',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95677':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',message:'This route is close to dispatch-ready.',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95648':{route:'Rocklin / Lincoln Route',day:'Thursday',window:'2-6 PM',status:'Almost full',message:'This route is close to dispatch-ready.',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 route spots open'},
+    '95630':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',status:'Building route',message:'We are grouping nearby orders for profitable delivery.',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'},
+    '95662':{route:'Folsom / Orangevale Route',day:'Friday',window:'2-6 PM',status:'Building route',message:'We are grouping nearby orders for profitable delivery.',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Building route'}
   };
-  return routes[clean]||{route:'Expansion / Waitlist Route',day:'Next grouped route',window:'To be confirmed',status:'Join waitlist',message:'Leave your details and we will group your area with nearby customers.'};
+  return routes[clean]||{route:'Expansion / Waitlist Route',day:'Next grouped route',window:'To be confirmed',status:'Join waitlist',message:'Leave your details and we will group your area with nearby customers.',capacity:12,reserved:0,slotsRemaining:12,fill:0,badge:'Waitlist'};
 }
+
+function promoExpiresAt(){return new Date(Date.now()+PROMO_HOURS*60*60*1000).toISOString();}
 
 function nextStep(route:Route){
   if(route.status==='Confirmed route')return 'Expect route follow-up within 24 hours so we can match your freezer box.';
@@ -77,7 +80,7 @@ export default function QuickRouteCapture(){
     e.preventDefault();
     const clean=saveZip(zip);
     const plan=route||routePlan(clean);
-    const lead={...details,address:clean,zip:clean,interest:'Quick route check',recommendation:'Freezer box route follow-up',route:plan.route,deliveryDay:plan.day,deliveryWindow:plan.window,routeStatus:plan.status,message:'Quick capture from landing page',source:'delivery-zip-popup'};
+    const lead={...details,address:clean,zip:clean,interest:'Quick route check',recommendation:'Freezer box route follow-up',route:plan.route,deliveryDay:plan.day,deliveryWindow:plan.window,routeStatus:plan.status,routeBadge:plan.badge,routeFill:plan.fill,routeCapacity:plan.capacity,routeReserved:plan.reserved,routeSlotsRemaining:plan.slotsRemaining,message:'Quick capture from landing page',source:'delivery-zip-popup',promoCode:'CHEESECAKE-48',couponOffer:'Free cheesecake with qualifying first freezer-box order within 48 hours of route check, while supplies last.',couponDeadlineHours:PROMO_HOURS,promoExpiresAt:promoExpiresAt(),giveawayAvailable:true,purchaseRequiredForGiveaway:false,purchaseImprovesGiveawayOdds:false};
     localStorage.setItem(ROUTE_LEAD_KEY,JSON.stringify(lead));
     localStorage.setItem('ccp_latest_lead',JSON.stringify(lead));
     await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});
@@ -95,6 +98,9 @@ export default function QuickRouteCapture(){
         <strong>{route.status}</strong>
         <span>{route.route} - {route.day} - {route.window}</span>
         <p>{route.message}</p>
+        <div className="route-meter"><div><span>{route.badge}</span><span>{route.reserved}/{route.capacity} grouped</span></div><i style={{width:`${route.fill}%`}}/></div>
+        <p className="quick-promo">Cheesecake thank-you gift: reserve a qualifying first freezer box within 48 hours of this route check. Giveaway entry is separate and free.</p>
+        <div className="quick-links"><a href="/giveaway">Enter Giveaway Free</a><a href="/official-rules">Rules</a></div>
         {!sent?<form onSubmit={holdRoute} className="quick-hold">
           <input value={details.name} onChange={e=>setDetails({...details,name:e.target.value})} placeholder="Name" aria-label="Name" required/>
           <input value={details.email} onChange={e=>setDetails({...details,email:e.target.value})} placeholder="Email" type="email" aria-label="Email" required/>
@@ -111,7 +117,7 @@ export default function QuickRouteCapture(){
       <a href="#quick-route" onClick={()=>setPrompt(false)}>Check ZIP</a>
     </div>}
     <style>{`
-      .quick-route{margin-top:20px;border:1px solid #b8892d88;border-radius:22px;background:linear-gradient(180deg,#090706,#130a06);padding:16px;box-shadow:inset 0 0 0 1px #f8e7b014}.quick-price{margin:0 0 10px!important;color:#f8e7b0!important;font-weight:900;font-size:.98rem!important}.quick-route-form,.quick-hold{display:grid;grid-template-columns:1fr auto;gap:10px}.quick-route input,.quick-hold input{min-width:0;border:1px solid #b8892d;background:#050403;color:#fff7ed;border-radius:999px;padding:13px 15px;font:inherit}.quick-route button,.quick-result a,.quick-contact{border:1px solid #f8e7b0;background:linear-gradient(135deg,#facc15,#a16207);color:#160b04;border-radius:999px;padding:13px 16px;font-weight:900;text-decoration:none;white-space:nowrap}.quick-result{margin-top:12px;border-top:1px solid #b8892d55;padding-top:12px}.quick-result strong{display:block;color:#d4af37}.quick-result span{display:block;color:#f8e7b0;margin-top:3px}.quick-result p{margin:6px 0!important;font-size:.95rem!important}.quick-hold{grid-template-columns:1fr 1fr}.quick-hold button{grid-column:1/-1}.quick-thanks{border:1px solid #d4af37;border-radius:18px;padding:13px;background:#080605}.quick-thanks div{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.quick-thanks a{margin-top:0!important;padding:10px 13px}.quick-contact{display:inline-block;margin-top:10px;background:#090706!important;color:#f8e7b0!important;border-color:#d4af37!important}.route-nudge{position:fixed;left:18px;bottom:18px;z-index:42;max-width:310px;border:1px solid #d4af37;border-radius:20px;background:linear-gradient(180deg,#130a06,#050403);box-shadow:0 20px 60px #000;padding:16px;color:#fff7ed}.route-nudge button{position:absolute;right:10px;top:8px;border:0;background:transparent;color:#f8e7b0;font-weight:900}.route-nudge strong,.route-nudge span{display:block;padding-right:18px}.route-nudge span{color:#ded2bd;margin:4px 0 10px}.route-nudge a{display:inline-block;border-radius:999px;background:linear-gradient(135deg,#facc15,#a16207);color:#160b04;padding:10px 14px;text-decoration:none;font-weight:900}@media(max-width:760px){.quick-route{padding:14px;margin-top:16px}.quick-route-form,.quick-hold{grid-template-columns:1fr}.quick-route button,.quick-contact{width:100%;text-align:center}.route-nudge{left:12px;right:12px;bottom:74px;max-width:none}.quick-price{font-size:.9rem!important}.quick-thanks div{display:grid}.quick-thanks a{text-align:center}}
+      .quick-route{margin-top:20px;border:1px solid #b8892d88;border-radius:22px;background:linear-gradient(180deg,#090706,#130a06);padding:16px;box-shadow:inset 0 0 0 1px #f8e7b014}.quick-price{margin:0 0 10px!important;color:#f8e7b0!important;font-weight:900;font-size:.98rem!important}.quick-route-form,.quick-hold{display:grid;grid-template-columns:1fr auto;gap:10px}.quick-route input,.quick-hold input{min-width:0;border:1px solid #b8892d;background:#050403;color:#fff7ed;border-radius:999px;padding:13px 15px;font:inherit}.quick-route button,.quick-result a,.quick-contact{border:1px solid #f8e7b0;background:linear-gradient(135deg,#facc15,#a16207);color:#160b04;border-radius:999px;padding:13px 16px;font-weight:900;text-decoration:none;white-space:nowrap}.quick-result{margin-top:12px;border-top:1px solid #b8892d55;padding-top:12px}.quick-result strong{display:block;color:#d4af37}.quick-result span{display:block;color:#f8e7b0;margin-top:3px}.quick-result p{margin:6px 0!important;font-size:.95rem!important}.route-meter{display:grid;gap:7px;margin:10px 0;padding:10px;border:1px solid #b8892d66;border-radius:14px;background:#050403}.route-meter div{display:flex;justify-content:space-between;gap:10px;font-size:.85rem;font-weight:900}.route-meter i{display:block;height:8px;max-width:100%;border-radius:999px;background:linear-gradient(90deg,#facc15,#ef4444);box-shadow:0 0 16px #f59e0b88}.quick-promo{color:#f8e7b0!important}.quick-links{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.quick-links a{padding:9px 12px!important;background:#080605!important;color:#f8e7b0!important;border-color:#d4af37!important}.quick-hold{grid-template-columns:1fr 1fr}.quick-hold button{grid-column:1/-1}.quick-thanks{border:1px solid #d4af37;border-radius:18px;padding:13px;background:#080605}.quick-thanks div{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.quick-thanks a{margin-top:0!important;padding:10px 13px}.quick-contact{display:inline-block;margin-top:10px;background:#090706!important;color:#f8e7b0!important;border-color:#d4af37!important}.route-nudge{position:fixed;left:18px;bottom:18px;z-index:42;max-width:310px;border:1px solid #d4af37;border-radius:20px;background:linear-gradient(180deg,#130a06,#050403);box-shadow:0 20px 60px #000;padding:16px;color:#fff7ed}.route-nudge button{position:absolute;right:10px;top:8px;border:0;background:transparent;color:#f8e7b0;font-weight:900}.route-nudge strong,.route-nudge span{display:block;padding-right:18px}.route-nudge span{color:#ded2bd;margin:4px 0 10px}.route-nudge a{display:inline-block;border-radius:999px;background:linear-gradient(135deg,#facc15,#a16207);color:#160b04;padding:10px 14px;text-decoration:none;font-weight:900}@media(max-width:760px){.quick-route{padding:14px;margin-top:16px}.quick-route-form,.quick-hold{grid-template-columns:1fr}.quick-route button,.quick-contact{width:100%;text-align:center}.route-nudge{left:12px;right:12px;bottom:74px;max-width:none}.quick-price{font-size:.9rem!important}.quick-thanks div{display:grid}.quick-thanks a{text-align:center}.route-meter div{display:grid}}
     `}</style>
   </>
 }
