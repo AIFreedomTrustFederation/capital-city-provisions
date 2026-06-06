@@ -7,7 +7,7 @@ const LATEST_LEAD_KEY='ccp_latest_lead';
 const CUSTOMER_COOKIE_KEY='ccp_customer_saved';
 const PROMO_HOURS=48;
 
-type LeadData=Record<string,string>;
+type LeadData=Record<string,any>;
 
 const steps=[
   {key:'address',bot:'What ZIP should we check first?',type:'text',placeholder:'ZIP code or delivery area'},
@@ -32,32 +32,26 @@ function recommend(d:LeadData){
 function routePlan(address=''){
   const zip=(address.match(/\d{5}/)?.[0]||'').trim();
   const map:Record<string,any>={
-    '95628':{route:'Fair Oaks / Carmichael',day:'Tuesday',window:'3-7 PM',status:'Available',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 spots open'},
-    '95608':{route:'Fair Oaks / Carmichael',day:'Tuesday',window:'3-7 PM',status:'Available',capacity:12,reserved:7,slotsRemaining:5,fill:58,badge:'5 spots open'},
-    '95661':{route:'Roseville',day:'Wednesday',window:'2-6 PM',status:'Confirmed',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed'},
-    '95678':{route:'Roseville',day:'Wednesday',window:'2-6 PM',status:'Confirmed',capacity:12,reserved:9,slotsRemaining:3,fill:75,badge:'Confirmed'},
-    '95765':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 spots open'},
-    '95677':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 spots open'},
-    '95648':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,slotsRemaining:2,fill:83,badge:'2 spots open'},
-    '95630':{route:'Folsom / Orangevale',day:'Friday',window:'2-6 PM',status:'Opening soon',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Opening soon'},
-    '95662':{route:'Folsom / Orangevale',day:'Friday',window:'2-6 PM',status:'Opening soon',capacity:12,reserved:5,slotsRemaining:7,fill:42,badge:'Opening soon'}
+    '95628':{route:'Fair Oaks / Carmichael',day:'Tuesday',window:'3-7 PM',status:'Available',capacity:12,reserved:7,fill:58,badge:'5 spots open'},
+    '95608':{route:'Fair Oaks / Carmichael',day:'Tuesday',window:'3-7 PM',status:'Available',capacity:12,reserved:7,fill:58,badge:'5 spots open'},
+    '95661':{route:'Roseville',day:'Wednesday',window:'2-6 PM',status:'Confirmed',capacity:12,reserved:9,fill:75,badge:'Confirmed'},
+    '95678':{route:'Roseville',day:'Wednesday',window:'2-6 PM',status:'Confirmed',capacity:12,reserved:9,fill:75,badge:'Confirmed'},
+    '95765':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,fill:83,badge:'2 spots open'},
+    '95677':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,fill:83,badge:'2 spots open'},
+    '95648':{route:'Rocklin / Lincoln',day:'Thursday',window:'2-6 PM',status:'Nearly full',capacity:12,reserved:10,fill:83,badge:'2 spots open'},
+    '95630':{route:'Folsom / Orangevale',day:'Friday',window:'2-6 PM',status:'Opening soon',capacity:12,reserved:5,fill:42,badge:'Opening soon'},
+    '95662':{route:'Folsom / Orangevale',day:'Friday',window:'2-6 PM',status:'Opening soon',capacity:12,reserved:5,fill:42,badge:'Opening soon'}
   };
   const found=map[zip];
-  if(found)return {...found,restock:'Fresh stock is planned Monday and Thursday.',confirm:'Delivery timing is confirmed before pack-out.'};
+  if(found)return {...found,slotsRemaining:found.capacity-found.reserved,restock:'Fresh stock is planned Monday and Thursday.',confirm:'Delivery timing is confirmed before pack-out.'};
   return {route:'Expansion Area',day:'Next grouped delivery',window:'To be confirmed',status:'Waitlist',capacity:12,reserved:0,slotsRemaining:12,fill:0,badge:'Waitlist',restock:'We open new clusters when nearby demand is strong enough.',confirm:'Follow-up goes out after the area is approved.'};
 }
 
-function cleanZip(value=''){return (value.match(/\d{5}/)?.[0]||'').trim();}
+function cleanZip(value=''){return (String(value).match(/\d{5}/)?.[0]||'').trim();}
 function promoExpiresAt(){return new Date(Date.now()+PROMO_HOURS*60*60*1000).toISOString();}
-function compactSavedLead(saved:LeadData){const keep=['address','zip','familySize','interest','proteins','budget','message','name','email','phone'];return keep.reduce((next,key)=>saved[key]?{...next,[key]:saved[key]}:next,{} as LeadData);}
-function saveCustomerMemory(data:LeadData){
-  const memory={...compactSavedLead(data),zip:data.zip||cleanZip(data.address||'')};
-  localStorage.setItem(LATEST_LEAD_KEY,JSON.stringify(memory));
-  document.cookie=`${CUSTOMER_COOKIE_KEY}=1; max-age=${60*60*24*180}; path=/; SameSite=Lax`;
-}
-function loadCustomerMemory(){
-  try{return compactSavedLead(JSON.parse(localStorage.getItem(LATEST_LEAD_KEY)||'{}'))}catch(e){return {} as LeadData}
-}
+function compactSavedLead(saved:LeadData){const keep=['address','zip','familySize','interest','proteins','budget','message','name','email','phone'];return keep.reduce((next,key)=>saved[key]?{...next,[key]:String(saved[key])}:next,{} as LeadData);}
+function saveCustomerMemory(data:LeadData){const memory={...compactSavedLead(data),zip:data.zip||cleanZip(data.address||'')};localStorage.setItem(LATEST_LEAD_KEY,JSON.stringify(memory));document.cookie=`${CUSTOMER_COOKIE_KEY}=1; max-age=${60*60*24*180}; path=/; SameSite=Lax`;}
+function loadCustomerMemory(){try{return compactSavedLead(JSON.parse(localStorage.getItem(LATEST_LEAD_KEY)||'{}'))}catch(e){return {} as LeadData}}
 
 export default function LeadCapture(){
   const [open,setOpen]=useState(false);const [light,setLight]=useState(false);const [step,setStep]=useState(0);const [value,setValue]=useState('');const [data,setData]=useState<LeadData>({});const [sent,setSent]=useState(false);const [sending,setSending]=useState(false);const [rec,setRec]=useState<any>(null);const [route,setRoute]=useState<any>(null);const [error,setError]=useState('');const [hasSavedLead,setHasSavedLead]=useState(false);const [customerName,setCustomerName]=useState('');
@@ -65,23 +59,21 @@ export default function LeadCapture(){
   useEffect(()=>{const onOpen=()=>setOpen(true);window.addEventListener('ccp:open-lead',onOpen);return()=>window.removeEventListener('ccp:open-lead',onOpen)},[]);
   useEffect(()=>{
     const savedData=loadCustomerMemory();
-    if(Object.keys(savedData).length){
-      const address=savedData.address||savedData.zip||'';
-      setHasSavedLead(true);setCustomerName(savedData.name||'');setData({...savedData,address});setRec(recommend(savedData));
-      if(address){setRoute(routePlan(address));setStep(2)}
-    }
+    if(Object.keys(savedData).length){const address=savedData.address||savedData.zip||'';setHasSavedLead(true);setCustomerName(savedData.name||'');setData({...savedData,address});setRec(recommend(savedData));if(address){setRoute(routePlan(address));setStep(2)}}
     function useKnownZip(zip:string){const clean=cleanZip(zip);if(!clean)return;setData(current=>current.address?current:{...current,address:clean,zip:clean});setRoute(routePlan(clean));setStep(current=>current===0?1:current)}
     useKnownZip(localStorage.getItem(ZIP_STORAGE_KEY)||'');
     const onZip=(event:Event)=>useKnownZip((event as CustomEvent<{zip:string}>).detail?.zip||'');
     window.addEventListener('ccp:delivery-zip',onZip);return()=>window.removeEventListener('ccp:delivery-zip',onZip);
   },[]);
+  function clearSavedInfo(){localStorage.removeItem(LATEST_LEAD_KEY);localStorage.removeItem(ZIP_STORAGE_KEY);document.cookie=`${CUSTOMER_COOKIE_KEY}=; max-age=0; path=/; SameSite=Lax`;setData({});setRec(null);setRoute(null);setSent(false);setError('');setHasSavedLead(false);setCustomerName('');setStep(0);setValue('');}
+  function editDetails(){setStep(0);setSent(false);setOpen(true);}
   async function finish(updated:LeadData){
     const r=recommend(updated);const rp=routePlan(updated.address);setRec(r);setRoute(rp);setSending(true);setError('');
     const lead={...updated,zip:cleanZip(updated.address),recommendation:r.title,estimatedBudget:r.budget,route:rp.route,deliveryDay:rp.day,deliveryWindow:rp.window,routeStatus:rp.status,routeBadge:rp.badge,routeFill:rp.fill,routeCapacity:rp.capacity,routeReserved:rp.reserved,routeSlotsRemaining:rp.slotsRemaining,restockPlan:rp.restock,reminderPlan:rp.confirm,smsReady:!!updated.phone,promoCode:'CHEESECAKE-48',couponOffer:'Free cheesecake with qualifying first stocked-home order within 48 hours of ZIP check, while supplies last.',couponDeadlineHours:PROMO_HOURS,promoExpiresAt:promoExpiresAt(),giveawayAvailable:true,purchaseRequiredForGiveaway:false,purchaseImprovesGiveawayOdds:false,createdAt:new Date().toISOString()};
     localStorage.setItem(LATEST_LEAD_KEY,JSON.stringify(lead));saveCustomerMemory(lead);setCustomerName(lead.name||'');setHasSavedLead(true);
     try{const response=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});if(!response.ok)throw new Error('Lead API failed');setSent(true)}catch(e){setError('We saved this on your device, but the request did not reach the server. Please try again or use the contact page.')}finally{setSending(false)}
   }
-  function next(v=value){const current=steps[step];const normalized=current.key==='address'?cleanZip(v)||v:v;const updated={...data,[current.key]:normalized};if(current.key==='address'&&cleanZip(normalized)){updated.zip=cleanZip(normalized);localStorage.setItem(ZIP_STORAGE_KEY,updated.zip);window.dispatchEvent(new CustomEvent('ccp:delivery-zip',{detail:{zip:updated.zip}}))}setData(updated);setValue('');if(['name','email','phone','interest'].includes(current.key)){saveCustomerMemory(updated);if(current.key==='name')setCustomerName(normalized)}if(current.key==='familySize')setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(normalized));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
+  function next(v=value){const current=steps[step];const normalized=current.key==='address'?cleanZip(v)||v:v;const updated={...data,[current.key]:normalized};if(current.key==='address'&&cleanZip(normalized)){updated.zip=cleanZip(normalized);localStorage.setItem(ZIP_STORAGE_KEY,updated.zip);window.dispatchEvent(new CustomEvent('ccp:delivery-zip',{detail:{zip:updated.zip}}))}setData(updated);setValue('');if(['name','email','phone','interest'].includes(current.key)){saveCustomerMemory(updated);if(current.key==='name')setCustomerName(String(normalized))}if(current.key==='familySize')setRec(recommend(updated));if(current.key==='address')setRoute(routePlan(String(normalized)));if(step<steps.length-1){setStep(step+1);return}finish(updated)}
   const current=steps[step];
   const aiContext={role:'customer',lead:data,recommendation:rec,route,promo:{code:'CHEESECAKE-48',deadlineHours:PROMO_HOURS},giveaway:{entryPath:'/giveaway',purchaseRequired:false,purchaseImprovesOdds:false},permissions:{customer:['box guidance','delivery estimate','promo clarity','giveaway rules','wholesale inquiry']}};
   const welcomeName=customerName?`Welcome back, ${customerName.split(' ')[0]}. `:'';
@@ -93,9 +85,10 @@ export default function LeadCapture(){
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
       <button className="lead-close" onClick={()=>setOpen(false)} aria-label="Close concierge">x</button>
       <p className="eyebrow">Box Concierge</p><h2>Check your ZIP and shape the right plan.</h2>
+      {hasSavedLead&&<div className="saved-info"><span>Saved on this device.</span><button onClick={editDetails}>Edit details</button><button onClick={clearSavedInfo}>Clear saved info</button></div>}
       <div className="chat-window">
         <div className="chat-bubble bot">{sent?'Your request is in. We will use your area and plan details for follow-up.':sending?'Sending your request...':hasSavedLead?`${welcomeName}Your saved plan is ready when you are.`:current.bot}</div>
-        {Object.entries(data).filter(([k])=>!['email','phone'].includes(k)).map(([k,v])=><div className="chat-bubble user" key={k}>{k==='address'?`Delivery ZIP: ${v}`:v}</div>)}
+        {Object.entries(data).filter(([k])=>!['email','phone'].includes(k)).map(([k,v])=><div className="chat-bubble user" key={k}>{k==='address'?`Delivery ZIP: ${v}`:String(v)}</div>)}
         {rec&&<div className="recommend-card"><p className="eyebrow">Recommended Plan</p><h3>{rec.title}</h3><p>{rec.detail}</p><strong>{rec.budget}</strong></div>}
         {route&&<div className="recommend-card"><p className="eyebrow">Delivery Estimate</p><h3>{route.status}</h3><p>{route.route}</p><strong>{route.day} - {route.window}</strong><div className="mini-meter"><span>{route.badge}</span><i><b style={{width:`${route.fill}%`}}/></i><span>{route.reserved}/{route.capacity} grouped</span></div><p>{route.restock}</p><p>{route.confirm}</p><p>Cheesecake thank-you gift: qualifying first stocked-home orders within 48 hours may receive a free cheesecake while supplies last.</p><p><a href="/giveaway">Free giveaway entry</a> is separate. No purchase necessary.</p></div>}
         {(route||rec||hasSavedLead)&&!sent&&<LocalAIConcierge role="customer" context={aiContext}/>} 
@@ -104,6 +97,6 @@ export default function LeadCapture(){
       </div>
       {!sent&&<div className="chat-input">{current.type==='select'?<div className="choice-grid">{current.options?.map(o=><button key={o} onClick={()=>next(o)} disabled={sending}>{o}</button>)}</div>:<><input value={value} onChange={e=>setValue(e.target.value)} type={current.type} placeholder={current.placeholder} onKeyDown={e=>{if(e.key==='Enter'&&value.trim())next()}} disabled={sending}/><button onClick={()=>value.trim()&&next()} disabled={sending}>{sending?'Sending':'Send'}</button></>}</div>}
     </div></div>}
-    <style>{`.mini-meter{display:grid;gap:6px;margin:10px 0}.mini-meter span{font-weight:900;color:#f8e7b0}.mini-meter i{display:block;height:8px;border-radius:999px;background:#050403;border:1px solid #b8892d66;overflow:hidden}.mini-meter b{display:block;height:100%;max-width:100%;background:linear-gradient(90deg,#facc15,#ef4444)}`}</style>
+    <style>{`.mini-meter{display:grid;gap:6px;margin:10px 0}.mini-meter span{font-weight:900;color:#f8e7b0}.mini-meter i{display:block;height:8px;border-radius:999px;background:#050403;border:1px solid #b8892d66;overflow:hidden}.mini-meter b{display:block;height:100%;max-width:100%;background:linear-gradient(90deg,#facc15,#ef4444)}.saved-info{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid #b8892d66;border-radius:16px;padding:10px;margin:10px 0 14px;background:#090706}.saved-info span{color:#f8e7b0;font-weight:900}.saved-info button{border:1px solid #d4af37;background:#120905;color:#f8e7b0;border-radius:999px;padding:8px 10px;font-weight:900}.light-mode .saved-info{background:#fff9ec;border-color:#9a6a12}.light-mode .saved-info span,.light-mode .saved-info button{color:#2d1700}`}</style>
   </>
 }
