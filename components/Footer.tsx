@@ -16,6 +16,7 @@ const links=[
   ['Customer AI','/customer-concierge'],
   ['AI Route Concierge','/ai-route-concierge'],
   ['Ops Hub','/ops'],
+  ['System Database','/system-database'],
   ['Driver Ops','/driver'],
   ['Owner Command','/owner'],
   ['Reports','/reports']
