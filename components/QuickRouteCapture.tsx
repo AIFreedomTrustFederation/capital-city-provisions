@@ -79,6 +79,7 @@ export default function QuickRouteCapture(){
     const plan=route||routePlan(clean);
     const lead={...details,address:clean,zip:clean,interest:'Quick route check',recommendation:'Freezer box route follow-up',route:plan.route,deliveryDay:plan.day,deliveryWindow:plan.window,routeStatus:plan.status,message:'Quick capture from landing page',source:'delivery-zip-popup'};
     localStorage.setItem(ROUTE_LEAD_KEY,JSON.stringify(lead));
+    localStorage.setItem('ccp_latest_lead',JSON.stringify(lead));
     await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});
     setSent(true);
   }
@@ -99,7 +100,7 @@ export default function QuickRouteCapture(){
           <input value={details.email} onChange={e=>setDetails({...details,email:e.target.value})} placeholder="Email" type="email" aria-label="Email" required/>
           <input value={details.phone} onChange={e=>setDetails({...details,phone:e.target.value})} placeholder="Phone" type="tel" aria-label="Phone"/>
           <button type="submit">Hold My Route</button>
-        </form>:<div className="quick-thanks"><strong>{route.route} request received.</strong><p>{nextStep(route)}</p><div><a href="/freezer-boxes">Compare Freezer Boxes</a><a href="mailto:sales@capitalcityprovisions.com">Email Sales</a></div></div>}
+        </form>:<div className="quick-thanks"><strong>{route.route} request received.</strong><p>{nextStep(route)}</p><div><a href="/thank-you">View Confirmation</a><a href="/family-freezer-boxes">Compare Freezer Boxes</a><a href="mailto:sales@capitalcityprovisions.com">Email Sales</a></div></div>}
       </div>}
       <a className="quick-contact" href="mailto:sales@capitalcityprovisions.com">Email Sales</a>
     </div>
