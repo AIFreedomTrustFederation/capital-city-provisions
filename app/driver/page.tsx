@@ -1,8 +1,6 @@
-const stops=[
- {sequence:1,area:'Roseville',box:'Steak Lovers Club',weight:'30 lbs',status:'Load verified'},
- {sequence:2,area:'Roseville',box:'Family Freezer Box',weight:'45 lbs',status:'Confirmed'},
- {sequence:3,area:'Rocklin',box:'Surf & Turf Club',weight:'35 lbs',status:'Needs seafood check'},
- {sequence:4,area:'Lincoln',box:'Custom Restock',weight:'40 lbs',status:'Confirmed'}
-];
-const total=stops.reduce((s,x)=>s+Number(x.weight.split(' ')[0]),0);
-export default function Driver(){return <main className="site"><section className="section"><p className="eyebrow">Driver View</p><h1>Route Manifest</h1><p className="lead">Daily delivery view for route sequence, load weight, box type, and stop readiness.</p><div className="grid"><article><h3>Stops</h3><p>{stops.length}</p></article><article><h3>Load Weight</h3><p>{total} lbs</p></article><article><h3>Route Focus</h3><p>Roseville / Rocklin</p></article></div></section><section className="section"><p className="eyebrow">Delivery Stops</p><h2>Load, verify, deliver.</h2><div className="grid">{stops.map(s=><article key={s.sequence} className="marble"><h3>Stop {s.sequence}</h3><p>{s.area}</p><p>{s.box}</p><p>{s.weight}</p><strong>{s.status}</strong></article>)}</div></section><section className="cta poster-frame"><p className="eyebrow">Driver Checklist</p><h2>Before leaving.</h2><p>Verify freezer load, route sequence, customer confirmations, fuel, temperature control, and delivery notes.</p></section></main>}
+import RoleAIWorkspace from '../../components/RoleAIWorkspace';
+import { driverSnapshot } from '../../lib/ops-memory';
+
+export const metadata={title:'Driver Ops | Capital City Provisions',description:'Driver route workspace for orders, delivery notes, route summaries, and daily turn-ins.'};
+
+export default function DriverPage(){return <RoleAIWorkspace role="driver" title="Driver Ops" subtitle="Run the delivery day from assigned routes, stop notes, customer contact needs, and turn-ins." memory={driverSnapshot('Marco')}/>}
