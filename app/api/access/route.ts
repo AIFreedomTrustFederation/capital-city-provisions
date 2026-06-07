@@ -10,7 +10,9 @@ export async function POST(request:Request){
   try{
     const {role,code}=await request.json();
     const normalizedRole=role==='owner'?'owner':'driver';
-    const valid=String(code||'').trim()===expectedCode(normalizedRole);
+    const submitted=String(code||'').trim().toUpperCase();
+    const expected=expectedCode(normalizedRole).trim().toUpperCase();
+    const valid=submitted===expected;
     if(!valid)return NextResponse.json({ok:false,message:'Access code not recognized'},{status:401});
     const response=NextResponse.json({ok:true,role:normalizedRole});
     response.cookies.set('ccp_access',normalizedRole,{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',path:'/',maxAge:60*60*12});
