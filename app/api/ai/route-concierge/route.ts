@@ -32,8 +32,8 @@ function fallbackRecommendation(input:ConciergeInput){
     const intent=clean(input.intent);
     const driverAnswer=intent==='driver-sales-route'
       ? input.salesIntent==='queue'
-        ? `Queue guidance: confirm ${activeStop.customer||'the current stop'} is handled, then capture ${input.lead?.name||'the next lead'} with ZIP, protein interest, box size, callback time, and route fit. Reserve the next sale only after the customer understands final confirmation comes from the team.`
-        : `Sales script: keep it short and local. "Your area is already active on our route. I can note the box you want, queue the next freezer plan, and have the team confirm route timing and final details before anything is locked in."`
+        ? `Queue guidance: confirm ${activeStop.customer||'the current stop'} is handled, then capture ${input.lead?.name||'the next lead'} with ZIP, phone, email, address, protein interest, box size, callback time, and route fit. ${input.lead?.ownerOverride?`Owner override is active: ${input.lead.ownerOverride}. `:''}${input.driverRoutePlan?`Driver route plan: ${input.driverRoutePlan}. `:''}Reserve the next sale only after the customer understands final confirmation comes from the team.`
+        : `Sales script: keep it short and local. "Your area is already active on our route. I can note the box you want, queue the next freezer plan, and have the team confirm route timing and final details before anything is locked in." ${input.lead?.ownerOverride?`Owner priority: ${input.lead.ownerOverride}`:''}`
       : intent==='customerText'
       ? `Text draft: Hi, this is Capital City Provisions. Your ${activeStop.box||'order'} is on today's ${activeStop.routeName||'route'}. We are heading your way in the ${activeStop.window||'delivery'} window. Reply with any gate, parking, or drop-off note.`
       : intent==='issue'
