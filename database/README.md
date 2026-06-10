@@ -1,22 +1,24 @@
 # Capital City Provisions database
 
-This folder defines the open-source database layer for the system.
+This folder defines the database layer for the live operating system.
 
-## Modes
+## Live source of truth
 
-- **Live database**: starts empty. It receives only real customer, order, driver, fulfillment, restock, route, report, and learning records.
-- **Sample database**: optional demo data for testing UI and AI behavior.
+The app now uses one live source of truth:
 
-The website now keeps those modes separate:
+- The live database starts empty.
+- The owner dashboard and system database create operational records.
+- Driver boards, driver sales, reports, and AI training records read from the live database.
+- No seeded fake/sample customer data should appear in production UI.
 
-- `/system-database` shows the live empty database.
-- `/system-database/sample` shows the sample database.
-- `/api/db/orders` reads/writes live by default.
-- `/api/db/orders?sample=1` reads/writes sample mode for demos.
-- `/api/db/reports` generates live reports by default.
-- `/api/db/reports?sample=1` generates sample reports.
-- `/api/db/training` exports live training records by default.
-- `/api/db/training?sample=1` exports sample training records.
+Current live endpoints:
+
+- `/system-database` shows the live database console.
+- `/api/db/orders` reads/writes live orders.
+- `/api/db/driver-update` writes live driver delivery and fulfillment updates.
+- `/api/db/reports` generates live reports.
+- `/api/db/training` exports live training records.
+- `/api/ops/driver-sales` writes live driver sales leads for owner review.
 
 ## Open-source target
 
@@ -28,11 +30,7 @@ For production, apply:
 \i database/schema.sql
 ```
 
-For demo/testing only:
-
-```sql
-\i database/seed-sample.sql
-```
+Do not seed production with fake customers, fake orders, fake routes, or fake driver records.
 
 ## AI learning
 
