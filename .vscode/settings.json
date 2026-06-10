@@ -1,0 +1,5 @@
+{
+  "git.pullRebase": true,
+  "git.confirmSync": false,
+  "git.autofetch": true
+}
