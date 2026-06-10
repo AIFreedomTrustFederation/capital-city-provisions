@@ -5,6 +5,7 @@ MAIN_BRANCH="main"
 REMOTE="origin"
 STAMP=$(date +"%Y%m%d-%H%M%S")
 BACKUP_BRANCH="codespace-backup-${STAMP}"
+MAIN_BACKUP_BRANCH="main-diverged-backup-${STAMP}"
 RUN_BUILD="yes"
 RUN_INSTALL="yes"
 
@@ -27,15 +28,20 @@ Options:
   --no-build     Skip npm run typecheck and npm run build
   --help         Show this help
 
+Official rule:
+  origin/main is the source of truth.
+
 What it does:
   1. Verifies this is a Git repository.
-  2. Saves local work to a timestamped backup branch when needed.
-  3. Pushes the backup branch so no work is lost.
-  4. Checks out main and fast-forwards from origin/main only.
-  5. Installs dependencies.
-  6. Runs typecheck and build.
+  2. Fetches origin/main and tags.
+  3. Saves any local branch, local commits, or uncommitted work to a timestamped backup branch.
+  4. Pushes the backup branch so no work is lost.
+  5. Repoints local main to origin/main so every Codespace matches the official main branch.
+  6. Installs dependencies.
+  7. Runs typecheck and build.
 
-It does not run git reset --hard, git clean, force push, or delete Codespaces.
+It does not force-push, delete branches, delete Codespaces, or run git clean.
+Local work is preserved on pushed backup branches before local main is aligned.
 EOF
 }
 
@@ -63,6 +69,9 @@ done
 
 print_header "Capital City Provisions Codespace Sync"
 
+echo "Official source of truth: $REMOTE/$MAIN_BRANCH"
+echo "Local Codespaces will be aligned to the official main branch after backups."
+
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "ERROR: Run this from inside the repository."
   exit 1
@@ -73,13 +82,17 @@ if ! git remote get-url "$REMOTE" >/dev/null 2>&1; then
   exit 1
 fi
 
-CURRENT_BRANCH=$(git branch --show-current)
+CURRENT_BRANCH=$(git branch --show-current || true)
 CURRENT_STATUS=$(git status --short)
 
 printf "Current branch: %s\n" "${CURRENT_BRANCH:-detached}"
 
-print_header "Fetching remote"
-git fetch "$REMOTE" "$MAIN_BRANCH"
+print_header "Fetching official main"
+git fetch --tags "$REMOTE" "$MAIN_BRANCH"
+
+OFFICIAL_REF="$REMOTE/$MAIN_BRANCH"
+OFFICIAL_SHA=$(git rev-parse "$OFFICIAL_REF")
+CURRENT_HEAD=$(git rev-parse HEAD)
 
 NEEDS_BACKUP="no"
 
@@ -91,50 +104,55 @@ if [ "${CURRENT_BRANCH:-}" != "$MAIN_BRANCH" ]; then
   NEEDS_BACKUP="yes"
 fi
 
+if [ "$CURRENT_HEAD" != "$OFFICIAL_SHA" ]; then
+  NEEDS_BACKUP="yes"
+fi
+
 if [ "$NEEDS_BACKUP" = "yes" ]; then
-  print_header "Saving local work to backup branch"
+  print_header "Saving local work before sync"
   echo "Backup branch: $BACKUP_BRANCH"
 
-  git checkout -b "$BACKUP_BRANCH"
+  git checkout -B "$BACKUP_BRANCH"
   git add -A
 
   if git diff --cached --quiet; then
-    echo "No file changes to commit on backup branch."
+    echo "No uncommitted file changes to commit on backup branch."
   else
-    git commit -m "Backup Codespace work before sync $STAMP"
+    git commit -m "Backup Codespace work before official main sync $STAMP"
   fi
 
   echo "Pushing backup branch to $REMOTE..."
   git push -u "$REMOTE" "$BACKUP_BRANCH"
 else
-  echo "No local changes found on main. Backup branch not needed."
+  echo "Local checkout already matches $OFFICIAL_REF and has no file changes."
 fi
 
-print_header "Syncing main with origin/main"
+print_header "Making local main match official origin/main"
 
-git checkout "$MAIN_BRANCH"
-git fetch "$REMOTE" "$MAIN_BRANCH"
+git fetch --tags "$REMOTE" "$MAIN_BRANCH"
+OFFICIAL_SHA=$(git rev-parse "$OFFICIAL_REF")
 
-if git merge --ff-only "$REMOTE/$MAIN_BRANCH"; then
-  echo "main is now fast-forwarded to $REMOTE/$MAIN_BRANCH."
-else
-  echo "ERROR: main cannot be fast-forwarded cleanly."
-  echo "No destructive reset was performed."
-  if [ "$NEEDS_BACKUP" = "yes" ]; then
-    echo "Your local work is preserved on: $BACKUP_BRANCH"
+if git show-ref --verify --quiet "refs/heads/$MAIN_BRANCH"; then
+  LOCAL_MAIN_SHA=$(git rev-parse "$MAIN_BRANCH")
+  if [ "$LOCAL_MAIN_SHA" != "$OFFICIAL_SHA" ]; then
+    echo "Local main differs from $OFFICIAL_REF."
+    echo "Preserving old local main as: $MAIN_BACKUP_BRANCH"
+    git branch "$MAIN_BACKUP_BRANCH" "$MAIN_BRANCH"
+    git push -u "$REMOTE" "$MAIN_BACKUP_BRANCH"
   fi
-  echo "Inspect with: git log --oneline --decorate --graph --all -20"
-  exit 1
 fi
+
+# origin/main is official. This local branch update happens only after backups are pushed.
+git checkout -B "$MAIN_BRANCH" "$OFFICIAL_REF"
+git branch --set-upstream-to="$REMOTE/$MAIN_BRANCH" "$MAIN_BRANCH" >/dev/null 2>&1 || true
+git config pull.rebase true
+
+echo "Local $MAIN_BRANCH is now aligned to $OFFICIAL_REF at $(git rev-parse --short HEAD)."
 
 print_header "Dependency install"
 
 if [ "$RUN_INSTALL" = "yes" ] && [ -f package.json ]; then
-  if [ -f package-lock.json ]; then
-    npm install
-  else
-    npm install
-  fi
+  npm install
 else
   echo "Skipping dependency install."
 fi
@@ -161,13 +179,16 @@ print_header "Final status"
 git status
 
 echo ""
-echo "Synced current Codespace with $REMOTE/$MAIN_BRANCH."
+echo "Synced this Codespace with official $REMOTE/$MAIN_BRANCH."
 
 if [ "$NEEDS_BACKUP" = "yes" ]; then
   echo "Backup branch preserved: $BACKUP_BRANCH"
   echo "Compare backup with main: git diff main..$BACKUP_BRANCH --stat"
 fi
 
+echo ""
+echo "To sync every device/Codespace: run this same command in each Codespace:"
+echo "  bash sync-current-codespace.sh"
 echo ""
 echo "To check all Codespaces after running this in each one:"
 echo "  bash check-all-codespaces-sync.sh"
