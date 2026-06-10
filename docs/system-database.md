@@ -32,6 +32,12 @@ The repo includes a PostgreSQL-compatible open-source schema:
 
 For production persistence, connect the database adapter to open-source PostgreSQL, self-hosted Supabase, Neon-compatible Postgres, or another Postgres-compatible database. Vercel serverless functions cannot reliably write live business records back into repository files at runtime, so a shared database is required for real multi-user customer/driver/owner state.
 
+Current persistence behavior:
+
+- If `DATABASE_URL` is set, order lifecycle reads/writes use PostgreSQL.
+- If `DATABASE_URL` is set, driver delivery updates are persisted to PostgreSQL and update the related order status.
+- If `DATABASE_URL` is missing, local/demo mode uses the in-memory live store and should not be treated as durable production storage.
+
 ## Main files
 
 - `lib/ccp-database.ts` contains schema types, live runtime store, lifecycle updates, reports, and training dataset generation.
