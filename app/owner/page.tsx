@@ -1,5 +1,5 @@
 import AccessGate from '../../components/AccessGate';
-import OwnerLeadDashboard from '../../components/OwnerLeadDashboard';
+import LiveOwnerLeadDashboard from '../../components/LiveOwnerLeadDashboard';
 import RoleAIWorkspace from '../../components/RoleAIWorkspace';
 import { fullSystemSnapshot } from '../../lib/ccp-database';
 
@@ -24,7 +24,7 @@ export default function OwnerPage(){
         <img src="/images/capital-city-hero.png" alt="Capital City Provisions owner command center"/>
       </section>
 
-      <OwnerLeadDashboard snapshot={live}/>
+      <LiveOwnerLeadDashboard snapshot={live}/>
 
       <section className="section ops-grid" id="owner-report">
         <div className="route-list ops-cards owner-summary">
