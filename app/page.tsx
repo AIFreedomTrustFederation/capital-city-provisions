@@ -12,27 +12,27 @@ const droolGallery = [
   {
     title: 'Marbled Steakhouse Cuts',
     text: 'Ribeyes, strips, roasts, and freezer-ready beef selected to look as good as it eats.',
-    image: 'https://images.unsplash.com/photo-1603048297172-c92544798d5a?auto=format&fit=crop&w=1200&q=85'
+    image: '/images/ccp-marbled-cuts.svg'
   },
   {
     title: 'Hand-Trimmed Quality',
     text: 'A premium butcher-shop feel that makes every bundle look clean, generous, and high value.',
-    image: 'https://images.unsplash.com/photo-1551028150-64b9f398f678?auto=format&fit=crop&w=1200&q=85'
+    image: '/images/ccp-butcher-trim.svg'
   },
   {
     title: 'Cryovac Packed Freshness',
     text: 'Freezer-ready portions that make the customer feel stocked before they ever check out.',
-    image: 'https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?auto=format&fit=crop&w=1200&q=85'
+    image: '/images/ccp-cryovac-pack.svg'
   },
   {
     title: 'Backyard Steak Night',
     text: 'The lifestyle shot: family, fire, flavor, and the promise of better dinners at home.',
-    image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=1200&q=85'
+    image: '/images/ccp-backyard-steak-night.svg'
   },
   {
     title: 'Premium Delivery Experience',
     text: 'Capital City Provisions brings the freezer-fill experience straight to the customer.',
-    image: 'https://images.unsplash.com/photo-1586880244406-556ebe35f282?auto=format&fit=crop&w=1200&q=85'
+    image: '/images/ccp-premium-delivery.svg'
   }
 ];
 
