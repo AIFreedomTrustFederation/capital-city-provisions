@@ -1,194 +1,144 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-MAIN_BRANCH="main"
-TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
-BACKUP_BRANCH="codespace-backup-${TIMESTAMP}"
+REPO="AIFreedomTrustFederation/capital-city-provisions"
+DEFAULT_FLAGS="--no-install --no-build"
+SYNC_FLAGS=()
 
-# Files and folders that should never be restored from a rescue/backup branch.
-# These are the usual source of merge conflicts or generated dependency noise.
-EXCLUDE_REGEX='(^|/)(package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml|bun\.lockb)$|(^|/)(node_modules|\.next|dist|build|coverage)/'
+usage() {
+  cat <<'EOF'
+Usage: bash sync-all-codespaces.sh [options]
 
-print_header() {
-  echo ""
-  echo "=========================================="
-  echo " $1"
-  echo "=========================================="
-  echo ""
+Safely run the official Codespace sync process across every Codespace for:
+  AIFreedomTrustFederation/capital-city-provisions
+
+Options:
+  --full         Run install, typecheck, and build inside each Codespace.
+  --no-install  Skip npm install / npm ci.
+  --no-build    Skip npm run typecheck and npm run build.
+  --help        Show this help.
+
+Default behavior:
+  bash sync-current-codespace.sh --no-install --no-build
+
+Official rule:
+  origin/main is the source of truth.
+
+What this does:
+  1. Lists Codespaces through GitHub CLI.
+  2. Filters to this repository only.
+  3. SSHs into each Codespace.
+  4. Fetches origin/main.
+  5. Loads the latest sync-current-codespace.sh directly from origin/main.
+  6. Runs that official sync script.
+  7. Prints a safe/not-safe summary.
+
+It does not delete Codespaces, force-push, or run git clean.
+EOF
 }
 
-run_optional() {
-  local label="$1"
-  shift
+if [ $# -eq 0 ]; then
+  # shellcheck disable=SC2206
+  SYNC_FLAGS=($DEFAULT_FLAGS)
+else
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --full)
+        SYNC_FLAGS=()
+        shift
+        ;;
+      --no-install|--no-build)
+        SYNC_FLAGS+=("$1")
+        shift
+        ;;
+      --help|-h)
+        usage
+        exit 0
+        ;;
+      *)
+        echo "Unknown option: $1"
+        usage
+        exit 2
+        ;;
+    esac
+  done
+fi
 
-  echo ""
-  echo "$label..."
+echo "=========================================="
+echo " Capital City Provisions Sync All Codespaces"
+echo "=========================================="
+echo ""
+echo "Repository: $REPO"
+echo "Official source: origin/main"
+echo "Sync flags: ${SYNC_FLAGS[*]:-(full validation)}"
+echo ""
 
-  if "$@"; then
-    echo "$label passed."
-  else
-    echo "$label unavailable or failed. Continuing safely."
-  fi
-}
-
-print_header "Capital City Provisions Conflict-Safe Sync"
-
-if ! git rev-parse --git-dir >/dev/null 2>&1; then
-  echo "ERROR: Not inside a git repository."
+if ! command -v gh >/dev/null 2>&1; then
+  echo "ERROR: GitHub CLI not found."
   exit 1
 fi
 
-CURRENT_BRANCH=$(git branch --show-current)
-echo "Current branch: $CURRENT_BRANCH"
-echo "Backup branch:  $BACKUP_BRANCH"
-
-echo ""
-echo "Fetching latest remote data..."
-git fetch --all --prune
-
-print_header "Creating safety backup branch"
-
-# Create a full backup branch first so no local work is lost.
-git checkout -b "$BACKUP_BRANCH"
-git add -A
-
-if git diff --cached --quiet; then
-  echo "No uncommitted changes found. Creating branch without a new commit."
-else
-  git commit -m "Automated backup before conflict-safe sync $TIMESTAMP"
+if ! gh auth status >/dev/null 2>&1; then
+  echo "ERROR: GitHub CLI is not authenticated."
+  echo "Run: gh auth login"
+  exit 1
 fi
 
-echo ""
-echo "Pushing backup branch..."
-git push -u origin "$BACKUP_BRANCH"
+CODESPACES=$(gh codespace list --json name,repository -q ".[] | select(.repository == \"$REPO\") | .name")
 
-print_header "Resetting main to clean remote state"
-
-git checkout "$MAIN_BRANCH"
-git fetch origin "$MAIN_BRANCH"
-git reset --hard "origin/$MAIN_BRANCH"
-
-print_header "Applying safe files from backup branch"
-
-APPLIED_COUNT=0
-SKIPPED_COUNT=0
-
-# Use diff against clean main, but restore file-by-file instead of merging.
-# This avoids Git conflict markers entirely.
-while IFS= read -r FILE_PATH; do
-  [ -n "$FILE_PATH" ] || continue
-
-  if echo "$FILE_PATH" | grep -Eq "$EXCLUDE_REGEX"; then
-    echo "SKIP conflict-prone/generated file: $FILE_PATH"
-    SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
-    continue
-  fi
-
-  if git cat-file -e "$BACKUP_BRANCH:$FILE_PATH" 2>/dev/null; then
-    echo "APPLY: $FILE_PATH"
-    git restore --source "$BACKUP_BRANCH" -- "$FILE_PATH"
-  else
-    echo "REMOVE: $FILE_PATH"
-    git rm -r --ignore-unmatch -- "$FILE_PATH" >/dev/null 2>&1 || true
-  fi
-
-  APPLIED_COUNT=$((APPLIED_COUNT + 1))
-done < <(git diff --name-only "$MAIN_BRANCH" "$BACKUP_BRANCH")
-
-echo ""
-echo "Applied files: $APPLIED_COUNT"
-echo "Skipped files: $SKIPPED_COUNT"
-
-if git diff --quiet && git diff --cached --quiet; then
-  echo ""
-  echo "No safe file changes to commit. Main remains clean."
-else
-  echo ""
-  echo "Staging safe changes..."
-  git add -A
-
-  echo ""
-  echo "Committing safe changes..."
-  git commit -m "Apply conflict-safe Codespace backup $TIMESTAMP"
+if [ -z "$CODESPACES" ]; then
+  echo "No Codespaces found for $REPO."
+  exit 0
 fi
 
-print_header "Dependency install and validation"
+ALL_SAFE="yes"
 
-if [ -f package.json ]; then
-  if [ -f package-lock.json ]; then
-    run_optional "npm ci" npm ci
-  else
-    run_optional "npm install" npm install
-  fi
-else
-  echo "No package.json found. Skipping npm install."
-fi
+for CS in $CODESPACES; do
+  echo ""
+  echo "------------------------------------------"
+  echo "Codespace: $CS"
+  echo "------------------------------------------"
 
-if [ -f package.json ]; then
-  if npm run | grep -q "typecheck"; then
-    run_optional "Typecheck" npm run typecheck
-  else
-    echo "No typecheck script found. Skipping typecheck."
-  fi
+  if gh codespace ssh -c "$CS" -- bash -lc "
+    set -Eeuo pipefail
 
-  if npm run | grep -q "build"; then
-    echo ""
-    echo "Running build..."
-    if ! npm run build; then
-      echo ""
-      echo "BUILD FAILED. Main was not pushed."
-      echo "Your backup branch is preserved here: $BACKUP_BRANCH"
-      exit 1
+    if [ -d /workspaces/capital-city-provisions ]; then
+      cd /workspaces/capital-city-provisions
+    else
+      cd /workspaces/*
     fi
+
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+      echo 'ERROR: Not inside a git repository.'
+      exit 10
+    fi
+
+    echo 'Fetching official origin/main...'
+    git fetch --tags origin main
+
+    echo 'Loading latest official sync script from origin/main...'
+    git show origin/main:sync-current-codespace.sh > /tmp/ccp-sync-current-codespace.sh
+    chmod +x /tmp/ccp-sync-current-codespace.sh
+
+    echo 'Running official sync script...'
+    bash /tmp/ccp-sync-current-codespace.sh ${SYNC_FLAGS[*]}
+  "; then
+    echo "SAFE: $CS synced against origin/main."
   else
-    echo "No build script found. Skipping build."
+    echo "NOT SAFE: $CS needs manual review."
+    ALL_SAFE="no"
   fi
-fi
-
-print_header "Pushing main"
-
-git push origin "$MAIN_BRANCH"
-
-print_header "Public image inventory"
-
-IMAGE_LIST=$(find public -type f 2>/dev/null | grep -Ei '\.(png|jpg|jpeg|svg|webp)$' | sort || true)
-
-if [ -n "$IMAGE_LIST" ]; then
-  echo "$IMAGE_LIST"
-else
-  echo "No public image files found."
-fi
+done
 
 echo ""
-echo "Image Count:"
-if [ -n "$IMAGE_LIST" ]; then
-  echo "$IMAGE_LIST" | wc -l
+echo "=========================================="
+if [ "$ALL_SAFE" = "yes" ]; then
+  echo "All repository Codespaces were synced successfully."
+  echo "Run this to verify clean state:"
+  echo "  bash check-all-codespaces-sync.sh"
 else
-  echo "0"
-fi
-
-print_header "Success"
-
-echo "Backup branch preserved: $BACKUP_BRANCH"
-echo "Main branch updated without merge conflicts."
-echo "Lockfiles and generated folders were intentionally left under main's control."
-echo ""
-git status
-
-if command -v gh >/dev/null 2>&1; then
-  echo ""
-  echo "Codespaces:"
-  gh codespace list || true
-
-  echo ""
-  read -r -p "Delete ALL Codespaces only if everything above is clean? Type DELETE: " CONFIRM
-
-  if [ "$CONFIRM" = "DELETE" ]; then
-    gh codespace delete --all --force
-    echo "All Codespaces deleted."
-  else
-    echo "Deletion cancelled."
-  fi
-else
-  echo "GitHub CLI not found. Skipping Codespace deletion prompt."
+  echo "One or more Codespaces failed to sync."
+  echo "Run this for details:"
+  echo "  bash check-all-codespaces-sync.sh"
+  exit 1
 fi
