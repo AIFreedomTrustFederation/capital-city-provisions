@@ -1,21 +1,25 @@
 # Local AI Training And Memory
 
-Capital City Provisions uses open-source, repo-owned AI memory. The goal is to make customer, driver, and owner chat smarter without API keys, hosted AI services, or external training servers.
+Capital City Provisions uses open-source, repo-owned AI memory plus production operational records. The goal is to make customer, driver, and owner chat smarter without requiring external AI APIs for normal chat.
 
 ## Current Approach
 
-The app uses three layers:
+The app uses four layers:
 
 1. Role prompts in `components/LocalAIConcierge.tsx`.
-2. Live operational memory from `lib/ccp-database.ts` and empty fallback helpers in `lib/ops-memory.ts`.
-3. Repo-owned knowledge and training examples in `data/ai/`.
+2. Browser-local WebAI through `@mlc-ai/web-llm` when WebGPU is available.
+3. Rules-mode fallback when the local model cannot load.
+4. Production operational memory from PostgreSQL-backed APIs, with local in-memory fallback only for development/demo mode.
 
-This is retrieval-first. The browser LLM is guided by local context and curated examples before any true fine-tuning is attempted.
+This is retrieval-first. The browser LLM is guided by role-safe context and curated examples before any true fine-tuning is attempted.
 
 ## Files
 
+- `components/LocalAIConcierge.tsx` runs the customer, driver, and owner WebAI panel.
+- `app/api/ai/route-concierge/route.ts` provides deterministic route help and optional self-hosted model bridge.
+- `app/api/db/training/route.ts` exports live training records from PostgreSQL in production.
 - `data/ai/ccp-knowledge-base.json` stores durable business rules, role boundaries, deployment lessons, and route-learning signals.
-- `data/ai/training-examples.jsonl` stores prompt/response examples that can be used for retrieval, evaluation, or local fine-tuning.
+- `data/ai/training-examples.jsonl` stores curated repo-owned prompt/response examples that can be used for retrieval, evaluation, or local fine-tuning.
 - `lib/ai-knowledge.ts` loads the repo knowledge into the app.
 
 ## Role Separation
@@ -49,6 +53,7 @@ Driver AI may discuss:
 - Substitutions
 - Fuel and miles
 - Turn-ins
+- Driver sales queue actions
 
 Owner AI may discuss:
 
@@ -62,19 +67,30 @@ Owner AI may discuss:
 - Database health
 - Deployment lessons
 - Route learning
+- Sales queue review
+
+## Training Sources
+
+There are two training-memory paths:
+
+1. **Repo-owned examples:** `scripts/export-ai-training.mjs` exports curated files from `data/ai/` into `training-output/ccp-local-training.jsonl`.
+2. **Live operational examples:** `/api/db/training` exports structured learning events from the live database. In production, this should come from PostgreSQL, not temporary memory state.
+
+Repo-owned examples are safe defaults. Live operational examples must be owner-reviewed before they are committed to repo-owned training files or used for fine-tuning.
 
 ## Training Loop
 
 1. Capture operational events as structured live records.
 2. Keep fake/sample records out of production UI and live training memory.
-3. Review events before converting them into route rules.
-4. Export approved examples to JSONL.
-5. Use JSONL for local retrieval immediately.
-6. Optionally fine-tune an open-source model outside production, then commit only license-safe adapters or config.
+3. Store production events in PostgreSQL.
+4. Review events before converting them into route rules.
+5. Export approved examples to JSONL.
+6. Use JSONL for local retrieval immediately.
+7. Optionally fine-tune an open-source model outside production, then commit only license-safe adapters or config.
 
 ## External API Policy
 
-Do not require external AI APIs for chat. The repo may use open-source packages and locally loaded models. If a model must be downloaded by the browser, disclose that it is an open-source local model and provide rules-mode fallback for unsupported devices.
+Do not require external AI APIs for normal chat. The repo may use open-source packages, locally loaded models, and optional self-hosted model endpoints. If a model must be downloaded by the browser, disclose that it is an open-source local model and provide rules-mode fallback for unsupported devices.
 
 ## Deployment Lessons To Remember
 
@@ -83,7 +99,8 @@ Do not require external AI APIs for chat. The repo may use open-source packages 
 - Vercel build-rate-limit pages are not code failures.
 - Pin exact dependency versions only after confirming the version exists.
 - Keep Vercel install/build commands explicit.
+- Production AI training exports should use PostgreSQL-backed records.
 
 ## Next Improvement
 
-Add an owner-only training review screen that reads `trainingDataset` from the live database and lets the owner approve examples before they are appended to `data/ai/training-examples.jsonl`.
+Add a role-safe `/api/ai/context` endpoint that reads from PostgreSQL and returns only the context each role is allowed to see before WebAI receives it.
