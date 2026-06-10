@@ -7,7 +7,7 @@ Capital City Provisions uses open-source, repo-owned AI memory. The goal is to m
 The app uses three layers:
 
 1. Role prompts in `components/LocalAIConcierge.tsx`.
-2. Operational memory from `lib/ccp-database.ts` and `lib/ops-memory.ts`.
+2. Live operational memory from `lib/ccp-database.ts` and empty fallback helpers in `lib/ops-memory.ts`.
 3. Repo-owned knowledge and training examples in `data/ai/`.
 
 This is retrieval-first. The browser LLM is guided by local context and curated examples before any true fine-tuning is attempted.
@@ -42,7 +42,7 @@ Customer AI must not discuss:
 
 Driver AI may discuss:
 
-- Assigned stops
+- Assigned live stops
 - Delivery status
 - Fulfillment and partial fulfillment
 - Restock issues
@@ -65,8 +65,8 @@ Owner AI may discuss:
 
 ## Training Loop
 
-1. Capture operational events as structured records.
-2. Keep sample data separate from live data.
+1. Capture operational events as structured live records.
+2. Keep fake/sample records out of production UI and live training memory.
 3. Review events before converting them into route rules.
 4. Export approved examples to JSONL.
 5. Use JSONL for local retrieval immediately.
