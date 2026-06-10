@@ -1,73 +1,51 @@
 #!/usr/bin/env python3
+"""README-aligned Codespace sync helper.
+
+This Python wrapper intentionally delegates to sync-current-codespace.sh so the
+project uses one official, safe sync path.
+
+It does not run destructive reset, clean, force-push, or delete commands.
+Run it from the repository root in each Codespace:
+
+  python3 fix_git.py
+  python3 fix_git.py --no-build
+  python3 fix_git.py --no-install --no-build
+"""
+
+from __future__ import annotations
+
 import subprocess
 import sys
 from pathlib import Path
 
-BRANCH = "main"
-REMOTE = "origin"
+SYNC_SCRIPT = Path("sync-current-codespace.sh")
+ALLOWED_ARGS = {"--no-install", "--no-build", "--help", "-h"}
 
-def run(cmd, check=False):
-    print(f"\n$ {' '.join(cmd)}")
-    result = subprocess.run(cmd, text=True, capture_output=True)
-    if result.stdout:
-        print(result.stdout)
-    if result.stderr:
-        print(result.stderr)
-    if check and result.returncode != 0:
-        sys.exit(result.returncode)
-    return result
 
-def main():
+def fail(message: str, code: int = 1) -> None:
+    print(f"ERROR: {message}")
+    sys.exit(code)
+
+
+def main() -> None:
     if not Path(".git").exists():
-        print("ERROR: Run this from the repo root.")
-        sys.exit(1)
+        fail("Run this from the repository root.")
 
-    print("Checking Git status...")
-    run(["git", "status", "--short"])
+    unknown = [arg for arg in sys.argv[1:] if arg not in ALLOWED_ARGS]
+    if unknown:
+        fail("Unknown option(s): " + ", ".join(unknown), 2)
 
-    print("Saving local uncommitted work safely...")
-    stash = run(["git", "stash", "push", "-u", "-m", "auto-save-before-pull"])
+    if not SYNC_SCRIPT.exists():
+        fail("sync-current-codespace.sh is missing. Pull the latest repository copy first.")
 
-    print("Fetching latest GitHub changes...")
-    run(["git", "fetch", "--tags", REMOTE], check=True)
+    print("Capital City Provisions README-aligned sync")
+    print("Delegating to: bash sync-current-codespace.sh")
+    print("Safe mode: no reset --hard, no clean, no force-push, no delete")
 
-    print("Rebasing local branch onto GitHub main...")
-    rebase = run(["git", "pull", "--rebase", REMOTE, BRANCH])
+    cmd = ["bash", str(SYNC_SCRIPT), *sys.argv[1:]]
+    result = subprocess.run(cmd)
+    sys.exit(result.returncode)
 
-    if rebase.returncode != 0:
-        print("\nRebase failed, likely due to conflicts.")
-        print("Run:")
-        print("  git status")
-        print("Fix files, then:")
-        print("  git add .")
-        print("  git rebase --continue")
-        print("Or abort with:")
-        print("  git rebase --abort")
-        sys.exit(1)
-
-    print("Restoring saved local work...")
-    pop = run(["git", "stash", "pop"])
-
-    if pop.returncode != 0:
-        print("\nStash pop had conflicts.")
-        print("Run:")
-        print("  git status")
-        print("Fix conflicts, then:")
-        print("  git add .")
-        print("  git commit -m 'Resolve local changes after sync'")
-        sys.exit(1)
-
-    print("Setting pull behavior to rebase by default...")
-    run(["git", "config", "pull.rebase", "true"])
-
-    print("Final status:")
-    run(["git", "status"])
-
-    print("\nDone. If everything looks good, run:")
-    print("  git add .")
-    print("  git commit -m 'Update site assets and homepage'")
-    print("  git push origin main")
 
 if __name__ == "__main__":
     main()
-    
