@@ -19,7 +19,7 @@ function requiredRole(pathname:string):'driver'|'owner'|null{
   return null;
 }
 
-export function middleware(request:NextRequest){
+export function proxy(request:NextRequest){
   const role=requiredRole(request.nextUrl.pathname);
   if(!role||hasAccess(request,role))return NextResponse.next();
   if(request.nextUrl.pathname.startsWith('/api/'))return NextResponse.json({ok:false,message:'Internal access required'},{status:401});

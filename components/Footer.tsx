@@ -44,14 +44,6 @@ const sections=[
       ['Official Rules','/official-rules'],
       ['Box Concierge','/customer-concierge']
     ]
-  },
-  {
-    title:'Team Access',
-    links:[
-      ['Driver Gate','/internal-access?role=driver&returnTo=/driver'],
-      ['Owner Gate','/internal-access?role=owner&returnTo=/owner'],
-      ['Reports Gate','/internal-access?role=owner&returnTo=/reports']
-    ]
   }
 ];
 

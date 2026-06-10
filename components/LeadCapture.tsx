@@ -60,16 +60,16 @@ export default function LeadCapture(){
   useEffect(()=>{
     const savedData=loadCustomerMemory();
     if(Object.keys(savedData).length){const address=savedData.address||savedData.zip||'';setHasSavedLead(true);setCustomerName(savedData.name||'');setData({...savedData,address});setRec(recommend(savedData));if(address){setRoute(routePlan(address));setStep(2)}}
-    function useKnownZip(zip:string){const clean=cleanZip(zip);if(!clean)return;setData(current=>current.address?current:{...current,address:clean,zip:clean});setRoute(routePlan(clean));setStep(current=>current===0?1:current)}
-    useKnownZip(localStorage.getItem(ZIP_STORAGE_KEY)||'');
-    const onZip=(event:Event)=>useKnownZip((event as CustomEvent<{zip:string}>).detail?.zip||'');
+    function applyKnownZip(zip:string){const clean=cleanZip(zip);if(!clean)return;setData(current=>current.address?current:{...current,address:clean,zip:clean});setRoute(routePlan(clean));setStep(current=>current===0?1:current)}
+    applyKnownZip(localStorage.getItem(ZIP_STORAGE_KEY)||'');
+    const onZip=(event:Event)=>applyKnownZip((event as CustomEvent<{zip:string}>).detail?.zip||'');
     window.addEventListener('ccp:delivery-zip',onZip);return()=>window.removeEventListener('ccp:delivery-zip',onZip);
   },[]);
   function clearSavedInfo(){localStorage.removeItem(LATEST_LEAD_KEY);localStorage.removeItem(ZIP_STORAGE_KEY);document.cookie=`${CUSTOMER_COOKIE_KEY}=; max-age=0; path=/; SameSite=Lax`;setData({});setRec(null);setRoute(null);setSent(false);setError('');setHasSavedLead(false);setCustomerName('');setStep(0);setValue('');}
   function editDetails(){setStep(0);setSent(false);setOpen(true);}
   async function finish(updated:LeadData){
     const r=recommend(updated);const rp=routePlan(updated.address);setRec(r);setRoute(rp);setSending(true);setError('');
-    const lead={...updated,zip:cleanZip(updated.address),recommendation:r.title,estimatedBudget:r.budget,route:rp.route,deliveryDay:rp.day,deliveryWindow:rp.window,routeStatus:rp.status,routeBadge:rp.badge,routeFill:rp.fill,routeCapacity:rp.capacity,routeReserved:rp.reserved,routeSlotsRemaining:rp.slotsRemaining,restockPlan:rp.restock,reminderPlan:rp.confirm,smsReady:!!updated.phone,promoCode:'CHEESECAKE-48',couponOffer:'Free cheesecake with qualifying first stocked-home order within 48 hours of ZIP check, while supplies last.',couponDeadlineHours:PROMO_HOURS,promoExpiresAt:promoExpiresAt(),giveawayAvailable:true,purchaseRequiredForGiveaway:false,purchaseImprovesGiveawayOdds:false,createdAt:new Date().toISOString()};
+    const lead:LeadData={...updated,zip:cleanZip(updated.address),recommendation:r.title,estimatedBudget:r.budget,route:rp.route,deliveryDay:rp.day,deliveryWindow:rp.window,routeStatus:rp.status,routeBadge:rp.badge,routeFill:rp.fill,routeCapacity:rp.capacity,routeReserved:rp.reserved,routeSlotsRemaining:rp.slotsRemaining,restockPlan:rp.restock,reminderPlan:rp.confirm,smsReady:!!updated.phone,promoCode:'CHEESECAKE-48',couponOffer:'Free cheesecake with qualifying first stocked-home order within 48 hours of ZIP check, while supplies last.',couponDeadlineHours:PROMO_HOURS,promoExpiresAt:promoExpiresAt(),giveawayAvailable:true,purchaseRequiredForGiveaway:false,purchaseImprovesGiveawayOdds:false,createdAt:new Date().toISOString()};
     localStorage.setItem(LATEST_LEAD_KEY,JSON.stringify(lead));saveCustomerMemory(lead);setCustomerName(lead.name||'');setHasSavedLead(true);
     try{const response=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});if(!response.ok)throw new Error('Lead API failed');setSent(true)}catch(e){setError('We saved this on your device, but the request did not reach the server. Please try again or use the contact page.')}finally{setSending(false)}
   }

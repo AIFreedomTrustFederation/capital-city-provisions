@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 
 function expectedCode(role:string){
-  if(role==='owner')return process.env.OWNER_ACCESS_CODE||'OWNER2026';
-  if(role==='driver')return process.env.DRIVER_ACCESS_CODE||'DRIVER2026';
+  const fallbackAllowed=process.env.NODE_ENV!=='production';
+  if(role==='owner')return process.env.OWNER_ACCESS_CODE||(fallbackAllowed?'OWNER2026':'');
+  if(role==='driver')return process.env.DRIVER_ACCESS_CODE||(fallbackAllowed?'DRIVER2026':'');
   return '';
 }
 
@@ -12,6 +13,7 @@ export async function POST(request:Request){
     const normalizedRole=role==='owner'?'owner':'driver';
     const submitted=String(code||'').trim().toUpperCase();
     const expected=expectedCode(normalizedRole).trim().toUpperCase();
+    if(!expected)return NextResponse.json({ok:false,message:'Access is not configured'},{status:503});
     const valid=submitted===expected;
     if(!valid)return NextResponse.json({ok:false,message:'Access code not recognized'},{status:401});
     const response=NextResponse.json({ok:true,role:normalizedRole});

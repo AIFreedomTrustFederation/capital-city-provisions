@@ -5,6 +5,9 @@
 /.pnp
 .pnp.js
 
+# repo-local developer tooling
+/.tooling/
+
 # testing
 /coverage
 
