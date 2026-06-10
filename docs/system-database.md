@@ -43,6 +43,7 @@ Current persistence behavior:
 
 - `lib/ccp-database.ts` contains schema types, live runtime store, lifecycle updates, reports, and training dataset generation.
 - `/api/db/orders` creates and reads order lifecycle records.
+- `/api/db/health` checks PostgreSQL connectivity and required schema tables.
 - `/api/db/driver-update` records driver delivery and fulfillment updates.
 - `/api/db/reports` generates owner reports and optional full training snapshots.
 - `/api/db/training` exports the AI training dataset.

@@ -14,6 +14,7 @@ The app now uses one live source of truth:
 Current live endpoints:
 
 - `/system-database` shows the live database console.
+- `/api/db/health` checks PostgreSQL connectivity and required schema tables without writing business records.
 - `/api/db/orders` reads/writes live orders.
 - `/api/db/driver-update` writes live driver delivery and fulfillment updates.
 - `/api/db/reports` generates live reports.

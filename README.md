@@ -183,14 +183,26 @@ Recommended production variables:
 ```bash
 OWNER_ACCESS_CODE=replace-with-secure-owner-code
 DRIVER_ACCESS_CODE=replace-with-secure-driver-code
+DATABASE_URL=postgres-connection-string
 ```
 
 Future production variables may include:
 
 ```bash
-DATABASE_URL=postgres-connection-string
 NEXT_PUBLIC_SITE_URL=https://capital-city-provisions.vercel.app
 ```
+
+## Code Ownership And Dependency Policy
+
+Capital City Provisions application source code is proprietary and all rights are reserved. Third-party dependencies must remain open-source and license-compatible with proprietary application code.
+
+Run the dependency license audit before adding or upgrading packages:
+
+```bash
+npm run license:audit
+```
+
+See `LICENSE.md` and `docs/proprietary-open-source-policy.md`.
 
 ## Deployment Notes
 
@@ -199,6 +211,9 @@ The intended production branch is `main`.
 Before sending traffic, confirm:
 
 - Vercel build passes.
+- `npm run license:audit` passes.
+- `database/schema.sql` has been applied to the production PostgreSQL database.
+- Owner-authenticated `/api/db/health` returns `ok: true`.
 - All customer pages load.
 - Mobile header and bottom action bar work.
 - Box Concierge stays minimized until clicked.

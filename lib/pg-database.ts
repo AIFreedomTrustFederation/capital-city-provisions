@@ -13,6 +13,7 @@ const orderTable = 'orders';
 const productTable = 'order_products';
 const driverTable = 'driver_updates';
 const salesTable = 'driver_sales_leads';
+const requiredTables = [custTable, orderTable, productTable, driverTable, 'restock_issues', salesTable, 'learning_events'];
 
 export function postgresConfigured() {
   return Boolean(process.env.DATABASE_URL);
@@ -30,6 +31,34 @@ export function getPgPool() {
     });
   }
   return pgGlobal.ccpPgPool;
+}
+
+export async function checkPostgresHealth() {
+  const pool = getPgPool();
+  if (!pool) {
+    return { configured: false, ok: false, message: 'DATABASE_URL is not configured', missingTables: requiredTables };
+  }
+  const started = Date.now();
+  try {
+    const ping = await pool.query('select now() as now');
+    const tableResult = await pool.query(
+      "select table_name from information_schema.tables where table_schema='public' and table_name = any($1::text[])",
+      [requiredTables],
+    );
+    const presentTables = tableResult.rows.map((row) => row.table_name);
+    const missingTables = requiredTables.filter((table) => !presentTables.includes(table));
+    return {
+      configured: true,
+      ok: missingTables.length === 0,
+      checkedAt: iso(ping.rows[0]?.now),
+      latencyMs: Date.now() - started,
+      presentTables,
+      missingTables,
+    };
+  } catch (error) {
+    console.error('PostgreSQL health check failed:', error);
+    return { configured: true, ok: false, message: 'PostgreSQL health check failed', missingTables: requiredTables };
+  }
 }
 
 const customerText = join([ins, 'into', custTable, '(id,name,email,phone,zip,source,preferences,created_at)', vals, '($1,$2,$3,$4,$5,$6,$7::jsonb,$8)', conflict, '(id) do', upd, 'set name=excluded.name, phone=excluded.phone, zip=excluded.zip']);
