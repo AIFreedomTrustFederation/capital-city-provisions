@@ -16,6 +16,7 @@ This is retrieval-first. The browser LLM is guided by role-safe context and cura
 ## Files
 
 - `components/LocalAIConcierge.tsx` runs the customer, driver, and owner WebAI panel.
+- `app/api/ai/context/route.ts` provides the role-safe WebAI context endpoint.
 - `app/api/ai/route-concierge/route.ts` provides deterministic route help and optional self-hosted model bridge.
 - `app/api/db/training/route.ts` exports live training records from PostgreSQL in production.
 - `data/ai/ccp-knowledge-base.json` stores durable business rules, role boundaries, deployment lessons, and route-learning signals.
@@ -69,6 +70,24 @@ Owner AI may discuss:
 - Route learning
 - Sales queue review
 
+## WebAI Context Endpoint
+
+`/api/ai/context` is now the official role-safe context layer before WebAI receives operating memory.
+
+```text
+/api/ai/context?role=customer
+/api/ai/context?role=driver
+/api/ai/context?role=owner
+```
+
+Context rules:
+
+- Customer context is public-safe and does not require private operational records.
+- Driver context requires driver or owner session access.
+- Owner context requires owner session access.
+- Owner and driver context use PostgreSQL when available.
+- In production or when `CCP_REQUIRE_POSTGRES=true`, operational context fails closed if PostgreSQL is unavailable.
+
 ## Training Sources
 
 There are two training-memory paths:
@@ -103,4 +122,4 @@ Do not require external AI APIs for normal chat. The repo may use open-source pa
 
 ## Next Improvement
 
-Add a role-safe `/api/ai/context` endpoint that reads from PostgreSQL and returns only the context each role is allowed to see before WebAI receives it.
+Wire the UI WebAI panels to request `/api/ai/context` before answering, then pass that context into `LocalAIConcierge` by role.
