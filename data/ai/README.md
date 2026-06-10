@@ -23,6 +23,25 @@ training-output/ccp-local-training.jsonl
 
 That output can be used by local open-source tooling such as llama.cpp, Ollama-adjacent local workflows, MLX, Axolotl, or any other license-compatible trainer.
 
+## Runtime WebAI Context
+
+Repo-owned examples are not the same as runtime business context.
+
+Runtime WebAI context is provided by:
+
+```text
+/api/ai/context?role=customer
+/api/ai/context?role=driver
+/api/ai/context?role=owner
+```
+
+The context endpoint enforces role boundaries before WebAI receives operational memory:
+
+- Customer context is public-safe.
+- Driver context requires driver or owner session access.
+- Owner context requires owner session access.
+- Production owner/driver context should come from PostgreSQL-backed records.
+
 ## Live Operational Training
 
 Live operational training records are different from repo-owned examples.
