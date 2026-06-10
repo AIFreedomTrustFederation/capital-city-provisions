@@ -11,9 +11,7 @@
 
 .steakhouse-promo,
 .deals-banner,
-.launch-offer,
-[class*="promo"],
-[class*="deal"]{
+.launch-offer{
   animation:ccpDealFlash 1.55s ease-in-out infinite;
 }
 .steakhouse-promo strong,
@@ -43,5 +41,5 @@
 }
 
 @media(prefers-reduced-motion:reduce){
-  .steakhouse-promo,.deals-banner,.launch-offer,[class*="promo"],[class*="deal"],.steakhouse-promo strong,.deals-banner strong,.launch-offer strong{animation:none!important}
+  .steakhouse-promo,.deals-banner,.launch-offer,.steakhouse-promo strong,.deals-banner strong,.launch-offer strong{animation:none!important}
 }
