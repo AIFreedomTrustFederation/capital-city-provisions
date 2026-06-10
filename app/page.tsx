@@ -8,6 +8,12 @@ const heroStats = [
   'First Order Gift & Freezer Giveaway'
 ];
 
+const routeConfidence = [
+  'ZIP checked before order',
+  'No cold-call checkout pressure',
+  'Giveaway entry stays free'
+];
+
 const droolGallery = [
   {
     title: 'Marbled Steakhouse Cuts',
@@ -60,7 +66,7 @@ const routes = [
 export default function Home() {
   return <main className="site ccp-steakhouse">
     <section className="steakhouse-promo">
-      <strong>Launch Offer:</strong> First-time customers get a free steak slider pack + a chance to win a free chest freezer.
+      <strong>Launch Offer:</strong> First-time customers can claim a limited order gift. Freezer giveaway entry stays free.
     </section>
 
     <section className="steakhouse-hero">
@@ -71,8 +77,11 @@ export default function Home() {
         <p className="hero-subhead">Triple-trimmed. Cryovac packed. Free delivery.</p>
         <p className="hero-copy">USDA Prime and Choice-style steaks, roasts, burgers, seafood, chicken, pork, and freezer bundles delivered straight to your door across the Sacramento area.</p>
         <div className="hero-actions">
-          <a href="#quick-route">Shop Beef Bundles</a>
-          <a href="/freezer-boxes">View All Products</a>
+          <a href="#quick-route">Check My ZIP</a>
+          <a href="/freezer-boxes">Compare Packages</a>
+        </div>
+        <div className="route-confidence" aria-label="Route check confidence">
+          {routeConfidence.map((item) => <span key={item}>{item}</span>)}
         </div>
         <QuickRouteCapture />
       </div>
@@ -80,7 +89,7 @@ export default function Home() {
     </section>
 
     <section className="hero-benefit-bar" aria-label="Capital City Provisions benefits">
-      {heroStats.map((item) => <article key={item}><span>✦</span><strong>{item}</strong></article>)}
+      {heroStats.map((item) => <article key={item}><span>*</span><strong>{item}</strong></article>)}
     </section>
 
     <section className="drool-gallery" aria-label="Premium food photography gallery">
