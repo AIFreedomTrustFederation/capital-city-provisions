@@ -6,7 +6,7 @@ Capital City Provisions is a modern stocked-home protein delivery web app for Sa
 
 Current MVP rating: **7.6 / 10**
 
-The product has a strong launch foundation: customer pages exist, the buying journey is understandable, ZIP-aware lead capture works conceptually, the concierge stays role-aware, and internal operations have a clear direction. The remaining gap is polish and operational hardening: deployment stability, real database wiring, cleaner QA, and a less busy visual system on mobile.
+The product has a strong launch foundation: customer pages exist, the buying journey is understandable, ZIP-aware lead capture works conceptually, the concierge stays role-aware, and internal operations have a clear direction. The remaining gap is polish and operational hardening: deployment stability, persistent database wiring, cleaner QA, and a less busy visual system on mobile.
 
 ### Strongest Parts
 
@@ -14,12 +14,12 @@ The product has a strong launch foundation: customer pages exist, the buying jou
 - Modern brand direction: stocked-home planning, curated cuts, smart local delivery, and wholesale support.
 - Role separation: public customer experience is separate from driver and owner tools.
 - Open-source AI direction: browser-local AI support through WebLLM, with fallback behavior.
-- Internal foundation: driver, owner, reports, operations, database, and sample/live data concepts exist.
+- Internal foundation: owner dashboard, driver boards, reports, operations, database, and live source-of-truth direction.
 - Mobile-first improvements: compact header, bottom action bar, accordion footer, and minimized concierge.
 
 ### Biggest Risks
 
-- Vercel deployment is currently failing or rate-limited and needs log-level follow-up.
+- Vercel deployment needs log-level follow-up after each operational hardening change.
 - The live database path needs production-grade persistence before real orders are accepted.
 - Access gates are suitable for MVP privacy, but not yet full authentication or account management.
 - Some pages still need final visual QA across desktop, tablet, and mobile.
@@ -76,11 +76,11 @@ Local SEO pages support Sacramento-area search intent:
 Internal pages are gated by role:
 
 - `/driver` - Driver route and fulfillment workspace.
-- `/owner` - Owner command workspace.
+- `/driver-sales` - Mobile driver sales queue connected to live owner review.
+- `/owner` - Owner command workspace and source-of-truth board.
 - `/reports` - Owner reporting.
 - `/ops` - Operations hub.
 - `/system-database` - Live database console.
-- `/system-database/sample` - Sample data console.
 - `/internal-access` - Role access gate.
 
 Default access codes are intended only for MVP/demo use:
@@ -97,21 +97,21 @@ The app includes an open-source, browser-local AI direction using `@mlc-ai/web-l
 The AI is role-aware:
 
 - Customer AI only discusses boxes, delivery, promotions, giveaway rules, and wholesale inquiries.
-- Driver AI focuses on routes, stops, fulfillment, restock notes, fuel notes, and turn-ins.
-- Owner AI focuses on orders, reports, route learning, exports, restock planning, and profit/loss workflows.
+- Driver AI focuses on live assigned routes, stops, fulfillment, restock notes, fuel notes, and turn-ins.
+- Owner AI focuses on live orders, reports, route learning, exports, restock planning, and profit/loss workflows.
 
 The customer concierge is designed to stay minimized unless the customer opens it. Customer progress is saved locally so the experience can continue across pages without repeatedly interrupting the visitor.
 
 ## Data Model Direction
 
-The project includes an open-source database direction with live and sample data separation.
+The project now uses a live-only source-of-truth direction. The owner dashboard and system database create the operational records that populate driver boards, reports, sales queues, and AI training records. No seeded fake/sample customer records should display in production UI.
 
 Important files:
 
 - `database/schema.sql` - Production-oriented schema.
-- `database/seed-sample.sql` - Sample/demo seed data.
 - `database/README.md` - Database notes.
 - `docs/system-database.md` - System database documentation.
+- `lib/ccp-database.ts` - Live runtime database layer and report generation.
 
 MVP database concepts include:
 
@@ -196,7 +196,7 @@ NEXT_PUBLIC_SITE_URL=https://capital-city-provisions.vercel.app
 
 The intended production branch is `main`.
 
-Vercel should deploy from `main`, but recent deployment checks have shown either build failures or build-rate-limit blocks. Before sending traffic, confirm:
+Before sending traffic, confirm:
 
 - Vercel build passes.
 - All customer pages load.
@@ -205,6 +205,7 @@ Vercel should deploy from `main`, but recent deployment checks have shown either
 - Clean Light mode has readable card headings.
 - Internal pages redirect to `/internal-access` when not authenticated.
 - Owner and driver access codes work.
+- Owner dashboard creates records that populate driver boards and reports.
 
 ## Codespace Sync
 
@@ -217,98 +218,3 @@ bash sync-current-codespace.sh
 The script saves local work to a timestamped backup branch when needed, pushes that backup, fast-forwards `main`, installs dependencies, then runs typecheck and build.
 
 It does not run destructive reset, clean, force-push, or delete commands.
-
-After syncing each Codespace, check all Codespaces with:
-
-```bash
-bash check-all-codespaces-sync.sh
-```
-
-Optional fast modes:
-
-```bash
-bash sync-current-codespace.sh --no-build
-bash sync-current-codespace.sh --no-install --no-build
-```
-
-## Cleanup Priorities
-
-### 1. Fix Deployment First
-
-The MVP is only useful if Vercel reliably deploys. Pull the exact Vercel build logs, fix the failing line, and confirm `main` is green.
-
-### 2. Reduce Mobile Density
-
-The mobile experience is improving, but the next step is to shorten cards and reveal details only when needed.
-
-Recommended changes:
-
-- Collapse long product cards behind “Details.”
-- Keep only one CTA per mobile section when possible.
-- Reduce repeated route/status cards on pages where the ZIP checker already handles the job.
-
-### 3. Add Concierge Privacy Controls
-
-Add:
-
-- “Saved on this device.”
-- “Clear saved info.”
-- “Edit my details.”
-
-This will make saved lead behavior feel intentional and trustworthy.
-
-### 4. Harden Internal Access
-
-The current access code system is MVP-level. For production, replace it with proper authentication, roles, sessions, and audit logging.
-
-### 5. Wire Real Persistence
-
-Before live orders, connect the live database path to persistent storage and confirm:
-
-- Lead creation
-- Order creation
-- Driver updates
-- Fulfillment updates
-- Restock notes
-- CSV export
-- Owner reports
-
-### 6. Tighten Promotion Compliance
-
-The giveaway and cheesecake offer language is intentionally separated, but legal review is still recommended before ads or broad launch.
-
-### 7. Visual QA Pass
-
-Run visual QA on:
-
-- iPhone-sized viewport
-- Android-sized viewport
-- Tablet
-- 1366px desktop
-- Wide desktop
-- Clean Light mode
-- Luxury Dark mode
-
-## Suggested Next Build Phase
-
-The next high-value phase is **Operational MVP Hardening**:
-
-1. Fix Vercel build.
-2. Connect live database persistence.
-3. Add owner lead dashboard filtering.
-4. Add driver route status updates.
-5. Add CSV export.
-6. Add customer saved-info controls.
-7. Do a final mobile visual pass.
-
-## Product Positioning
-
-Capital City Provisions should feel like a modern food-security and stocked-home system, not a generic meat delivery site.
-
-Best current positioning:
-
-> Curated cuts, smarter delivery, and stocked-home planning for families, kitchens, and community buyers.
-
-Key customer promise:
-
-> Check your ZIP, choose the right plan, and keep better meals ready at home.
