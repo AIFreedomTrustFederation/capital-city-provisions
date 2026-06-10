@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
-import { upsertDriverSalesLead, type DatabaseMode } from '../../../../lib/ccp-database';
+import { upsertDriverSalesLead } from '../../../../lib/ccp-database';
 
 function clean(value:unknown){return String(value||'').trim()}
-function modeFromRequest(request:Request):DatabaseMode{
-  const url=new URL(request.url);
-  return url.searchParams.get('sample')==='1'?'sample':'live';
-}
 async function postJson(url:string|undefined,body:unknown){
   if(!url)return {configured:false,ok:false};
   const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -14,7 +10,6 @@ async function postJson(url:string|undefined,body:unknown){
 
 export async function POST(request:Request){
   try{
-    const mode=modeFromRequest(request);
     const input=await request.json();
     const lead=upsertDriverSalesLead({
       id:clean(input.id),
@@ -37,7 +32,7 @@ export async function POST(request:Request){
       ownerOverride:clean(input.ownerOverride),
       aiInstruction:clean(input.aiInstruction),
       driverRoutePlan:clean(input.driverRoutePlan)
-    },{mode});
+    });
     const ownerText=[
       `Driver sales queue: ${lead.status}`,
       `Driver: ${lead.driver}`,
@@ -57,7 +52,7 @@ export async function POST(request:Request){
       postJson(process.env.OPS_WEBHOOK_URL||process.env.LEADS_WEBHOOK_URL,{text:ownerText,driverSalesLead:lead}),
       postJson(process.env.OPS_GOOGLE_SHEETS_WEBHOOK_URL||process.env.LEADS_GOOGLE_SHEETS_WEBHOOK_URL,lead)
     ]);
-    return NextResponse.json({ok:true,mode,lead,notifications:{ownerWebhook:ownerWebhook.status==='fulfilled'?ownerWebhook.value:{configured:false,ok:false},googleSheets:sheetWebhook.status==='fulfilled'?sheetWebhook.value:{configured:false,ok:false}}});
+    return NextResponse.json({ok:true,mode:'live',lead,notifications:{ownerWebhook:ownerWebhook.status==='fulfilled'?ownerWebhook.value:{configured:false,ok:false},googleSheets:sheetWebhook.status==='fulfilled'?sheetWebhook.value:{configured:false,ok:false}}});
   }catch(error){
     console.error('Driver sales queue failed:',error);
     return NextResponse.json({ok:false,message:'Driver sales queue failed'},{status:500});
