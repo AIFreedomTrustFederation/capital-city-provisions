@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { upsertDriverSalesLead } from '../../../../lib/ccp-database';
+import { postgresConfigured, saveDriverSalesLeadToPostgres } from '../../../../lib/pg-database';
 
 function clean(value:unknown){return String(value||'').trim()}
 async function postJson(url:string|undefined,body:unknown){
@@ -52,7 +53,8 @@ export async function POST(request:Request){
       postJson(process.env.OPS_WEBHOOK_URL||process.env.LEADS_WEBHOOK_URL,{text:ownerText,driverSalesLead:lead}),
       postJson(process.env.OPS_GOOGLE_SHEETS_WEBHOOK_URL||process.env.LEADS_GOOGLE_SHEETS_WEBHOOK_URL,lead)
     ]);
-    return NextResponse.json({ok:true,mode:'live',lead,notifications:{ownerWebhook:ownerWebhook.status==='fulfilled'?ownerWebhook.value:{configured:false,ok:false},googleSheets:sheetWebhook.status==='fulfilled'?sheetWebhook.value:{configured:false,ok:false}}});
+    const persistence=postgresConfigured()?await saveDriverSalesLeadToPostgres(lead):{configured:false,ok:false,skipped:true};
+    return NextResponse.json({ok:true,mode:'live',storage:postgresConfigured()?'postgres':'memory',persistence,lead,notifications:{ownerWebhook:ownerWebhook.status==='fulfilled'?ownerWebhook.value:{configured:false,ok:false},googleSheets:sheetWebhook.status==='fulfilled'?sheetWebhook.value:{configured:false,ok:false}}});
   }catch(error){
     console.error('Driver sales queue failed:',error);
     return NextResponse.json({ok:false,message:'Driver sales queue failed'},{status:500});

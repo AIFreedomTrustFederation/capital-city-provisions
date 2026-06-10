@@ -77,6 +77,31 @@ create table if not exists restock_issues (
   created_at timestamptz not null default now()
 );
 
+create table if not exists driver_sales_leads (
+  id text primary key,
+  driver text not null,
+  source_stop_id text default '',
+  source_customer text default '',
+  route_id text default '',
+  lead_name text not null,
+  email text default '',
+  phone text default '',
+  address text default '',
+  zip text default '',
+  area text default '',
+  need text default '',
+  offer text default '',
+  estimated_value numeric(12,2) not null default 0,
+  status text not null default 'queued',
+  temperature text not null default 'warm',
+  note text default '',
+  owner_override text default '',
+  ai_instruction text default '',
+  driver_route_plan text default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists learning_events (
   id text primary key,
   role text not null,
@@ -91,5 +116,7 @@ create table if not exists learning_events (
 create index if not exists idx_orders_route_id on orders(route_id);
 create index if not exists idx_orders_status on orders(status);
 create index if not exists idx_driver_updates_route_id on driver_updates(route_id);
+create index if not exists idx_driver_sales_leads_status on driver_sales_leads(status);
+create index if not exists idx_driver_sales_leads_zip on driver_sales_leads(zip);
 create index if not exists idx_learning_events_route_id on learning_events(route_id);
 create index if not exists idx_restock_issues_product on restock_issues(product);

@@ -36,6 +36,7 @@ Current persistence behavior:
 
 - If `DATABASE_URL` is set, order lifecycle reads/writes use PostgreSQL.
 - If `DATABASE_URL` is set, driver delivery updates are persisted to PostgreSQL and update the related order status.
+- If `DATABASE_URL` is set, driver sales leads, owner reports, and training exports use PostgreSQL.
 - If `DATABASE_URL` is missing, local/demo mode uses the in-memory live store and should not be treated as durable production storage.
 
 ## Main files
