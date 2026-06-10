@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO="AIFreedomTrustFederation/capital-city-provisions"
+
 echo "=========================================="
-echo " Check All Codespaces Sync Status"
+echo " Check Capital City Provisions Codespaces"
 echo "=========================================="
+echo ""
+echo "Repository: $REPO"
+echo "Official source: origin/main"
 echo ""
 
 if ! command -v gh >/dev/null 2>&1; then
@@ -17,10 +22,10 @@ if ! gh auth status >/dev/null 2>&1; then
   exit 1
 fi
 
-CODESPACES=$(gh codespace list --json name,repository,branch,gitStatus -q '.[].name')
+CODESPACES=$(gh codespace list --json name,repository,branch,gitStatus -q ".[] | select(.repository == \"$REPO\") | .name")
 
 if [ -z "$CODESPACES" ]; then
-  echo "No Codespaces found."
+  echo "No Codespaces found for $REPO."
   exit 0
 fi
 
@@ -35,18 +40,22 @@ for CS in $CODESPACES; do
   if gh codespace ssh -c "$CS" -- bash -lc '
     set -e
 
-    cd /workspaces/* 2>/dev/null || {
-      echo "❌ Could not enter /workspaces repo."
-      exit 10
-    }
+    if [ -d /workspaces/capital-city-provisions ]; then
+      cd /workspaces/capital-city-provisions
+    else
+      cd /workspaces/* 2>/dev/null || {
+        echo "Could not enter /workspaces repo."
+        exit 10
+      }
+    fi
 
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
-      echo "❌ Not a git repository."
+      echo "Not a git repository."
       exit 11
     fi
 
-    git fetch origin >/dev/null 2>&1 || {
-      echo "❌ Could not fetch origin."
+    git fetch origin main >/dev/null 2>&1 || {
+      echo "Could not fetch origin/main."
       exit 12
     }
 
@@ -60,23 +69,23 @@ for CS in $CODESPACES; do
     echo "Remote: $REMOTE"
 
     if [ "$BRANCH" != "main" ]; then
-      echo "❌ Not on main branch."
+      echo "NOT SYNCED: not on main branch."
       exit 13
     fi
 
     if [ "$LOCAL" != "$REMOTE" ]; then
-      echo "❌ Local HEAD does not match origin/main."
+      echo "NOT SYNCED: local HEAD does not match origin/main."
       git log --oneline --decorate -5
       exit 14
     fi
 
     if [ -n "$STATUS" ]; then
-      echo "❌ Uncommitted or untracked files exist:"
+      echo "NOT CLEAN: uncommitted or untracked files exist:"
       git status --short
       exit 15
     fi
 
-    echo "✅ Fully synced with origin/main and clean."
+    echo "SYNCED: clean and matches origin/main."
   '; then
     echo "SAFE: $CS"
   else
@@ -89,17 +98,9 @@ echo ""
 echo "=========================================="
 
 if [ "$ALL_SAFE" = "yes" ]; then
-  echo "✅ All Codespaces are synced and clean."
-  echo ""
-  read -r -p "Delete ALL Codespaces now? Type DELETE: " CONFIRM
-
-  if [ "$CONFIRM" = "DELETE" ]; then
-    gh codespace delete --all --force
-    echo "All Codespaces deleted."
-  else
-    echo "Deletion cancelled."
-  fi
+  echo "All Capital City Provisions Codespaces are synced and clean."
 else
-  echo "❌ One or more Codespaces are NOT synced."
-  echo "Do not delete yet."
+  echo "One or more Capital City Provisions Codespaces are NOT synced."
+  echo "Run: bash sync-all-codespaces.sh --no-install --no-build"
+  exit 1
 fi
