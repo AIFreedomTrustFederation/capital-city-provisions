@@ -1,4 +1,4 @@
-import LocalAIConcierge from '../../components/LocalAIConcierge';
+import WebAIContextBridge from '../../components/WebAIContextBridge';
 
 export const metadata={
   title:'AI Route Concierge | Capital City Provisions',
@@ -6,7 +6,7 @@ export const metadata={
 };
 
 const demoContext={
-  route:{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',capacity:12,reserved:9,slotsRemaining:3,fill:75},
+  route:{route:'Roseville Route',day:'Wednesday',window:'2-6 PM',status:'Confirmed route',capacity:12,reserved:9,slotsRemaining:3,fill:75,zip:'95661'},
   recommendation:{title:'Family Box',detail:'A practical freezer restock for families that want beef, chicken, pork, and flexible portions.',budget:'$500-$750'},
   promo:{code:'CHEESECAKE-48',deadlineHours:48,description:'Free cheesecake with a qualifying first freezer-box order reserved within 48 hours, while supplies last.'},
   giveaway:{entryPath:'/giveaway',purchaseRequired:false,purchaseImprovesOdds:false},
@@ -23,6 +23,6 @@ const items=[
 
 export default function AiRouteConciergePage(){return <main className="site page-flow">
   <section className="page-hero poster-frame"><div><p className="eyebrow">AI Route Concierge</p><h1>Open-source AI built into the website.</h1><p className="lead">Customers can use local browser AI for route planning, freezer-box recommendations, wholesale intake, coupon clarity, and giveaway questions.</p><div className="actions"><a href="#local-ai-demo">Try Local AI</a><a href="/giveaway">Giveaway Flow</a></div></div><img src="/images/capital-city-hero.png" alt="Capital City Provisions AI route concierge"/></section>
-  <section className="section" id="local-ai-demo"><LocalAIConcierge context={demoContext}/></section>
+  <section className="section" id="local-ai-demo"><WebAIContextBridge role="customer" zip="95661" context={demoContext}/></section>
   <section className="section"><p className="eyebrow">System</p><h2>Helpful automation without fake scarcity.</h2><div className="route-list">{items.map(([title,copy])=><article key={title}><h3>{title}</h3><p>{copy}</p></article>)}</div></section>
 </main>}
