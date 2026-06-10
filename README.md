@@ -90,17 +90,52 @@ Default access codes are intended only for local MVP/demo use:
 
 Production must set `OWNER_ACCESS_CODE` and `DRIVER_ACCESS_CODE` in Vercel environment variables. Without those variables, internal access fails closed in production.
 
-## AI System
+## WebAI System
 
 The app includes an open-source, browser-local AI direction using `@mlc-ai/web-llm`.
 
-The AI is role-aware:
+WebAI is the conversational layer. PostgreSQL is the durable memory and source-of-truth layer. Rules mode is the safety net when the browser cannot load a local model.
+
+### WebAI modes
+
+- **Browser-local LLM:** `LocalAIConcierge.tsx` can load an open-source model in the customer, driver, or owner browser when WebGPU is available.
+- **Rules fallback:** If WebGPU is unavailable or model loading fails, the same component answers through role-scoped deterministic rules.
+- **Server route concierge:** `/api/ai/route-concierge` provides deterministic ZIP/route recommendations and can optionally call a self-hosted OpenAI-compatible endpoint through `AI_CONCIERGE_URL`.
+- **Postgres-backed operating memory:** Live orders, driver updates, sales leads, reports, and training exports should come from PostgreSQL in production.
+
+### Role boundaries
 
 - Customer AI only discusses boxes, delivery, promotions, giveaway rules, and wholesale inquiries.
-- Driver AI focuses on live assigned routes, stops, fulfillment, restock notes, fuel notes, and turn-ins.
-- Owner AI focuses on live orders, reports, route learning, exports, restock planning, and profit/loss workflows.
+- Driver AI focuses on assigned routes, stops, fulfillment, restock notes, fuel notes, sales queue notes, and turn-ins.
+- Owner AI focuses on live orders, reports, route learning, exports, restock planning, sales queue review, and profit/loss workflows.
 
 The customer concierge is designed to stay minimized unless the customer opens it. Customer progress is saved locally so the experience can continue across pages without repeatedly interrupting the visitor.
+
+### How WebAI works with the database
+
+- Customer AI can answer public shopping and giveaway questions without needing private database records.
+- Driver AI can assist locally, but production fulfillment writes must save through the Postgres-backed APIs before they count as live operational records.
+- Owner AI should use reports, order lifecycle records, restock issues, driver updates, sales queue records, and training exports generated from PostgreSQL.
+- Production training exports should come from durable records, not temporary memory state.
+- If `CCP_REQUIRE_POSTGRES=true` or the app is running in production and Postgres is unavailable, live operational routes should fail closed instead of feeding temporary records to reports or WebAI.
+
+### Recommended next WebAI upgrade
+
+Add a role-safe AI context API that builds context from PostgreSQL before passing it to customer, driver, or owner AI.
+
+Suggested future endpoints:
+
+```text
+/api/ai/context?role=customer
+/api/ai/context?role=driver
+/api/ai/context?role=owner
+```
+
+Target context rules:
+
+- Customer context: public products, route estimate, promotion rules, giveaway rules, and wholesale inquiry flow only.
+- Driver context: assigned route, stops, fulfillment state, customer notes, restock issues, fuel/mileage, and turn-in status only.
+- Owner context: orders, reports, route performance, sales queue, restock issues, training records, and owner-only business metrics.
 
 ## Data Model Direction
 
@@ -113,6 +148,8 @@ Important files:
 - `docs/system-database.md` - System database documentation.
 - `lib/ccp-database.ts` - Local runtime database layer for development fallback and report generation.
 - `lib/pg-database.ts` - PostgreSQL source-of-truth wiring for production persistence and reports.
+- `components/LocalAIConcierge.tsx` - Browser-local/rules-mode WebAI panel.
+- `app/api/ai/route-concierge/route.ts` - Server route concierge and optional self-hosted model bridge.
 
 MVP database concepts include:
 
@@ -127,8 +164,9 @@ MVP database concepts include:
 - Reports
 - Wholesale accounts
 - Customer status pipeline
+- AI learning records
 
-Production should treat PostgreSQL as the only durable source of truth. Local memory fallback is for development and demos only. In production, live order creation, lifecycle lead creation, and reports should fail closed when PostgreSQL is not configured.
+Production should treat PostgreSQL as the only durable source of truth. Local memory fallback is for development and demos only. In production, live order creation, lifecycle lead creation, fulfillment writes, sales queue writes, reports, and training exports should fail closed when PostgreSQL is not configured.
 
 ## Tech Stack
 
@@ -189,6 +227,14 @@ DATABASE_URL=postgres-connection-string
 CCP_REQUIRE_POSTGRES=true
 ```
 
+Optional AI route concierge variables:
+
+```bash
+AI_CONCIERGE_URL=https://your-openai-compatible-endpoint.example.com/v1/chat/completions
+AI_CONCIERGE_MODEL=local-route-concierge
+AI_CONCIERGE_API_KEY=optional-secret
+```
+
 Future production variables may include:
 
 ```bash
@@ -219,7 +265,10 @@ Before sending traffic, confirm:
 - `DATABASE_URL` is set in production.
 - `CCP_REQUIRE_POSTGRES=true` is set in production.
 - Owner-authenticated `/api/db/health` returns `ok: true` and `storage: postgres`.
-- Production order, lead-lifecycle, and report routes fail closed instead of using memory when Postgres is unavailable.
+- Production order, lead-lifecycle, fulfillment, sales queue, report, and training routes fail closed instead of using memory when Postgres is unavailable.
+- Customer WebAI can answer public box/delivery/giveaway questions without exposing internal context.
+- Driver WebAI only receives driver-scoped route/stop context.
+- Owner WebAI only receives owner-authenticated operational context.
 - All customer pages load.
 - Mobile header and bottom action bar work.
 - Box Concierge stays minimized until clicked.
