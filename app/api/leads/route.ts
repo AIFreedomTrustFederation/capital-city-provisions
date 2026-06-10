@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createOrder } from '../../../lib/ccp-database';
-import { saveOrderToPostgres } from '../../../lib/pg-database';
+import { postgresConfigured, saveOrderToPostgres } from '../../../lib/pg-database';
 
 type Lead = Record<string, any>;
 
@@ -16,6 +16,14 @@ function clean(value: unknown) {
 
 function yes(value: unknown) {
   return value === true || clean(value).toLowerCase() === 'true';
+}
+
+function productionRequiresPostgres() {
+  return process.env.NODE_ENV === 'production' || process.env.CCP_REQUIRE_POSTGRES === 'true';
+}
+
+function leadNeedsLifecycleOrder(routing: LeadRouting) {
+  return !['giveaway', 'support', 'general'].includes(routing.bucket);
 }
 
 function classifyLead(lead: Lead): LeadRouting {
@@ -126,7 +134,7 @@ function buildSheetRow(lead: Lead, routing: LeadRouting) {
 }
 
 function lifecycleFromLead(lead: Lead, routing: LeadRouting) {
-  if (routing.bucket === 'giveaway' || routing.bucket === 'support' || routing.bucket === 'general') return null;
+  if (!leadNeedsLifecycleOrder(routing)) return null;
   const budgetText = clean(lead.estimatedBudget || lead.budget);
   const budgetMatch = budgetText.match(/\$?([0-9,]+)/g)?.pop()?.replace(/[$,]/g, '');
   const value = Number(budgetMatch || 0) || (routing.bucket === 'wholesale' ? 1000 : 500);
@@ -165,8 +173,16 @@ export async function POST(request: Request) {
     const createdAt = new Date().toISOString();
     const enrichedLead = { createdAt, source: 'capital-city-provisions-site', ...lead };
     const routing = classifyLead(enrichedLead);
+    const needsOrder = leadNeedsLifecycleOrder(routing);
+    const hasPostgres = postgresConfigured();
+    if (needsOrder && productionRequiresPostgres() && !hasPostgres) {
+      return NextResponse.json({ ok: false, message: 'PostgreSQL is required before production leads can create live order records.', routing, storage: { postgres: { configured: false, ok: false } } }, { status: 503 });
+    }
     const lifecycleOrder = lifecycleFromLead(enrichedLead, routing);
     const postgres = lifecycleOrder ? await saveOrderToPostgres(lifecycleOrder) : { configured: false, ok: false, skipped: true };
+    if (lifecycleOrder && hasPostgres && !postgres.ok) {
+      return NextResponse.json({ ok: false, message: 'Lead was received but the lifecycle order was not saved to PostgreSQL.', routing, storage: { postgres } }, { status: 503 });
+    }
     const ownerText = buildOwnerText(enrichedLead, routing);
     const sheetRow = { ...buildSheetRow(enrichedLead, routing), lifecycleOrderId: lifecycleOrder?.id || '' };
     const payload = { ...enrichedLead, routing, ownerText, sheetRow, lifecycleOrder };
