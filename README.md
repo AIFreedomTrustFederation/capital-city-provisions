@@ -207,6 +207,12 @@ Before sending traffic, confirm:
 - Owner and driver access codes work.
 - Owner dashboard creates records that populate driver boards and reports.
 
+## Official Branch Policy
+
+`origin/main` is the official source of truth for this project.
+
+Phone Codespaces, desktop Codespaces, local clones, and temporary working branches must be synced back to `origin/main` through the project sync script. Do not use ordinary VS Code Pull when branches have diverged. Do not force-push `main`.
+
 ## Codespace Sync
 
 Run this inside each Codespace to safely sync it with `origin/main`:
@@ -215,6 +221,24 @@ Run this inside each Codespace to safely sync it with `origin/main`:
 bash sync-current-codespace.sh
 ```
 
-The script saves local work to a timestamped backup branch when needed, pushes that backup, fast-forwards `main`, installs dependencies, then runs typecheck and build.
+Fast working mode while actively editing:
 
-It does not run destructive reset, clean, force-push, or delete commands.
+```bash
+bash sync-current-codespace.sh --no-install --no-build
+```
+
+The script treats `origin/main` as official. It saves local work, local commits, or non-main branch work to a timestamped backup branch when needed, pushes that backup, then aligns local `main` with `origin/main`.
+
+It does not force-push, delete branches, delete Codespaces, or run `git clean`. Local work is preserved on pushed backup branches before local `main` is aligned.
+
+Python wrapper:
+
+```bash
+python3 fix_git.py --no-install --no-build
+```
+
+Check all Codespaces after running the sync script in each one:
+
+```bash
+bash check-all-codespaces-sync.sh
+```
