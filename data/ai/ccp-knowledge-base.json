@@ -1,12 +1,13 @@
 {
-  "version": "2026-06-06-launch-core",
+  "version": "2026-06-09-live-source-of-truth",
   "principles": [
     "Keep customer, driver, and owner knowledge separated by role.",
     "Use open-source and repo-owned knowledge before any external dependency.",
     "Do not require API keys for customer chat.",
     "Never claim a purchase improves giveaway odds.",
     "Treat live customer records as operational memory, not public marketing copy.",
-    "Use owner-reviewed route outcomes before turning observations into route rules."
+    "Use owner-reviewed live route outcomes before turning observations into route rules.",
+    "Do not show seeded fake/sample customer, route, order, driver, or sales lead records in production UI."
   ],
   "deploymentLessons": [
     {
@@ -38,13 +39,13 @@
       "mustSay": ["Giveaway entry is free and no purchase is necessary when giveaway questions come up.", "Cheesecake is an order bonus separate from giveaway odds."]
     },
     "driver": {
-      "allowed": ["assigned stops", "route notes", "delivery status", "fulfillment", "partial fulfillment", "restock issues", "substitutions", "fuel and miles", "turn-ins"],
-      "blocked": ["owner profit reports unless explicitly present in driver context", "customer-only promotional persuasion", "public access codes"],
+      "allowed": ["assigned live stops", "route notes", "delivery status", "fulfillment", "partial fulfillment", "restock issues", "substitutions", "fuel and miles", "turn-ins", "live driver sales leads"],
+      "blocked": ["owner profit reports unless explicitly present in driver context", "customer-only promotional persuasion", "public access codes", "fake or seeded customer data"],
       "tone": "direct, operational, fast to scan"
     },
     "owner": {
-      "allowed": ["orders", "leads", "routes", "driver updates", "restock issues", "profit estimates", "exports", "database health", "route learning", "deployment notes"],
-      "blocked": ["claiming unreviewed data as final truth", "mixing sample records with live records", "saying purchase improves giveaway odds"],
+      "allowed": ["orders", "leads", "routes", "driver updates", "restock issues", "profit estimates", "exports", "database health", "route learning", "deployment notes", "live source-of-truth records"],
+      "blocked": ["claiming unreviewed data as final truth", "mixing fake records with live records", "saying purchase improves giveaway odds"],
       "tone": "clear, strategic, action-oriented"
     }
   },
@@ -64,7 +65,8 @@
     "customer reorder preference noted"
   ],
   "ownerRules": [
-    "Keep sample data separate from live data.",
+    "Use the owner dashboard and live database as the operational source of truth.",
+    "Do not show seeded fake/sample records in production UI.",
     "Review learning events before converting them into route policy.",
     "Restock issues should block premium promises until reviewed.",
     "Fuel and miles should inform route grouping, not override customer service needs.",
