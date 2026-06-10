@@ -6,7 +6,7 @@ Capital City Provisions is a modern stocked-home protein delivery web app for Sa
 
 Current MVP rating: **7.6 / 10**
 
-The product has a strong launch foundation: customer pages exist, the buying journey is understandable, ZIP-aware lead capture works conceptually, the concierge stays role-aware, and internal operations have a clear direction. The remaining gap is polish and operational hardening: deployment stability, persistent database wiring, cleaner QA, and a less busy visual system on mobile.
+The product has a strong launch foundation: customer pages exist, the buying journey is understandable, ZIP-aware lead capture works conceptually, the concierge stays role-aware, and internal operations have a clear direction. The remaining gap is polish and operational hardening: deployment stability, persistent database verification, cleaner QA, full authentication, and a less busy visual system on mobile.
 
 ### Strongest Parts
 
@@ -20,7 +20,7 @@ The product has a strong launch foundation: customer pages exist, the buying jou
 ### Biggest Risks
 
 - Vercel deployment needs log-level follow-up after each operational hardening change.
-- The live database path needs production-grade persistence before real orders are accepted.
+- Production must not accept live operational records unless PostgreSQL is configured and healthy.
 - Access gates are suitable for MVP privacy, but not yet full authentication or account management.
 - Some pages still need final visual QA across desktop, tablet, and mobile.
 - Promotions and giveaway copy should receive legal review before paid traffic.
@@ -111,7 +111,8 @@ Important files:
 - `database/schema.sql` - Production-oriented schema.
 - `database/README.md` - Database notes.
 - `docs/system-database.md` - System database documentation.
-- `lib/ccp-database.ts` - Live runtime database layer and report generation.
+- `lib/ccp-database.ts` - Local runtime database layer for development fallback and report generation.
+- `lib/pg-database.ts` - PostgreSQL source-of-truth wiring for production persistence and reports.
 
 MVP database concepts include:
 
@@ -127,14 +128,15 @@ MVP database concepts include:
 - Wholesale accounts
 - Customer status pipeline
 
-The current app should not be treated as fully production-ready for live order handling until persistent storage, backups, authentication, and export flows are verified end to end.
+Production should treat PostgreSQL as the only durable source of truth. Local memory fallback is for development and demos only. In production, live order creation, lifecycle lead creation, and reports should fail closed when PostgreSQL is not configured.
 
 ## Tech Stack
 
-- Next.js 15
+- Next.js 16
 - React 19
 - TypeScript
 - CSS modules through global app stylesheets
+- PostgreSQL through `pg`
 - `@mlc-ai/web-llm` for browser-local open-source AI direction
 - Vercel deployment
 
@@ -184,6 +186,7 @@ Recommended production variables:
 OWNER_ACCESS_CODE=replace-with-secure-owner-code
 DRIVER_ACCESS_CODE=replace-with-secure-driver-code
 DATABASE_URL=postgres-connection-string
+CCP_REQUIRE_POSTGRES=true
 ```
 
 Future production variables may include:
@@ -213,7 +216,10 @@ Before sending traffic, confirm:
 - Vercel build passes.
 - `npm run license:audit` passes.
 - `database/schema.sql` has been applied to the production PostgreSQL database.
-- Owner-authenticated `/api/db/health` returns `ok: true`.
+- `DATABASE_URL` is set in production.
+- `CCP_REQUIRE_POSTGRES=true` is set in production.
+- Owner-authenticated `/api/db/health` returns `ok: true` and `storage: postgres`.
+- Production order, lead-lifecycle, and report routes fail closed instead of using memory when Postgres is unavailable.
 - All customer pages load.
 - Mobile header and bottom action bar work.
 - Box Concierge stays minimized until clicked.
@@ -227,33 +233,3 @@ Before sending traffic, confirm:
 `origin/main` is the official source of truth for this project.
 
 Phone Codespaces, desktop Codespaces, local clones, and temporary working branches must be synced back to `origin/main` through the project sync script. Do not use ordinary VS Code Pull when branches have diverged. Do not force-push `main`.
-
-## Codespace Sync
-
-Run this inside each Codespace to safely sync it with `origin/main`:
-
-```bash
-bash sync-current-codespace.sh
-```
-
-Fast working mode while actively editing:
-
-```bash
-bash sync-current-codespace.sh --no-install --no-build
-```
-
-The script treats `origin/main` as official. It saves local work, local commits, or non-main branch work to a timestamped backup branch when needed, pushes that backup, then aligns local `main` with `origin/main`.
-
-It does not force-push, delete branches, delete Codespaces, or run `git clean`. Local work is preserved on pushed backup branches before local `main` is aligned.
-
-Python wrapper:
-
-```bash
-python3 fix_git.py --no-install --no-build
-```
-
-Check all Codespaces after running the sync script in each one:
-
-```bash
-bash check-all-codespaces-sync.sh
-```
