@@ -83,12 +83,12 @@ Internal pages are gated by role:
 - `/system-database` - Live database console.
 - `/internal-access` - Role access gate.
 
-Default access codes are intended only for MVP/demo use:
+Default access codes are intended only for local MVP/demo use:
 
 - Owner: `OWNER2026`
 - Driver: `DRIVER2026`
 
-Production should set these in Vercel environment variables.
+Production must set `OWNER_ACCESS_CODE` and `DRIVER_ACCESS_CODE` in Vercel environment variables. Without those variables, internal access fails closed in production.
 
 ## AI System
 
