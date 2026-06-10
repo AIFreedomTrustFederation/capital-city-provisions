@@ -24,6 +24,8 @@ Current live endpoints:
 
 The schema is PostgreSQL-compatible and can run on open-source PostgreSQL, self-hosted Supabase, Neon-compatible Postgres, or another Postgres-compatible service.
 
+When `DATABASE_URL` is configured, `/api/db/orders` uses PostgreSQL for order lifecycle reads and writes, and `/api/db/driver-update` persists driver delivery updates to PostgreSQL. Without `DATABASE_URL`, the app intentionally falls back to the in-memory MVP store for local demos and development.
+
 For production, apply:
 
 ```sql
