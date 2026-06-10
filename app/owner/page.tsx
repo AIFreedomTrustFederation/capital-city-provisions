@@ -9,9 +9,7 @@ function money(value:number){return new Intl.NumberFormat('en-US',{style:'curren
 
 export default function OwnerPage(){
   const live=fullSystemSnapshot();
-  const sample=fullSystemSnapshot({mode:'sample'});
   const report=live.ownerReport;
-  const sampleReport=sample.ownerReport;
   const liveCounts={customers:live.database.customers.length,orders:live.database.orders.length,turnIns:live.database.driverUpdates.length,issues:live.database.restockIssues.length,learning:live.database.learningEvents.length};
   const hasLiveData=Object.values(liveCounts).some(Boolean);
   return <AccessGate role="owner">
@@ -26,7 +24,7 @@ export default function OwnerPage(){
         <img src="/images/capital-city-hero.png" alt="Capital City Provisions owner command center"/>
       </section>
 
-      <OwnerLeadDashboard snapshot={live} sample={sample}/>
+      <OwnerLeadDashboard snapshot={live}/>
 
       <section className="section ops-grid" id="owner-report">
         <div className="route-list ops-cards owner-summary">
@@ -36,10 +34,9 @@ export default function OwnerPage(){
           <article><p className="eyebrow">Training records</p><h3>{live.trainingDataset.records.length}</h3><p>Order, driver, and learning events become reviewed training material.</p></article>
         </div>
         <aside className="ops-side">
-          <p className="eyebrow">Sample mode</p>
-          <h2>{sample.database.orders.length} demo orders</h2>
-          <p>Use the sample database to practice routing, reports, and AI prompts without mixing demo data into live customer records.</p>
-          <p><strong>{money(sampleReport.revenue)}</strong> sample revenue scheduled.</p>
+          <p className="eyebrow">Live system</p>
+          <h2>No demo records shown</h2>
+          <p>This command center only displays real intake, orders, driver updates, restock issues, sales leads, and owner-approved learning records.</p>
         </aside>
       </section>
 
@@ -52,7 +49,7 @@ export default function OwnerPage(){
       </section>
 
       <section id="owner-ai">
-        <RoleAIWorkspace role="owner" title="Owner AI Workspace" subtitle="Ask about orders, routes, driver turn-ins, restock issues, exports, profit, daily priorities, and route-learning signals." memory={live}/>
+        <RoleAIWorkspace role="owner" title="Owner AI Workspace" subtitle="Ask about live orders, routes, driver turn-ins, restock issues, exports, profit, daily priorities, and route-learning signals." memory={live}/>
       </section>
     </main>
   </AccessGate>
