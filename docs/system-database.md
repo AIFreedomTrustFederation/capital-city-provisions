@@ -23,6 +23,19 @@ The system uses one live source of truth.
 - Reports and training records derive from live operational events.
 - No fake/sample customer, route, order, driver, or sales lead records should display in production UI.
 
+## Production storage rule
+
+PostgreSQL is the production source of truth. Local in-memory storage is only for development and demos.
+
+Production should set:
+
+```bash
+DATABASE_URL=postgres-connection-string
+CCP_REQUIRE_POSTGRES=true
+```
+
+When production storage is required and PostgreSQL is unavailable, operational routes should fail closed instead of writing live business records to memory. This protects orders, driver updates, sales leads, reports, and AI training data from disappearing after server restarts or scaling events.
+
 ## Open-source persistence target
 
 The repo includes a PostgreSQL-compatible open-source schema:
@@ -38,10 +51,12 @@ Current persistence behavior:
 - If `DATABASE_URL` is set, driver delivery updates are persisted to PostgreSQL and update the related order status.
 - If `DATABASE_URL` is set, driver sales leads, owner reports, and training exports use PostgreSQL.
 - If `DATABASE_URL` is missing, local/demo mode uses the in-memory live store and should not be treated as durable production storage.
+- If `CCP_REQUIRE_POSTGRES=true` or the app is running in production, live operational routes reject source-of-truth writes when PostgreSQL is unavailable.
 
 ## Main files
 
-- `lib/ccp-database.ts` contains schema types, live runtime store, lifecycle updates, reports, and training dataset generation.
+- `lib/ccp-database.ts` contains schema types, local runtime fallback, lifecycle updates, reports, and training dataset generation.
+- `lib/pg-database.ts` contains PostgreSQL persistence, reads, health checks, reports, and training export support.
 - `/api/db/orders` creates and reads order lifecycle records.
 - `/api/db/health` checks PostgreSQL connectivity and required schema tables.
 - `/api/db/driver-update` records driver delivery and fulfillment updates.
