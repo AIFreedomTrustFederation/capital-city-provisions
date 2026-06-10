@@ -1,6 +1,6 @@
 # Capital City Provisions system database
 
-The website now has a database-shaped operating system for the full customer-to-delivery lifecycle.
+The website now has a live database-shaped operating system for the full customer-to-delivery lifecycle.
 
 ## What it tracks
 
@@ -10,38 +10,39 @@ The website now has a database-shaped operating system for the full customer-to-
 - Driver updates: delivery status, fulfillment status, partial reasons, restock issues, substitutions, customer notes, fuel start/end, miles driven, and route efficiency.
 - Restock issues: product, needed quantity, available quantity, severity, and owner action.
 - Owner reports: revenue, estimated cost, estimated profit, margin, open orders, delivered orders, partial orders, restock issues, route efficiency, future restock, and owner actions.
-- AI learning events: route conversion notes, delivery notes, restock risk, customer signals, and owner-reviewed training records.
+- AI learning events: customer signals, driver updates, restock risk, delivery notes, and owner-reviewed training records.
 
-## Live database vs sample database
+## Live source of truth
 
-The system now separates the real database from the sample database.
+The system uses one live source of truth.
 
-- The **live database starts empty** and should only contain real customer/order/driver/delivery records created by the system.
-- The **sample database** exists for testing screens, reports, driver updates, restock issues, and AI prompts.
-- `/system-database` shows live-empty mode.
-- `/system-database/sample` shows seeded sample mode.
-- `/api/db/orders`, `/api/db/driver-update`, `/api/db/reports`, and `/api/db/training` use live mode by default.
-- Add `?sample=1` to use demo data intentionally.
+- The live database starts empty.
+- The owner dashboard and system database create the records that populate the rest of the app.
+- Driver boards read assigned live orders from the owner-created order lifecycle.
+- Driver sales leads save into the live owner review queue.
+- Reports and training records derive from live operational events.
+- No fake/sample customer, route, order, driver, or sales lead records should display in production UI.
 
 ## Open-source persistence target
 
-The repo now includes a PostgreSQL-compatible open-source schema:
+The repo includes a PostgreSQL-compatible open-source schema:
 
 - `database/schema.sql` creates the live system database tables.
-- `database/seed-sample.sql` creates optional demo data only.
-- `database/README.md` explains live and sample modes.
+- `database/README.md` explains the live source-of-truth direction.
 
 For production persistence, connect the database adapter to open-source PostgreSQL, self-hosted Supabase, Neon-compatible Postgres, or another Postgres-compatible database. Vercel serverless functions cannot reliably write live business records back into repository files at runtime, so a shared database is required for real multi-user customer/driver/owner state.
 
 ## Main files
 
-- `lib/ccp-database.ts` contains schema types, live/sample runtime stores, lifecycle updates, reports, and training dataset generation.
+- `lib/ccp-database.ts` contains schema types, live runtime store, lifecycle updates, reports, and training dataset generation.
 - `/api/db/orders` creates and reads order lifecycle records.
 - `/api/db/driver-update` records driver delivery and fulfillment updates.
 - `/api/db/reports` generates owner reports and optional full training snapshots.
 - `/api/db/training` exports the AI training dataset.
-- `/system-database` provides the live owner/driver command center UI.
-- `/system-database/sample` provides the sample database UI.
+- `/api/ops/driver-sales` records driver sales leads for owner review.
+- `/system-database` provides the live owner command center UI.
+- `/owner` is the owner dashboard and operational source of truth.
+- `/driver` and `/driver-sales` read from live owner-created records.
 
 ## Learning loop
 
