@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createOrder } from '../../../lib/ccp-database';
+import { saveOrderToPostgres } from '../../../lib/pg-database';
 
 type Lead = Record<string, any>;
 
@@ -165,6 +166,7 @@ export async function POST(request: Request) {
     const enrichedLead = { createdAt, source: 'capital-city-provisions-site', ...lead };
     const routing = classifyLead(enrichedLead);
     const lifecycleOrder = lifecycleFromLead(enrichedLead, routing);
+    const postgres = lifecycleOrder ? await saveOrderToPostgres(lifecycleOrder) : { configured: false, ok: false, skipped: true };
     const ownerText = buildOwnerText(enrichedLead, routing);
     const sheetRow = { ...buildSheetRow(enrichedLead, routing), lifecycleOrderId: lifecycleOrder?.id || '' };
     const payload = { ...enrichedLead, routing, ownerText, sheetRow, lifecycleOrder };
@@ -185,6 +187,7 @@ export async function POST(request: Request) {
       lead: payload,
       routing,
       lifecycleOrder,
+      storage: { postgres },
       notifications: {
         ownerWebhook: ownerWebhook.status === 'fulfilled' ? ownerWebhook.value : { configured: !!process.env.LEADS_WEBHOOK_URL, ok: false },
         googleSheets: sheetWebhook.status === 'fulfilled' ? sheetWebhook.value : { configured: !!process.env.LEADS_GOOGLE_SHEETS_WEBHOOK_URL, ok: false },
