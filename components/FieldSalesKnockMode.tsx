@@ -6,6 +6,7 @@ type KnockStatus='not-home'|'not-interested'|'warm'|'hot'|'reserved'|'follow-up'
 type FormState={rep:string;name:string;phone:string;email:string;address:string;zip:string;household:string;need:string;offer:string;value:string;status:KnockStatus;note:string;callback:string};
 
 const defaultForm:FormState={rep:'Field Rep',name:'',phone:'',email:'',address:'',zip:'',household:'',need:'Freezer box interest',offer:'Door-to-door freezer-box follow-up',value:'0',status:'warm',note:'',callback:''};
+const CONTACT_REQUIRED_STATUSES:KnockStatus[]=['warm','hot','reserved','follow-up'];
 function money(value:number){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(value||0)}
 function cleanZip(value:string){return (value.match(/\d{5}/)?.[0]||'').trim()}
 function scriptFor(status:KnockStatus,zip:string){const zone=zipZone(zip);if(status==='not-home')return 'Leave a door hanger only where allowed. Do not imply an order was placed. Mark no contact.';if(status==='not-interested')return 'Thank them, step away cleanly, and do not argue. Mark no interest.';if(zone.status==='manual-review')return 'Keep it honest: this ZIP needs route review before any delivery promise. Capture contact only if they request follow-up.';if(zone.status==='edge-route')return 'Explain this is a one-hour edge area. Grouped demand must be confirmed before dispatch.';return 'Simple pitch: We fill freezers with premium proteins, confirm the route before anything is locked in, and keep giveaway entry separate from purchases.'}
@@ -19,7 +20,7 @@ export default function FieldSalesKnockMode(){
   const estimatedValue=Number(form.value||0);
   async function saveLead(){
     if(!form.name&&form.status!=='not-home'){setNotice('Add a name or mark the door as not-home before saving.');return}
-    if(!form.phone&&!form.email&&['warm','hot','reserved','follow-up'].includes(form.status)){setNotice('Warm and hot leads need a phone or email before saving.');return}
+    if(!form.phone&&!form.email&&CONTACT_REQUIRED_STATUSES.includes(form.status)){setNotice('Warm and hot leads need a phone or email before saving.');return}
     setSaving(true);setNotice('Saving field sales lead...');
     const salesStatus=form.status==='reserved'?'reserved':form.status==='hot'?'pitched':form.status==='warm'||form.status==='follow-up'?'queued':'skipped';
     try{
