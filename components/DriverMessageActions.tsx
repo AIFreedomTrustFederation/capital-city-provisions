@@ -17,16 +17,27 @@ function noteFor(key:ActionKey){if(key==='on-way')return 'I am on the way now. P
 
 export default function DriverMessageActions(props:Props){
   const [status,setStatus]=useState('');
+  const [lastMessage,setLastMessage]=useState<any>(null);
+  async function saveMessage(action:typeof actions[number]){
+    const message=generateCustomerMessage({stage:action.stage,customerName:props.customerName,customerEmail:props.customerEmail,zip:props.zip,box:props.box||'Freezer Box',invoiceNumber:props.invoiceNumber,receiptNumber:props.receiptNumber,deliveryDate:props.deliveryDate,deliveryWindow:props.deliveryWindow,offerCode:action.offerCode,offerText:action.offerText,notes:noteFor(action.key)} as any);
+    const saved=await fetch('/api/email-system',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'queue-generated',message:{stage:action.stage,customerName:props.customerName,customerEmail:props.customerEmail,zip:props.zip,box:props.box||'Freezer Box',invoiceNumber:props.invoiceNumber,receiptNumber:props.receiptNumber,deliveryDate:props.deliveryDate,deliveryWindow:props.deliveryWindow,offerCode:action.offerCode,offerText:action.offerText,source:`driver-${action.key}`}})}).then(res=>res.json()).catch(()=>null);
+    const body=[message.body,noteFor(action.key)].filter(Boolean).join('\n\n');
+    const record=saved?.record||{customerEmail:props.customerEmail,customerName:props.customerName,subject:message.subject,body,stage:action.stage,source:`driver-${action.key}`};
+    setLastMessage(record);
+    return {message,body,record};
+  }
   async function send(action:typeof actions[number],mode:'gmail'|'mail'){
     if(!props.customerEmail){setStatus('Customer email required.');return}
-    const message=generateCustomerMessage({stage:action.stage,customerName:props.customerName,customerEmail:props.customerEmail,zip:props.zip,box:props.box||'Freezer Box',invoiceNumber:props.invoiceNumber,receiptNumber:props.receiptNumber,deliveryDate:props.deliveryDate,deliveryWindow:props.deliveryWindow,offerCode:action.offerCode,offerText:action.offerText,notes:noteFor(action.key)} as any);
-    const body=[message.body,noteFor(action.key)].filter(Boolean).join('\n\n');
-    await fetch('/api/email-system',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'queue-generated',message:{stage:action.stage,customerName:props.customerName,customerEmail:props.customerEmail,zip:props.zip,box:props.box||'Freezer Box',invoiceNumber:props.invoiceNumber,receiptNumber:props.receiptNumber,deliveryDate:props.deliveryDate,deliveryWindow:props.deliveryWindow,offerCode:action.offerCode,offerText:action.offerText,source:`driver-${action.key}`}})}).catch(()=>{});
+    const prepared=await saveMessage(action);
     const department=departmentForStage(action.stage);
-    const url=mode==='gmail'?gmailComposeUrl({to:props.customerEmail,subject:message.subject,body,department}):mailtoUrl({to:props.customerEmail,subject:message.subject,body,department});
+    const url=mode==='gmail'?gmailComposeUrl({to:props.customerEmail,subject:prepared.message.subject,body:prepared.body,department}):mailtoUrl({to:props.customerEmail,subject:prepared.message.subject,body:prepared.body,department});
     setStatus(`${action.label} queued. Confirm send after your mail app opens.`);
     if(mode==='gmail')window.open(url,'_blank','noopener,noreferrer'); else window.location.href=url;
   }
-  async function mark(label:string){setStatus(`${label} saved locally for owner follow-up.`)}
-  return <div className="driver-message-actions"><p className="eyebrow">One-Tap Messages</p><div className="quick-grid">{actions.map(action=><div key={action.key} className="quick-action"><strong>{action.label}</strong><button onClick={()=>send(action,'gmail')} disabled={!props.customerEmail}>Gmail</button><button onClick={()=>send(action,'mail')} disabled={!props.customerEmail}>Mail</button></div>)}</div><div className="actions"><button onClick={()=>mark('Marked sent')}>Mark Sent</button><button onClick={()=>mark('Needs follow-up')}>Needs Follow-Up</button></div>{status&&<p className="sales-save-notice">{status}</p>}<style>{`.driver-message-actions{margin-top:14px}.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.quick-action{border:1px solid rgba(248,231,176,.35);border-radius:16px;padding:10px;background:rgba(10,6,3,.72)}.quick-action button{margin:6px 6px 0 0;border:1px solid #f8e7b0;border-radius:999px;padding:8px 10px;background:#211206;color:#fff7ed}.quick-action button:disabled{opacity:.45}@media(max-width:720px){.quick-grid{grid-template-columns:1fr}}`}</style></div>
+  async function mark(label:'sent'|'needs-follow-up'){
+    if(!lastMessage){setStatus('Open a message first, then mark the result.');return}
+    await fetch('/api/email-system',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save-draft',record:{...lastMessage,status:label==='sent'?'sent':'queued',source:`${lastMessage.source||'driver-message'}-${label}`,metadata:{...(lastMessage.metadata||{}),driverOutcome:label}}})}).catch(()=>{});
+    setStatus(label==='sent'?'Marked sent for owner backup.':'Marked needs follow-up for owner backup.');
+  }
+  return <div className="driver-message-actions"><p className="eyebrow">One-Tap Messages</p><div className="quick-grid">{actions.map(action=><div key={action.key} className="quick-action"><strong>{action.label}</strong><button onClick={()=>send(action,'gmail')} disabled={!props.customerEmail}>Gmail</button><button onClick={()=>send(action,'mail')} disabled={!props.customerEmail}>Mail</button></div>)}</div><div className="actions"><button onClick={()=>mark('sent')}>Mark Sent</button><button onClick={()=>mark('needs-follow-up')}>Needs Follow-Up</button></div>{status&&<p className="sales-save-notice">{status}</p>}<style>{`.driver-message-actions{margin-top:14px}.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.quick-action{border:1px solid rgba(248,231,176,.35);border-radius:16px;padding:10px;background:rgba(10,6,3,.72)}.quick-action button{margin:6px 6px 0 0;border:1px solid #f8e7b0;border-radius:999px;padding:8px 10px;background:#211206;color:#fff7ed}.quick-action button:disabled{opacity:.45}@media(max-width:720px){.quick-grid{grid-template-columns:1fr}}`}</style></div>
 }
