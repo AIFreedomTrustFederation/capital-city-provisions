@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useMemo,useState,type FormEvent} from 'react';
 import AiCommandInterface from './AiCommandInterface';
-import {contextTrust,displayContextTrust,sourceFromStorage,withContextTrust} from '../lib/context-trust';
+import {contextTrust,displayContextTrust,sourceFromStorage,withContextTrust,type ContextRecordSource} from '../lib/context-trust';
 
 type Role='customer'|'driver'|'owner';
 type WorkspaceProps={role:Role;title:string;subtitle:string;memory:Record<string,any>};
@@ -16,7 +16,7 @@ function buildCsv(rows:Record<string,any>[]){if(!rows.length)return '';const hea
 function firstZip(memory:Record<string,any>){return memory.zip||memory.route?.zip||memory.routes?.[0]?.zips?.[0]||memory.orders?.[0]?.zip||memory.orderLifecycle?.[0]?.zip||''}
 function driverName(memory:Record<string,any>){return memory.driver||memory.routes?.[0]?.driver||'Driver'}
 function mergeRoleMemory(base:Record<string,any>,apiContext:Record<string,any>|null){if(!apiContext)return base;return {...base,...apiContext,orders:apiContext.orders||base.orders||base.orderLifecycle||[],routes:apiContext.routes||base.routes||[],turnIns:apiContext.turnIns||base.turnIns||[],dailyReport:apiContext.dailyReport||base.dailyReport,ownerReport:apiContext.report||base.ownerReport||base.report,trainingSummary:apiContext.trainingSummary||base.trainingSummary}}
-function labelRows(rows:any[],source:'postgres'|'memory'|'driver-note'){return rows.map(row=>row?.contextTrust?row:withContextTrust(row,source))}
+function labelRows(rows:any[],source:ContextRecordSource){return rows.map(row=>row?.contextTrust?row:withContextTrust(row,source))}
 function trustText(record:any){return displayContextTrust(record?.contextTrust)}
 
 export default function RoleAIWorkspace({role,title,subtitle,memory}:WorkspaceProps){
