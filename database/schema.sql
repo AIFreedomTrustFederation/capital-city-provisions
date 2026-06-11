@@ -102,6 +102,114 @@ create table if not exists driver_sales_leads (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists invoices (
+  id text primary key,
+  invoice_number text unique not null,
+  customer_id text references customers(id),
+  order_id text references orders(id),
+  customer_name text not null,
+  customer_email text not null,
+  customer_phone text default '',
+  billing_name text default '',
+  delivery_zip text default '',
+  delivery_zone_status text default '',
+  delivery_zone_ring text default '',
+  status text not null default 'draft',
+  subtotal numeric(12,2) not null default 0,
+  discount numeric(12,2) not null default 0,
+  tax numeric(12,2) not null default 0,
+  delivery_fee numeric(12,2) not null default 0,
+  total numeric(12,2) not null default 0,
+  amount_paid numeric(12,2) not null default 0,
+  balance_due numeric(12,2) not null default 0,
+  currency text not null default 'USD',
+  due_at timestamptz,
+  expires_at timestamptz,
+  sent_at timestamptz,
+  paid_at timestamptz,
+  voided_at timestamptz,
+  notes text default '',
+  terms text default '',
+  payment_instructions text default '',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists invoice_line_items (
+  id bigserial primary key,
+  invoice_id text not null references invoices(id) on delete cascade,
+  sku text default '',
+  description text not null,
+  qty numeric(12,2) not null default 1,
+  unit text default 'each',
+  unit_price numeric(12,2) not null default 0,
+  amount numeric(12,2) not null default 0,
+  tax_category text not null default 'grocery_food',
+  metadata jsonb not null default '{}'::jsonb
+);
+
+create table if not exists payments (
+  id text primary key,
+  invoice_id text not null references invoices(id) on delete cascade,
+  provider text not null default 'manual',
+  method text not null default 'manual',
+  status text not null default 'pending',
+  amount numeric(12,2) not null default 0,
+  currency text not null default 'USD',
+  processor_payment_id text default '',
+  processor_fee numeric(12,2) not null default 0,
+  net_amount numeric(12,2) not null default 0,
+  card_brand text default '',
+  card_last4 text default '',
+  received_at timestamptz,
+  notes text default '',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists receipts (
+  id text primary key,
+  receipt_number text unique not null,
+  invoice_id text not null references invoices(id) on delete cascade,
+  payment_id text references payments(id) on delete set null,
+  customer_email text not null,
+  amount_paid numeric(12,2) not null default 0,
+  balance_due numeric(12,2) not null default 0,
+  status text not null default 'issued',
+  email_status text not null default 'pending',
+  issued_at timestamptz not null default now(),
+  metadata jsonb not null default '{}'::jsonb
+);
+
+create table if not exists billing_email_log (
+  id text primary key,
+  invoice_id text references invoices(id) on delete set null,
+  receipt_id text references receipts(id) on delete set null,
+  customer_email text not null,
+  email_type text not null,
+  status text not null default 'queued',
+  provider_message_id text default '',
+  subject text not null,
+  body text not null,
+  created_at timestamptz not null default now(),
+  sent_at timestamptz
+);
+
+create table if not exists refunds_disputes (
+  id text primary key,
+  invoice_id text references invoices(id) on delete set null,
+  payment_id text references payments(id) on delete set null,
+  type text not null default 'refund',
+  status text not null default 'open',
+  amount numeric(12,2) not null default 0,
+  reason text default '',
+  owner_notes text default '',
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+
 create table if not exists learning_events (
   id text primary key,
   role text not null,
@@ -120,3 +228,8 @@ create index if not exists idx_driver_sales_leads_status on driver_sales_leads(s
 create index if not exists idx_driver_sales_leads_zip on driver_sales_leads(zip);
 create index if not exists idx_learning_events_route_id on learning_events(route_id);
 create index if not exists idx_restock_issues_product on restock_issues(product);
+create index if not exists idx_invoices_customer_email on invoices(customer_email);
+create index if not exists idx_invoices_status on invoices(status);
+create index if not exists idx_payments_invoice_id on payments(invoice_id);
+create index if not exists idx_receipts_invoice_id on receipts(invoice_id);
+create index if not exists idx_billing_email_log_invoice_id on billing_email_log(invoice_id);
