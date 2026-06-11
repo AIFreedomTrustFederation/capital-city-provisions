@@ -16,8 +16,8 @@ export async function POST(request:Request){
     const hasDb=postgresConfigured();
     if(required&&!hasDb)return NextResponse.json({ok:false,mode:'live',storage:'unavailable',databaseRequired:true,message:'PostgreSQL is required for live sales queue writes.'},{status:503});
     const input=await request.json();
-    const enriched=withZipZone(input);
-    const lead=upsertDriverSalesLead({
+    const enriched=withZipZone(input) as any;
+    const lead:any=upsertDriverSalesLead({
       id:clean(enriched.id),
       driver:clean(enriched.driver)||'Driver',
       sourceStopId:clean(enriched.sourceStopId),
@@ -35,19 +35,11 @@ export async function POST(request:Request){
       status:enriched.status,
       temperature:enriched.temperature,
       note:clean(enriched.note),
-      deliveryZoneStatus:clean(enriched.deliveryZoneStatus),
-      deliveryZoneCity:clean(enriched.deliveryZoneCity),
-      deliveryZoneCounty:clean(enriched.deliveryZoneCounty),
-      deliveryZoneRing:clean(enriched.deliveryZoneRing),
-      deliveryZoneMinutes:enriched.deliveryZoneMinutes,
-      deliveryZonePriority:enriched.deliveryZonePriority,
-      deliveryZoneMessage:clean(enriched.deliveryZoneMessage),
-      deliveryZoneNotes:clean(enriched.deliveryZoneNotes),
-      zipZone:enriched.zipZone,
       ownerOverride:clean(enriched.ownerOverride),
       aiInstruction:clean(enriched.aiInstruction),
       driverRoutePlan:clean(enriched.driverRoutePlan)
     });
+    Object.assign(lead,{deliveryZoneStatus:clean(enriched.deliveryZoneStatus),deliveryZoneCity:clean(enriched.deliveryZoneCity),deliveryZoneCounty:clean(enriched.deliveryZoneCounty),deliveryZoneRing:clean(enriched.deliveryZoneRing),deliveryZoneMinutes:enriched.deliveryZoneMinutes,deliveryZonePriority:enriched.deliveryZonePriority,deliveryZoneMessage:clean(enriched.deliveryZoneMessage),deliveryZoneNotes:clean(enriched.deliveryZoneNotes),zipZone:enriched.zipZone});
     const persistence=hasDb?await saveDriverSalesLeadToPostgres(lead):{configured:false,ok:false,skipped:true};
     if(hasDb&&!persistence.ok)return NextResponse.json({ok:false,mode:'live',storage:'postgres',persistence,message:'PostgreSQL save failed.'},{status:503});
     const ownerText=[
