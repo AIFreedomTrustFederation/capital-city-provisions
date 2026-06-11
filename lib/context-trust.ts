@@ -90,7 +90,7 @@ export function contextTrust(source: ContextRecordSource, overrides: Partial<Omi
   return { ...sourceDefaults[source], ...overrides, source };
 }
 
-export function withContextTrust<T extends Record<string, unknown>>(record: T, source: ContextRecordSource, overrides: Partial<Omit<ContextTrust, 'source'>> = {}): TrustedContextRecord<T> {
+export function withContextTrust<T extends object>(record: T, source: ContextRecordSource, overrides: Partial<Omit<ContextTrust, 'source'>> = {}): TrustedContextRecord<T> {
   return { ...record, contextTrust: contextTrust(source, overrides) };
 }
 
