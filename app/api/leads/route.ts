@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createOrder } from '../../../lib/ccp-database';
+import { buildOrderRecord, createOrder, type OrderInput } from '../../../lib/ccp-database';
 import { postgresConfigured, saveOrderToPostgres } from '../../../lib/pg-database';
 
 type Lead = Record<string, any>;
@@ -133,12 +133,12 @@ function buildSheetRow(lead: Lead, routing: LeadRouting) {
   };
 }
 
-function lifecycleFromLead(lead: Lead, routing: LeadRouting) {
+function orderInputFromLead(lead: Lead, routing: LeadRouting): OrderInput | null {
   if (!leadNeedsLifecycleOrder(routing)) return null;
   const budgetText = clean(lead.estimatedBudget || lead.budget);
   const budgetMatch = budgetText.match(/\$?([0-9,]+)/g)?.pop()?.replace(/[$,]/g, '');
   const value = Number(budgetMatch || 0) || (routing.bucket === 'wholesale' ? 1000 : 500);
-  return createOrder({
+  return {
     customerName: clean(lead.name) || 'New Lead',
     phone: clean(lead.phone),
     zip: clean(lead.zip || lead.address),
@@ -152,7 +152,7 @@ function lifecycleFromLead(lead: Lead, routing: LeadRouting) {
     products: clean(lead.proteins).split(',').filter(Boolean).map((protein, index) => ({ sku: `LEAD-${index + 1}`, name: protein.trim(), qty: 1, unit: 'preference', fulfilled: 0 })),
     notes: clean(lead.message),
     promo: clean(lead.promoCode),
-  });
+  };
 }
 
 async function postJson(url: string | undefined, body: unknown) {
@@ -178,8 +178,9 @@ export async function POST(request: Request) {
     if (needsOrder && productionRequiresPostgres() && !hasPostgres) {
       return NextResponse.json({ ok: false, message: 'PostgreSQL is required before production leads can create live order records.', routing, storage: { postgres: { configured: false, ok: false } } }, { status: 503 });
     }
-    const lifecycleOrder = lifecycleFromLead(enrichedLead, routing);
-    const postgres = lifecycleOrder ? await saveOrderToPostgres(lifecycleOrder) : { configured: false, ok: false, skipped: true };
+    const orderInput = orderInputFromLead(enrichedLead, routing);
+    const lifecycleOrder = orderInput ? (hasPostgres ? buildOrderRecord(orderInput) : createOrder(orderInput)) : null;
+    const postgres = lifecycleOrder && hasPostgres ? await saveOrderToPostgres(lifecycleOrder) : { configured: false, ok: false, skipped: true };
     if (lifecycleOrder && hasPostgres && !postgres.ok) {
       return NextResponse.json({ ok: false, message: 'Lead was received but the lifecycle order was not saved to PostgreSQL.', routing, storage: { postgres } }, { status: 503 });
     }
