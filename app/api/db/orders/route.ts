@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createOrder, getOrderLifecycle } from '../../../../lib/ccp-database';
+import { buildOrderRecord, createOrder, getOrderLifecycle } from '../../../../lib/ccp-database';
 import { getOrderLifecycleFromPostgres, postgresConfigured, saveOrderToPostgres } from '../../../../lib/pg-database';
 
 function productionRequiresPostgres(){
@@ -27,7 +27,7 @@ export async function POST(request:Request){
     const hasPostgres=postgresConfigured();
     if(!hasPostgres&&productionRequiresPostgres())return postgresRequired('creating live orders');
     const input=await request.json();
-    const order=createOrder(input);
+    const order=hasPostgres?buildOrderRecord(input):createOrder(input);
     const persistence=hasPostgres?await saveOrderToPostgres(order):{configured:false,ok:false,skipped:true};
     if(hasPostgres&&!persistence.ok)return NextResponse.json({ok:false,mode:'live',storage:'postgres',persistence,message:'Order was not saved to PostgreSQL. Live order creation was rejected to protect the source of truth.'},{status:503});
     const lifecycle=hasPostgres?((await getOrderLifecycleFromPostgres(order.id))||[])[0]:getOrderLifecycle(order.id)[0];
