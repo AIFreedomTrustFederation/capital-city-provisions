@@ -12,8 +12,6 @@ on:
 permissions:
   contents: write
 
-timezone: UTC
-
 jobs:
   sync:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
