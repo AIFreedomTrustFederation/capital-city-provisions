@@ -1,0 +1,22 @@
+export type CustomerMessageStage='lead-thank-you'|'quote-reminder'|'invoice-ready'|'receipt-issued'|'appointment-confirmed'|'delivery-follow-up';
+export type CustomerMessageInput={stage:CustomerMessageStage;customerName?:string;customerEmail?:string;zip?:string;box?:string;invoiceNumber?:string;receiptNumber?:string;deliveryDate?:string;deliveryWindow?:string;balanceDue?:number;offerCode?:string;offerText?:string;notes?:string};
+const thankYous=['Thank you for giving Capital City Provisions a chance to serve your freezer right.','We appreciate you taking a look at Capital City Provisions.','Thank you for connecting with us. We want the process to feel clear, premium, and honest.','We appreciate the opportunity to earn your trust with a freezer-box delivery.'];
+const closers=['We appreciate you.','Thank you again.','We look forward to serving your household.','We are grateful for the opportunity.'];
+function pick(list:string[],seed?:string){const text=String(seed||Date.now());const score=[...text].reduce((sum,char)=>sum+char.charCodeAt(0),0);return list[score%list.length]}
+function name(value?:string){return String(value||'there').trim()||'there'}
+function money(value?:number){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(value||0))}
+function offer(input:CustomerMessageInput){if(!input.offerCode&&!input.offerText)return '';return `\n\nCustomer appreciation offer: ${input.offerText||'Ask us about today’s freezer-box savings'}${input.offerCode?` with code ${input.offerCode}`:''}.`}
+export function generateCustomerMessage(input:CustomerMessageInput){
+  const hello=`Hello ${name(input.customerName)},`;
+  const thanks=pick(thankYous,input.customerEmail||input.customerName||input.stage);
+  const close=pick(closers,input.stage||input.customerName);
+  let subject='Capital City Provisions update';
+  let body='';
+  if(input.stage==='lead-thank-you'){subject='Thanks for checking your Capital City Provisions route';body=[hello,'',thanks,`We received your freezer-box interest for ZIP ${input.zip||'your area'}. We will confirm the route before making a delivery promise.`,offer(input),'',close].join('\n');}
+  if(input.stage==='quote-reminder'){subject='Your freezer-box quote is still open';body=[hello,'',thanks,`Your ${input.box||'freezer box'} quote is still open. Confirming the next step helps us protect inventory and delivery timing.`,offer(input),'',close].join('\n');}
+  if(input.stage==='invoice-ready'){subject=`Invoice ${input.invoiceNumber||''} is ready`.trim();body=[hello,'',`Your Capital City Provisions invoice ${input.invoiceNumber||''} is ready.`,input.balanceDue!==undefined?`Balance due: ${money(input.balanceDue)}.`:'',`Once terms are confirmed, we can move toward delivery scheduling.`,offer(input),'',close].filter(Boolean).join('\n');}
+  if(input.stage==='receipt-issued'){subject=`Receipt ${input.receiptNumber||''} — thank you`.trim();body=[hello,'',`Thank you. Receipt ${input.receiptNumber||''} has been issued.`,input.invoiceNumber?`Invoice: ${input.invoiceNumber}.`:'',`Next step: delivery appointment confirmation.`,offer(input),'',close].filter(Boolean).join('\n');}
+  if(input.stage==='appointment-confirmed'){subject='Your Capital City Provisions delivery is confirmed';body=[hello,'',`Your delivery appointment is confirmed${input.deliveryDate?` for ${input.deliveryDate}`:''}${input.deliveryWindow?` during ${input.deliveryWindow}`:''}.`,`Please keep your phone available for any final route update.`,offer(input),'',close].join('\n');}
+  if(input.stage==='delivery-follow-up'){subject='How did your Capital City Provisions delivery go?';body=[hello,'',`Thank you for letting us serve your household. We hope the freezer-box experience delivered the quality and convenience you expected.`,`Reply with anything we should improve or with what you want in the next restock.`,offer(input),'',close].join('\n');}
+  return {subject,body,stage:input.stage,customerEmail:input.customerEmail||'',generatedAt:new Date().toISOString()};
+}
