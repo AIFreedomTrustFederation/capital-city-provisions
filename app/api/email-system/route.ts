@@ -9,7 +9,16 @@ function accessRole(request:Request){const cookie=request.headers.get('cookie')|
 function internalRole(request:Request){const role=accessRole(request);return role==='owner'||role==='driver'}
 function requiresPostgres(){return process.env.NODE_ENV==='production'||process.env.CCP_REQUIRE_POSTGRES==='true'}
 function labelRows(rows:any[],source:ContextRecordSource,reason:string){return (rows||[]).map(row=>row?.contextTrust?row:withContextTrust(row,source,{reason}))}
-function labelRecord(record:any,action:string,hasPg:boolean){if(record?.contextTrust)return record;const inbound=action==='import-received'||record?.direction==='inbound';const draft=action==='save-draft'||record?.status==='draft';const source=inbound?('customer-'+'message') as ContextRecordSource:draft?'owner-override':hasPg?'postgres':'memory';const reason=inbound?'Inbound customer text pending review.':draft?'Owner or driver draft.':hasPg?'Official communication record in PostgreSQL.':'Working communication memory.';return withContextTrust(record,source,{reason})}
+function labelRecord(record:any,action:string,hasPg:boolean){
+  if(record?.contextTrust)return record;
+  const inbound=action==='import-received'||record?.direction==='inbound';
+  const draft=action==='save-draft'||record?.status==='draft';
+  let source:ContextRecordSource=hasPg?'postgres':'memory';
+  if(inbound)source='customer-message';
+  else if(draft)source='owner-override';
+  const reason=inbound?'Inbound customer text pending review.':draft?'Owner or driver draft.':hasPg?'Official communication record in PostgreSQL.':'Working communication memory.';
+  return withContextTrust(record,source,{reason})
+}
 
 export async function GET(request:Request){
   if(!internalRole(request))return NextResponse.json({ok:false,message:'Internal access required'},{status:401});
