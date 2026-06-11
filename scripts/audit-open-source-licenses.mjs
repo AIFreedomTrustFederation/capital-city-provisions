@@ -14,6 +14,7 @@ const allowed = new Set([
   'ISC',
   'LGPL-3.0-or-later',
   'MIT',
+  'MIT-0',
   'MPL-2.0',
   'Python-2.0',
 ]);
