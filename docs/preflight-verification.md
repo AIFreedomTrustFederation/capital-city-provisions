@@ -8,6 +8,15 @@ Do not use Vercel as the first build test. Vercel builds are limited, so code sh
 preflight branch -> GitHub Actions verifies -> main branch -> Vercel deploys
 ```
 
+## Current Preflight Hardening Notes
+
+Before syncing to `preflight`, keep the TypeScript surface simple:
+
+- Shared helpers should accept normal business objects, not only `Record<string, unknown>`.
+- UI source types should accept all context sources, including `system`.
+- Trust labels should use owner-facing names in the UI.
+- Communication, billing, appointment, board, and AI context records should keep their `contextTrust` metadata.
+
 ## Sync Rule
 
 `preflight` is allowed to fail. `main` is not.
