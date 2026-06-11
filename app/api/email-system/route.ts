@@ -21,7 +21,7 @@ export async function POST(request:Request){
     const input=await request.json();
     const action=input.action||'queue-generated';
     let record:any;
-    if(action==='queue-generated')record=makeCustomerEmail(input.message||input);
+    if(action==='queue-generated')record=makeCustomerEmail({stage:'lead-thank-you',...(input.message||input)});
     else if(action==='import-received')record=makeInboundEmail(input.message||input);
     else if(action==='save-draft')record={...(input.record||{}),status:'draft'};
     else return NextResponse.json({ok:false,message:'Unknown email action'},{status:400});
