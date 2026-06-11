@@ -197,6 +197,32 @@ create table if not exists billing_email_log (
   sent_at timestamptz
 );
 
+create table if not exists delivery_appointments (
+  id text primary key,
+  invoice_id text references invoices(id) on delete set null,
+  order_id text references orders(id) on delete set null,
+  customer_name text not null,
+  customer_email text not null,
+  customer_phone text default '',
+  delivery_zip text default '',
+  address text default '',
+  route_id text default '',
+  driver text default '',
+  status text not null default 'requested',
+  requested_window text default '',
+  confirmed_date text default '',
+  confirmed_window text default '',
+  confirmation_email_status text not null default 'pending',
+  driver_notes text default '',
+  customer_notes text default '',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  confirmed_at timestamptz,
+  completed_at timestamptz,
+  cancelled_at timestamptz
+);
+
 create table if not exists refunds_disputes (
   id text primary key,
   invoice_id text references invoices(id) on delete set null,
@@ -233,3 +259,6 @@ create index if not exists idx_invoices_status on invoices(status);
 create index if not exists idx_payments_invoice_id on payments(invoice_id);
 create index if not exists idx_receipts_invoice_id on receipts(invoice_id);
 create index if not exists idx_billing_email_log_invoice_id on billing_email_log(invoice_id);
+create index if not exists idx_delivery_appointments_invoice_id on delivery_appointments(invoice_id);
+create index if not exists idx_delivery_appointments_status on delivery_appointments(status);
+create index if not exists idx_delivery_appointments_route_id on delivery_appointments(route_id);
