@@ -18,6 +18,7 @@ export type RouteEfficiencyReport={routeId:string;route:string;efficiency:RouteE
 export type OwnerReport={date:string;revenue:number;estimatedCost:number;estimatedProfit:number;margin:number;openOrders:number;deliveredOrders:number;partialOrders:number;restockIssues:number;routeEfficiency:RouteEfficiencyReport[];futureRestock:{product:string;needed:number;reason:string}[];ownerActions:string[];learningNotes:string[];driverSalesQueue:DriverSalesLead[]};
 
 export type OrderInput=Partial<OrderRecord>&{customerName?:string;phone?:string;zip?:string;email?:string};
+export type DriverUpdateInput=Partial<DriverUpdate>&{orderId:string;routeId:string;driver:string};
 type MutableDatabase={customers:CustomerRecord[];orders:OrderRecord[];driverUpdates:DriverUpdate[];driverSalesLeads:DriverSalesLead[];restockIssues:RestockIssue[];learningEvents:LearningEvent[]};
 type DatabaseInput={mode?:DatabaseMode|string};
 const globalDatabase=globalThis as typeof globalThis&{ccpLiveDatabase?:MutableDatabase};
@@ -47,15 +48,19 @@ export function createOrder(input:OrderInput,dbInput:DatabaseInput={}){
   return order;
 }
 
-export function applyDriverUpdate(input:Partial<DriverUpdate>&{orderId:string;routeId:string;driver:string},dbInput:DatabaseInput={}){
+export function buildDriverUpdateRecord(input:DriverUpdateInput):DriverUpdate{
+  const createdAt=input.createdAt||new Date().toISOString();
+  return {id:input.id||`DU-${Date.now()}`,orderId:input.orderId,routeId:input.routeId,driver:input.driver,status:input.status||'out-for-delivery',fulfillment:input.fulfillment||'pending',deliveredAt:input.deliveredAt,partialReason:input.partialReason,restockIssue:input.restockIssue,substitutions:input.substitutions,customerNotes:input.customerNotes,fuelStart:Number(input.fuelStart||0),fuelEnd:Number(input.fuelEnd||0),milesDriven:Number(input.milesDriven||0),routeEfficiency:input.routeEfficiency||scoreRouteEfficiency(Number(input.milesDriven||0),Number(input.fuelStart||0),Number(input.fuelEnd||0)),createdAt};
+}
+
+export function applyDriverUpdate(input:DriverUpdateInput,dbInput:DatabaseInput={}){
   const db=getDatabase(dbInput);
-  const createdAt=new Date().toISOString();
-  const update:DriverUpdate={id:input.id||`DU-${Date.now()}`,orderId:input.orderId,routeId:input.routeId,driver:input.driver,status:input.status||'out-for-delivery',fulfillment:input.fulfillment||'pending',deliveredAt:input.deliveredAt,partialReason:input.partialReason,restockIssue:input.restockIssue,substitutions:input.substitutions,customerNotes:input.customerNotes,fuelStart:Number(input.fuelStart||0),fuelEnd:Number(input.fuelEnd||0),milesDriven:Number(input.milesDriven||0),routeEfficiency:input.routeEfficiency||scoreRouteEfficiency(Number(input.milesDriven||0),Number(input.fuelStart||0),Number(input.fuelEnd||0)),createdAt};
+  const update=buildDriverUpdateRecord(input);
   db.driverUpdates.unshift(update);
   const order=db.orders.find(order=>order.id===input.orderId);
-  if(order){order.status=update.status;order.fulfillment=update.fulfillment;order.updatedAt=createdAt;if(update.status==='delivered')order.deliveryDate=createdAt.slice(0,10)}
-  if(update.restockIssue){db.restockIssues.unshift({id:`RI-${Date.now()}`,orderId:update.orderId,routeId:update.routeId,sku:'DRIVER-REPORTED',product:update.restockIssue,needed:1,available:0,severity:update.fulfillment==='restock-blocked'?'high':'medium',action:'Owner review required before next route promise.',createdAt});}
-  db.learningEvents.unshift({id:`LEARN-${Date.now()}`,role:'driver',eventType:'driver-update',summary:`${update.driver} updated ${update.orderId}: ${update.status}, ${update.fulfillment}. Efficiency ${update.routeEfficiency}. ${update.restockIssue||''}`.trim(),signal:update.routeEfficiency==='poor'?9:6,orderId:update.orderId,routeId:update.routeId,createdAt});
+  if(order){order.status=update.status;order.fulfillment=update.fulfillment;order.updatedAt=update.createdAt;if(update.status==='delivered')order.deliveryDate=update.createdAt.slice(0,10)}
+  if(update.restockIssue){db.restockIssues.unshift({id:`RI-${Date.now()}`,orderId:update.orderId,routeId:update.routeId,sku:'DRIVER-REPORTED',product:update.restockIssue,needed:1,available:0,severity:update.fulfillment==='restock-blocked'?'high':'medium',action:'Owner review required before next route promise.',createdAt:update.createdAt});}
+  db.learningEvents.unshift({id:`LEARN-${Date.now()}`,role:'driver',eventType:'driver-update',summary:`${update.driver} updated ${update.orderId}: ${update.status}, ${update.fulfillment}. Efficiency ${update.routeEfficiency}. ${update.restockIssue||''}`.trim(),signal:update.routeEfficiency==='poor'?9:6,orderId:update.orderId,routeId:update.routeId,createdAt:update.createdAt});
   return update;
 }
 
