@@ -21,7 +21,7 @@ function trustText(record:any){return displayContextTrust(record?.contextTrust)}
 
 export default function RoleAIWorkspace({role,title,subtitle,memory}:WorkspaceProps){
   const [turnIn,setTurnIn]=useState({driver:'Marco',routeId:'roseville',completed:'',missed:'',rescheduled:'',payments:'',customerNotes:'',ownerFollowup:''});
-  const [savedTurnIns,setSavedTurnIns]=useState<Record<string,string>[]>([]);
+  const [savedTurnIns,setSavedTurnIns]=useState<Record<string,any>[]>([]);
   const [notice,setNotice]=useState('');
   const [apiContext,setApiContext]=useState<Record<string,any>|null>(null);
   const [contextStatus,setContextStatus]=useState('Loading role-safe context...');
