@@ -279,6 +279,60 @@ Before sending traffic, confirm:
 
 ## Official Branch Policy
 
-`origin/main` is the official source of truth for this project.
+`origin/main` is the only source of truth for this project.
 
-Phone Codespaces, desktop Codespaces, local clones, and temporary working branches must be synced back to `origin/main` through the project sync script. Do not use ordinary VS Code Pull when branches have diverged. Do not force-push `main`.
+### No Codespaces Rule
+
+Do not use GitHub Codespaces for normal development on this repository. Codespaces creates extra working copies that drift from `origin/main`, which causes merge conflicts, stale files, and accidental branch divergence.
+
+Forbidden for normal work:
+
+- Phone Codespaces edits.
+- Desktop Codespaces edits.
+- Long-lived local branches.
+- Ordinary VS Code Pull from a stale workspace.
+- Force-pushing `main`.
+- Keeping uncommitted experiments in any remote workspace.
+
+Allowed workflow:
+
+1. Make production changes directly against `origin/main` through GitHub-managed commits or a clean local clone.
+2. Let Vercel deploy from `origin/main`.
+3. Test the live site after deployment.
+4. Use local development only when a terminal is required for checks, schema application, or build verification.
+5. When local development is required, start from a clean reset to `origin/main` and stop after the commit is pushed.
+
+### Clean Local Recovery
+
+Use this before any emergency local work:
+
+```bash
+git fetch origin
+git checkout main
+git reset --hard origin/main
+git clean -fd
+```
+
+This deletes local uncommitted changes and makes the local clone match `origin/main` exactly.
+
+### Safe Local Push Flow
+
+Only use this after the clean recovery step:
+
+```bash
+git checkout main
+git pull --ff-only origin main
+./wire-postgres.sh
+```
+
+If changes are intentionally made locally:
+
+```bash
+git add .
+git commit -m "Describe the change"
+./wire-postgres.sh --push
+```
+
+### Operating Law
+
+`origin/main` wins. GitHub commits update it. Vercel deploys from it. Local copies are disposable. Codespaces are not part of the normal workflow.
