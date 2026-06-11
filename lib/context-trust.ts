@@ -69,6 +69,23 @@ const sourceDefaults: Record<ContextRecordSource, ContextTrust> = {
   },
 };
 
+const sourceLabels: Record<ContextRecordSource, string> = {
+  postgres: 'Official Records',
+  memory: 'Working Memory',
+  'ai-summary': 'AI Insight',
+  'customer-message': 'Customer Message',
+  'driver-note': 'Driver Note',
+  'owner-override': 'Owner Decision',
+  system: 'System Guidance',
+};
+
+const truthLabels: Record<TruthLevel, string> = {
+  official: 'Confirmed',
+  working: 'Working',
+  inferred: 'AI Suggested',
+  'pending-review': 'Needs Review',
+};
+
 export function contextTrust(source: ContextRecordSource, overrides: Partial<Omit<ContextTrust, 'source'>> = {}): ContextTrust {
   return { ...sourceDefaults[source], ...overrides, source };
 }
@@ -83,10 +100,23 @@ export function sourceFromStorage(storage?: string): ContextRecordSource {
   return 'system';
 }
 
+export function displaySource(source?: ContextRecordSource | string) {
+  return sourceLabels[(source || 'system') as ContextRecordSource] || 'System Guidance';
+}
+
+export function displayTruthLevel(truthLevel?: TruthLevel | string) {
+  return truthLabels[(truthLevel || 'working') as TruthLevel] || 'Working';
+}
+
+export function displayContextTrust(trust?: Partial<ContextTrust>) {
+  if (!trust) return 'Needs Review · Unlabeled Context';
+  return `${displayTruthLevel(trust.truthLevel)} · ${displaySource(trust.source)}`;
+}
+
 export function explainTruthLevel(trust?: Partial<ContextTrust>) {
   if (!trust) return 'Unlabeled context; verify before action.';
-  if (trust.truthLevel === 'official') return 'Official record. AI may use this as the operational source of truth.';
+  if (trust.truthLevel === 'official') return 'Confirmed record. AI may use this as the operational source of truth.';
   if (trust.truthLevel === 'working') return 'Working memory. AI may use this for context, but should verify before final action.';
-  if (trust.truthLevel === 'inferred') return 'Inferred memory. AI should treat this as a suggestion, not a fact.';
-  return 'Pending review. AI should surface this to owner or driver for confirmation.';
+  if (trust.truthLevel === 'inferred') return 'AI-suggested insight. Treat this as guidance, not a final fact.';
+  return 'Needs review. AI should surface this to owner or driver for confirmation.';
 }
