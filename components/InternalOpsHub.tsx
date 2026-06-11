@@ -13,6 +13,7 @@ const cards:Card[]=[
   {need:'Billing',title:'Billing Center',text:'Invoices, receipts, payment status, and billing message workflow.',href:'/billing',owner:true,priority:84},
   {need:'Revenue',title:'Revenue Pipeline',text:'Connect leads, invoices, appointments, and delivery follow-up into one sales view.',href:'/revenue-pipeline',owner:true,priority:82},
   {need:'Routes',title:'Delivery Map',text:'ZIP coverage, service rings, and delivery-area intelligence.',href:'/delivery-map',owner:true,driver:true,priority:80},
+  {need:'AI',title:'AI Memory',text:'Persistent AI session ledger for saved command threads and role-based conversation memory.',href:'/ai-memory',owner:true,driver:true,priority:79},
   {need:'AI',title:'AI Route Concierge',text:'Ask the AI about ZIPs, delivery zones, boxes, routing, and customer context.',href:'/ai-route-concierge',owner:true,driver:true,priority:78},
   {need:'AI',title:'Business Intelligence',text:'Owner-level operator brain, route learning, restock risk, and profit signals.',href:'/business-intelligence',owner:true,priority:76}
 ];
