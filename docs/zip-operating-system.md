@@ -52,6 +52,37 @@ It is currently wired into:
 - `/freezer-boxes`
 - `/delivery-map`
 
+## Customer lead capture
+
+`components/LeadCapture.tsx` now uses `zipZone()` instead of a local hardcoded route table.
+
+Customer leads submitted through the box concierge now carry:
+
+```text
+zip
+deliveryZoneStatus
+deliveryZoneCity
+deliveryZoneCounty
+deliveryZoneRing
+deliveryZoneMinutes
+deliveryZonePriority
+deliveryZoneMessage
+deliveryZoneNotes
+```
+
+The lead is enriched before posting to `/api/leads`, so current owner notifications and sheet rows can receive the ZIP-zone fields without requiring the production lead route to be rewritten first.
+
+## Driver sales capture
+
+`components/DriverSalesRouteMode.tsx` now enriches driver-captured leads with ZIP-zone metadata before saving them.
+
+`/api/ops/driver-sales` also calls `withZipZone()` server-side, preserving ZIP-zone fields into:
+
+- live driver sales queue
+- PostgreSQL driver sales lead save
+- owner webhook text
+- Google Sheets webhook payload
+
 ## Owner UI
 
 Owner service-area intelligence is available at:
@@ -82,30 +113,11 @@ API:
 /api/ops/operator-brain
 ```
 
-## Lead enrichment target
+## Remaining server-side hardening
 
-Every lead/order should eventually store these fields:
+The large production `/api/leads` route should eventually call `withZipZone()` directly as a server-side backstop. The client-side lead concierge already sends the ZIP-zone fields, but server-side enrichment would protect future non-browser lead sources.
 
-```text
-zip
-deliveryZoneStatus
-deliveryZoneCity
-deliveryZoneCounty
-deliveryZoneRing
-deliveryZoneMinutes
-deliveryZonePriority
-deliveryZoneMessage
-deliveryZoneNotes
-```
-
-These fields should travel into:
-
-- Postgres lifecycle orders
-- owner notifications
-- Google Sheets row exports
-- driver sales leads
-- owner Operator Brain scoring
-- WebAI owner context
+When editing `/api/leads`, preserve these fields in owner text, sheet row, lifecycle order notes, and any Postgres order metadata available.
 
 ## Rule
 
