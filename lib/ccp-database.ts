@@ -17,6 +17,7 @@ export type LearningEvent={id:string;role:'customer'|'driver'|'owner'|'system';e
 export type RouteEfficiencyReport={routeId:string;route:string;efficiency:RouteEfficiency;fuelUsed:number;milesDriven:number;profit:number};
 export type OwnerReport={date:string;revenue:number;estimatedCost:number;estimatedProfit:number;margin:number;openOrders:number;deliveredOrders:number;partialOrders:number;restockIssues:number;routeEfficiency:RouteEfficiencyReport[];futureRestock:{product:string;needed:number;reason:string}[];ownerActions:string[];learningNotes:string[];driverSalesQueue:DriverSalesLead[]};
 
+export type OrderInput=Partial<OrderRecord>&{customerName?:string;phone?:string;zip?:string;email?:string};
 type MutableDatabase={customers:CustomerRecord[];orders:OrderRecord[];driverUpdates:DriverUpdate[];driverSalesLeads:DriverSalesLead[];restockIssues:RestockIssue[];learningEvents:LearningEvent[]};
 type DatabaseInput={mode?:DatabaseMode|string};
 const globalDatabase=globalThis as typeof globalThis&{ccpLiveDatabase?:MutableDatabase};
@@ -30,15 +31,19 @@ export function getOrderLifecycle(orderId?:string,input:DatabaseInput={}){
   return orders.map(order=>({...order,customer:db.customers.find(customer=>customer.id===order.customerId),driverUpdates:db.driverUpdates.filter(update=>update.orderId===order.id),restockIssues:db.restockIssues.filter(issue=>issue.orderId===order.id),learningEvents:db.learningEvents.filter(event=>event.orderId===order.id||event.routeId===order.routeId)}));
 }
 
-export function createOrder(input:Partial<OrderRecord>&{customerName?:string;phone?:string;zip?:string;email?:string},dbInput:DatabaseInput={}){
-  const db=getDatabase(dbInput);
-  const createdAt=new Date().toISOString();
+export function buildOrderRecord(input:OrderInput):OrderRecord{
+  const createdAt=input.createdAt||new Date().toISOString();
   const customerId=input.customerId||`CUST-${Date.now()}`;
-  if(!db.customers.find(customer=>customer.id===customerId)){db.customers.push({id:customerId,name:input.customerName||'New Customer',email:input.email||'',phone:input.phone||'',zip:input.zip||'',source:'owner-dashboard',preferences:input.products?.map(product=>product.name)||[],createdAt});}
   const value=Number(input.value||0);
-  const order:OrderRecord={id:input.id||`CCP-${Date.now()}`,customerId,customerName:input.customerName||'New Customer',phone:input.phone||'',zip:input.zip||'',routeId:input.routeId||'owner-intake',box:input.box||'Custom Freezer Box',status:input.status||'ordered',fulfillment:input.fulfillment||'pending',value,costEstimate:input.costEstimate||Math.round(value*.58),marginEstimate:input.marginEstimate||Math.round(value*.42),deliveryDate:input.deliveryDate||'TBD',deliveryWindow:input.deliveryWindow||'TBD',products:input.products||[],notes:input.notes||'',promo:input.promo,createdAt,updatedAt:createdAt};
+  return {id:input.id||`CCP-${Date.now()}`,customerId,customerName:input.customerName||'New Customer',phone:input.phone||'',zip:input.zip||'',routeId:input.routeId||'owner-intake',box:input.box||'Custom Freezer Box',status:input.status||'ordered',fulfillment:input.fulfillment||'pending',value,costEstimate:input.costEstimate||Math.round(value*.58),marginEstimate:input.marginEstimate||Math.round(value*.42),deliveryDate:input.deliveryDate||'TBD',deliveryWindow:input.deliveryWindow||'TBD',products:input.products||[],notes:input.notes||'',promo:input.promo,createdAt,updatedAt:input.updatedAt||createdAt};
+}
+
+export function createOrder(input:OrderInput,dbInput:DatabaseInput={}){
+  const db=getDatabase(dbInput);
+  const order=buildOrderRecord(input);
+  if(!db.customers.find(customer=>customer.id===order.customerId)){db.customers.push({id:order.customerId,name:order.customerName,email:input.email||'',phone:order.phone,zip:order.zip,source:'owner-dashboard',preferences:order.products.map(product=>product.name),createdAt:order.createdAt});}
   db.orders.unshift(order);
-  db.learningEvents.unshift({id:`LEARN-${Date.now()}`,role:'customer',eventType:'order-created',summary:`${order.box} order created for ${order.zip} on ${order.routeId}.`,signal:6,orderId:order.id,routeId:order.routeId,createdAt});
+  db.learningEvents.unshift({id:`LEARN-${Date.now()}`,role:'customer',eventType:'order-created',summary:`${order.box} order created for ${order.zip} on ${order.routeId}.`,signal:6,orderId:order.id,routeId:order.routeId,createdAt:order.createdAt});
   return order;
 }
 
