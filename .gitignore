@@ -26,6 +26,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.auto-sync.log
+.auto-sync-cron.log
 /.data/
 
 # local env files
