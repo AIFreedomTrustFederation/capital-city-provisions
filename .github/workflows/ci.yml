@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - preflight
   pull_request:
     branches:
       - main
+      - preflight
 
 jobs:
   verify:
@@ -24,11 +26,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Type check
-        run: npm run typecheck
-
-      - name: License audit
-        run: npm run license:audit
-
-      - name: Build
-        run: npm run build
+      - name: Verify typecheck, license audit, and build
+        run: npm run verify
