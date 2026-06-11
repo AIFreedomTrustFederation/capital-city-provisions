@@ -19,6 +19,7 @@ export type OwnerReport={date:string;revenue:number;estimatedCost:number;estimat
 
 export type OrderInput=Partial<OrderRecord>&{customerName?:string;phone?:string;zip?:string;email?:string};
 export type DriverUpdateInput=Partial<DriverUpdate>&{orderId:string;routeId:string;driver:string};
+export type DriverSalesLeadInput=Partial<DriverSalesLead>&{id:string;driver:string;leadName:string;zip:string;area:string;need:string;offer:string;status:DriverSalesStatus};
 type MutableDatabase={customers:CustomerRecord[];orders:OrderRecord[];driverUpdates:DriverUpdate[];driverSalesLeads:DriverSalesLead[];restockIssues:RestockIssue[];learningEvents:LearningEvent[]};
 type DatabaseInput={mode?:DatabaseMode|string};
 const globalDatabase=globalThis as typeof globalThis&{ccpLiveDatabase?:MutableDatabase};
@@ -64,14 +65,18 @@ export function applyDriverUpdate(input:DriverUpdateInput,dbInput:DatabaseInput=
   return update;
 }
 
-export function upsertDriverSalesLead(input:Partial<DriverSalesLead>&{id:string;driver:string;leadName:string;zip:string;area:string;need:string;offer:string;status:DriverSalesStatus},dbInput:DatabaseInput={}){
+export function buildDriverSalesLeadRecord(input:DriverSalesLeadInput):DriverSalesLead{
+  const updatedAt=input.updatedAt||new Date().toISOString();
+  return {id:input.id,driver:input.driver,sourceStopId:input.sourceStopId,sourceCustomer:input.sourceCustomer,routeId:input.routeId,leadName:input.leadName,email:input.email,phone:input.phone,address:input.address,zip:input.zip,area:input.area,need:input.need,offer:input.offer,estimatedValue:Number(input.estimatedValue||0),status:input.status,temperature:input.temperature||'warm',note:input.note||'',ownerOverride:input.ownerOverride,aiInstruction:input.aiInstruction,driverRoutePlan:input.driverRoutePlan,createdAt:input.createdAt||updatedAt,updatedAt};
+}
+
+export function upsertDriverSalesLead(input:DriverSalesLeadInput,dbInput:DatabaseInput={}){
   const db=getDatabase(dbInput);
-  const updatedAt=new Date().toISOString();
   const existing=db.driverSalesLeads.find(lead=>lead.id===input.id);
-  const record:DriverSalesLead={id:input.id,driver:input.driver,sourceStopId:input.sourceStopId,sourceCustomer:input.sourceCustomer,routeId:input.routeId,leadName:input.leadName,email:input.email,phone:input.phone,address:input.address,zip:input.zip,area:input.area,need:input.need,offer:input.offer,estimatedValue:Number(input.estimatedValue||0),status:input.status,temperature:input.temperature||'warm',note:input.note||'',ownerOverride:input.ownerOverride,aiInstruction:input.aiInstruction,driverRoutePlan:input.driverRoutePlan,createdAt:existing?.createdAt||updatedAt,updatedAt};
+  const record=buildDriverSalesLeadRecord({...input,createdAt:existing?.createdAt||input.createdAt});
   if(existing){Object.assign(existing,record)}else{db.driverSalesLeads.unshift(record)}
   const signal=record.status==='reserved'?9:record.status==='pitched'?7:record.status==='skipped'?2:5;
-  db.learningEvents.unshift({id:`LEARN-SALE-${Date.now()}`,role:record.ownerOverride?'owner':'driver',eventType:record.ownerOverride?'owner-sales-override':'driver-sales-queue',summary:`${record.driver} marked ${record.leadName} ${record.status} for ${record.area} ${record.zip}: ${record.offer}. Value ${record.estimatedValue}. ${record.ownerOverride?`Owner override: ${record.ownerOverride}.`:''} ${record.driverRoutePlan?`Route plan: ${record.driverRoutePlan}.`:''}`.trim(),signal,routeId:record.routeId,orderId:record.sourceStopId,createdAt:updatedAt});
+  db.learningEvents.unshift({id:`LEARN-SALE-${Date.now()}`,role:record.ownerOverride?'owner':'driver',eventType:record.ownerOverride?'owner-sales-override':'driver-sales-queue',summary:`${record.driver} marked ${record.leadName} ${record.status} for ${record.area} ${record.zip}: ${record.offer}. Value ${record.estimatedValue}. ${record.ownerOverride?`Owner override: ${record.ownerOverride}.`:''} ${record.driverRoutePlan?`Route plan: ${record.driverRoutePlan}.`:''}`.trim(),signal,routeId:record.routeId,orderId:record.sourceStopId,createdAt:record.updatedAt});
   return record;
 }
 
