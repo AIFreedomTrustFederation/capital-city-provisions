@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { customerSnapshot } from '../../../../lib/ops-memory';
-import { getOrderLifecycleFromPostgres, getDriverSalesLeadsFromPostgres, generateOwnerReportFromPostgres, aiTrainingDatasetFromPostgres, postgresConfigured } from '../../../../lib/pg-database';
+import { getOrderLifecycleFromPostgres, getDriverSalesLeadsFromPostgres, generateOwnerReportFromPostgres, aiTrainingDatasetFromPostgres, postgresConfigured, getPgPool } from '../../../../lib/pg-database';
 
 type WebAIRole='customer'|'driver'|'owner';
 
@@ -24,6 +24,11 @@ function ownerBrainSummary(orders:any[],salesLeads:any[]){
   if(!recommendedActions.length)recommendedActions.push('Create the first live order or driver sales lead, then the operator brain will prioritize the day.');
   return {recommendedActions,hotZips,salesPriorities,restockRisks};
 }
+async function setupProfile(role:'owner'|'driver'){
+  const pool=getPgPool();
+  if(!pool)return null;
+  try{const result=await pool.query('select id,role,display_name,preferred_sender_email,default_department,backup_route,message_permissions,setup_complete,updated_at from ccp_user_profiles where id=$1 limit 1',[`${role}-default`]);return result.rows[0]||null}catch{return null}
+}
 
 export async function GET(request:Request){
   try{
@@ -44,16 +49,18 @@ export async function GET(request:Request){
     if(!hasDb&&dbRequired)return unavailable(safeRole);
 
     if(safeRole==='driver'){
+      const profile=hasDb?await setupProfile('driver'):null;
       const orders=hasDb?await getOrderLifecycleFromPostgres():[];
       const salesLeads=hasDb?await getDriverSalesLeadsFromPostgres():[];
       const assignedOrders=(orders||[]).filter((order:any)=>!driver||String(order.driver||order.assignedDriver||driver).toLowerCase()===driver.toLowerCase()||String(order.routeId||'').toLowerCase().includes(driver.toLowerCase()));
       const driverSales=(salesLeads||[]).filter((lead:any)=>String(lead.driver||'').toLowerCase()===driver.toLowerCase());
-      return NextResponse.json({ok:true,role:'driver',storage:hasDb?'postgres':'memory',databaseRequired:dbRequired,context:{mode:'live',driver,orders:assignedOrders.slice(0,20),salesQueue:driverSales.slice(0,20),permissions:['assigned route help','stop notes','fulfillment status','restock issues','fuel and mileage','turn-ins','driver sales queue'],blocked:['owner profit/loss','all-customer exports','owner-only training review','access codes'],message:hasDb?'Driver context is generated from PostgreSQL source-of-truth records.':'Development fallback context; production should use PostgreSQL.'}});
+      return NextResponse.json({ok:true,role:'driver',storage:hasDb?'postgres':'memory',databaseRequired:dbRequired,context:{mode:'live',driver,setupProfile:profile,orders:assignedOrders.slice(0,20),salesQueue:driverSales.slice(0,20),permissions:['assigned route help','stop notes','fulfillment status','restock issues','fuel and mileage','turn-ins','driver sales queue'],blocked:['owner profit/loss','all-customer exports','owner-only training review','access codes'],message:hasDb?'Driver context is generated from PostgreSQL source-of-truth records.':'Development fallback context; production should use PostgreSQL.'}});
     }
 
+    const profile=hasDb?await setupProfile('owner'):null;
     const [orders,report,trainingDataset,salesLeads]=hasDb?await Promise.all([getOrderLifecycleFromPostgres(),generateOwnerReportFromPostgres(),aiTrainingDatasetFromPostgres(),getDriverSalesLeadsFromPostgres()]):[[],null,null,[]];
     const operatorBrain=ownerBrainSummary(orders||[],salesLeads||[]);
-    return NextResponse.json({ok:true,role:'owner',storage:hasDb?'postgres':'memory',databaseRequired:dbRequired,context:{mode:'live',orders:(orders||[]).slice(0,50),salesQueue:(salesLeads||[]).slice(0,30),operatorBrain,report,trainingSummary:{generatedAt:trainingDataset?.generatedAt||null,recordCount:trainingDataset?.records?.length||0,records:(trainingDataset?.records||[]).slice(0,20)},permissions:['orders','reports','operator brain','zip heat','sales priorities','profit/loss','restock planning','route learning','driver updates','sales queue','training review'],blocked:['customer-facing claims that purchase improves giveaway odds'],message:hasDb?'Owner context is generated from PostgreSQL source-of-truth records and operator brain signals.':'Development fallback context; production should use PostgreSQL.'}});
+    return NextResponse.json({ok:true,role:'owner',storage:hasDb?'postgres':'memory',databaseRequired:dbRequired,context:{mode:'live',setupProfile:profile,orders:(orders||[]).slice(0,50),salesQueue:(salesLeads||[]).slice(0,30),operatorBrain,report,trainingSummary:{generatedAt:trainingDataset?.generatedAt||null,recordCount:trainingDataset?.records?.length||0,records:(trainingDataset?.records||[]).slice(0,20)},permissions:['orders','reports','operator brain','zip heat','sales priorities','profit/loss','restock planning','route learning','driver updates','sales queue','training review'],blocked:['customer-facing claims that purchase improves giveaway odds'],message:hasDb?'Owner context is generated from PostgreSQL source-of-truth records and operator brain signals.':'Development fallback context; production should use PostgreSQL.'}});
   }catch(error){
     console.error('WebAI context failed:',error);
     return NextResponse.json({ok:false,message:'WebAI context failed'},{status:500});
