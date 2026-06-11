@@ -268,6 +268,22 @@ create table if not exists learning_events (
   created_at timestamptz not null default now()
 );
 
+create table if not exists ccp_user_profiles (
+  id text primary key,
+  role text not null,
+  display_name text not null,
+  preferred_sender_email text default '',
+  default_department text not null default 'support',
+  backup_route text default 'aifreedomtrust@gmail.com',
+  public_reply_email text default '',
+  message_permissions jsonb not null default '[]'::jsonb,
+  approval_rules jsonb not null default '[]'::jsonb,
+  setup_complete boolean not null default false,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index if not exists idx_orders_route_id on orders(route_id);
 create index if not exists idx_orders_status on orders(status);
 create index if not exists idx_driver_updates_route_id on driver_updates(route_id);
@@ -286,3 +302,5 @@ create index if not exists idx_customer_email_messages_status on customer_email_
 create index if not exists idx_delivery_appointments_invoice_id on delivery_appointments(invoice_id);
 create index if not exists idx_delivery_appointments_status on delivery_appointments(status);
 create index if not exists idx_delivery_appointments_route_id on delivery_appointments(route_id);
+create index if not exists idx_ccp_user_profiles_role on ccp_user_profiles(role);
+create index if not exists idx_ccp_user_profiles_setup_complete on ccp_user_profiles(setup_complete);
