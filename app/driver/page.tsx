@@ -1,5 +1,6 @@
 import AccessGate from '../../components/AccessGate';
 import DriverMobileWorkflow from '../../components/DriverMobileWorkflow';
+import InternalOpsHub from '../../components/InternalOpsHub';
 import RoleAIWorkspace from '../../components/RoleAIWorkspace';
 import { fullSystemSnapshot } from '../../lib/ccp-database';
 
@@ -28,11 +29,11 @@ export default function DriverPage(){
           <p className="eyebrow">Driver route</p>
           <h1>Run the route, update the status, close the day.</h1>
           <p className="lead">Driver access stays focused on assigned live stops, delivery notes, fulfillment updates, restock problems, fuel/miles, and turn-ins.</p>
-          <div className="actions"><a href="#mobile-route">Work Stops</a><a className="mobile-sales-entry" href="/driver-sales">Sales Route Mode</a><a href="#turn-in-mobile">Turn In Day</a><a href="#driver-ai">Ask Driver AI</a></div>
+          <div className="actions"><a href="#internal-ops-hub">Operations Hub</a><a href="#mobile-route">Work Stops</a><a className="mobile-sales-entry" href="/driver-sales">Sales Route Mode</a><a href="#driver-ai">Ask Driver AI</a></div>
         </div>
         <img src="/images/capital-city-hero.png" alt="Capital City Provisions driver route workflow"/>
       </section>
-
+      <InternalOpsHub role="driver" compact/>
       <section className="section ops-grid">
         <div className="route-list ops-cards">
           {memory.routes.length?memory.routes.map((route:any)=><article key={route.id}>
@@ -45,18 +46,13 @@ export default function DriverPage(){
         </div>
         <aside className="ops-side"><p className="eyebrow">Today</p><h2>{stops.length} stops</h2><p>Use the mobile stop cards first, then open Sales Route Mode from your phone when a delivery creates a new box or wholesale opportunity.</p><a className="ops-button mobile-sales-entry" href="/driver-sales">Open Sales Route Mode</a></aside>
       </section>
-
       <DriverMobileWorkflow memory={memory}/>
-
       <section className="section desktop-stop-table">
         <p className="eyebrow">Stops</p>
         <h2>Delivery list for review.</h2>
         {stops.length?<div className="ops-table"><table><thead><tr><th>Order</th><th>Customer</th><th>Route</th><th>Box</th><th>Status</th><th>Notes</th></tr></thead><tbody>{stops.map((stop:any)=><tr key={stop.id}><td>{stop.id}</td><td>{stop.customer}</td><td>{stop.routeName}</td><td>{stop.box}</td><td>{stop.status}</td><td>{stop.notes}</td></tr>)}</tbody></table></div>:<article className="marble"><h3>No live stops yet.</h3><p>This page will stay empty until real orders are assigned to a route.</p></article>}
       </section>
-
-      <section id="driver-ai">
-        <RoleAIWorkspace role="driver" title="Driver Ops" subtitle="Ask about assigned live routes, stop order, customer notes, fulfillment issues, restock flags, fuel efficiency, and turn-ins." memory={memory}/>
-      </section>
+      <section id="driver-ai"><RoleAIWorkspace role="driver" title="Driver Ops" subtitle="Ask about assigned live routes, stop order, customer notes, fulfillment issues, restock flags, fuel efficiency, and turn-ins." memory={memory}/></section>
       <style>{`@media(min-width:781px){.mobile-sales-entry{display:none!important}}`}</style>
     </main>
   </AccessGate>
