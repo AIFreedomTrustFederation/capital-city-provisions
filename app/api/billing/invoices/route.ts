@@ -46,7 +46,8 @@ export async function POST(request:Request){
       const invoice=findInvoice(billing?.invoices||[],input);
       if(!invoice)return NextResponse.json({ok:false,message:'Invoice not found'},{status:404});
       const provider=paymentProvider(input.provider);
-      const payment=withContextTrust(createPayment(invoice,provider,Number(input.amount||invoice.balanceDue),String(input.method||provider),{processorPaymentId:input.processorPaymentId,processorFee:input.processorFee,cardBrand:input.cardBrand,cardLast4:input.cardLast4,notes:input.notes}),hasPg?'postgres':'memory',{reason:hasPg?'Official payment record for PostgreSQL persistence.':'Working payment stored in MVP runtime memory.'});
+      const method=paymentProvider(input.method||provider);
+      const payment=withContextTrust(createPayment(invoice,provider,Number(input.amount||invoice.balanceDue),method,{processorPaymentId:input.processorPaymentId,processorFee:input.processorFee,cardBrand:input.cardBrand,cardLast4:input.cardLast4,notes:input.notes}),hasPg?'postgres':'memory',{reason:hasPg?'Official payment record for PostgreSQL persistence.':'Working payment stored in MVP runtime memory.'});
       const updated=applyPayment(invoice,payment);
       Object.assign(invoice,updated);
       const labeledInvoice=withContextTrust(invoice,hasPg?'postgres':'memory',{reason:hasPg?'Official invoice updated after payment.':'Working invoice updated in MVP runtime memory.'});
