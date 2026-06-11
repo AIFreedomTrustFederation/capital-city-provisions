@@ -80,6 +80,7 @@ export default function Home() {
         <div className="hero-actions">
           <a href="#delivery-zone-check">Check My ZIP</a>
           <a href="/freezer-boxes">Compare Packages</a>
+          <a href="/internal-access">Internal Gate</a>
         </div>
         <div className="route-confidence" aria-label="Route check confidence">
           {routeConfidence.map((item) => <span key={item}>{item}</span>)}
@@ -137,7 +138,7 @@ export default function Home() {
       <p className="brand-kicker">Ready To Fill Your Freezer?</p>
       <h2>Build your box in minutes.</h2>
       <p>Start with your ZIP, household size, and budget. We will help match the right freezer package.</p>
-      <div className="hero-actions"><a href="#delivery-zone-check">Check My ZIP</a><a href="/giveaway">Enter Giveaway Free</a><a href="/freezer-boxes">View Packages</a></div>
+      <div className="hero-actions"><a href="#delivery-zone-check">Check My ZIP</a><a href="/giveaway">Enter Giveaway Free</a><a href="/freezer-boxes">View Packages</a><a href="/internal-access">Internal Gate</a></div>
     </section>
   </main>;
 }
