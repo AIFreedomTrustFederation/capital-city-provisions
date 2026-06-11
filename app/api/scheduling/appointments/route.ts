@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { appointmentConfirmationEmail, sanitizeAppointment } from '../../../../lib/appointments';
+import { appointmentConfirmationEmail, sanitizeAppointment, type AppointmentRecord } from '../../../../lib/appointments';
 import { readAppointmentsFromPostgres, saveAppointmentToPostgres } from '../../../../lib/pg-appointments';
 import { postgresConfigured } from '../../../../lib/pg-database';
 import { withContextTrust, type ContextRecordSource } from '../../../../lib/context-trust';
@@ -26,7 +26,7 @@ export async function POST(request:Request){
     const hasPg=postgresConfigured();
     if(!hasPg&&requiresPostgres())return NextResponse.json({ok:false,databaseRequired:true,message:'PostgreSQL is required for live appointment writes.'},{status:503});
     const input=await request.json();
-    const appointment=withContextTrust(sanitizeAppointment(input.appointment||input),hasPg?'postgres':'memory',{reason:hasPg?'Official appointment pending PostgreSQL save.':'Working appointment memory.'});
+    const appointment=withContextTrust(sanitizeAppointment(input.appointment||input) as AppointmentRecord,hasPg?'postgres':'memory',{reason:hasPg?'Official appointment pending PostgreSQL save.':'Working appointment memory.'});
     const email=appointmentConfirmationEmail(appointment);
     appointment.confirmationEmailStatus='queued';appointment.updatedAt=new Date().toISOString();
     const persistence=hasPg?await saveAppointmentToPostgres(appointment,email):{configured:false,ok:false,skipped:true};
