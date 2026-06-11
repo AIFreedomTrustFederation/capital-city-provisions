@@ -1,22 +1,44 @@
 # Open Email System
 
-Capital City Provisions uses an internal email command center and backup inbox before connecting any paid email service.
+Capital City Provisions uses an internal message center and backup inbox without storing email secrets in Vercel or the app.
 
 ## Current path
 
 ```text
 AI customer message generator
-→ internal email record
+→ internal message record
 → Postgres backup inbox/outbox
-→ manual send or future SMTP adapter
-→ received reply import
+→ owner sends from aifreedomtrust@gmail.com
+→ customer replies to Gmail or plus-address department route
+→ owner imports/forwards reply into CCP inbox backup
 → owner/customer AI context
 ```
+
+## No-secret rule
+
+Do not store Gmail, SMTP, app-password, or mailbox secrets in Vercel or the repo.
+
+The app should generate the best customer message and preserve the record. The actual send remains owner-controlled through Gmail or the device mail app.
+
+## Department routing
+
+Use Gmail plus-address routing from the existing mailbox:
+
+```text
+aifreedomtrust+ccp-sales@gmail.com
+aifreedomtrust+ccp-billing@gmail.com
+aifreedomtrust+ccp-delivery@gmail.com
+aifreedomtrust+ccp-support@gmail.com
+aifreedomtrust+ccp-owner@gmail.com
+```
+
+These all arrive in the same Gmail inbox, while allowing Gmail filters/labels to sort by department.
 
 ## Files
 
 ```text
 lib/customer-messages.ts
+lib/ccp-email-routing.ts
 lib/email-system.ts
 app/api/email-system/route.ts
 components/EmailCommandCenter.tsx
@@ -49,7 +71,7 @@ The owner opens:
 The owner can:
 
 - generate customer-ready messages by stage
-- queue generated outbound messages
+- queue generated outbound records
 - review inbox/outbox backup records
 - manually import received customer replies
 
@@ -64,39 +86,33 @@ appointment-confirmed
 delivery-follow-up
 ```
 
-## Free/open-source-first delivery strategy
+## Received email backup
 
-The most open and low-cost path is standard SMTP.
+No app secret is needed for received email if the owner uses Gmail as the source of truth and then imports customer replies into CCP.
 
-Environment variables planned for SMTP:
+Supported no-secret methods:
 
 ```text
-SMTP_HOST
-SMTP_PORT
-SMTP_USER
-SMTP_PASS
-SMTP_FROM
+copy/paste customer reply into the Email Command Center
+forward relevant customer replies to a department plus-address for Gmail filtering
+later: export Gmail messages and import them through a local/offline job
 ```
 
-The current system stores and queues messages without requiring a paid API. Once an SMTP runtime sender is installed and configured, queued records can be sent and then marked sent or failed.
+## Why not automatic Gmail send without secrets?
 
-## Current limitation
+A server cannot send as a Gmail account without authorization. That authorization is a secret, OAuth grant, app password, or token somewhere. Since the rule is no secrets in Vercel/app, the safest design is owner-controlled compose/send plus internal backup records.
 
-The app does not yet install a runtime SMTP sender dependency. Until that is added, queued emails remain available for manual sending and backup. This avoids breaking deployment while preserving the full communication record.
+## Future optional adapters
 
-## Future adapters
-
-Possible open-source-friendly adapters:
+Only add these if the owner later accepts a secret stored outside the repo:
 
 ```text
-self-hosted SMTP
-mailcow SMTP
-Postfix/Dovecot SMTP/IMAP
-Gmail SMTP if used manually
-Nodemailer adapter after dependency install
-IMAP import worker for received replies
+local-only SMTP sender
+self-hosted mail server
+IMAP import worker
+Gmail API OAuth outside Vercel
 ```
 
 ## Rule
 
-Every customer communication should be recorded before or after it is sent. The system should never depend on a provider dashboard as the only copy of customer history.
+AI writes. CCP remembers. Gmail sends. Gmail receives. Owner imports or routes replies back into CCP. No mailbox secrets live in Vercel.
