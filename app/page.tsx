@@ -1,3 +1,4 @@
+import DeliveryZoneCheck from '../components/DeliveryZoneCheck';
 import QuickRouteCapture from '../components/QuickRouteCapture';
 
 const heroStats = [
@@ -57,10 +58,10 @@ const benefits = [
 ];
 
 const routes = [
-  { area: 'Roseville', status: 'Confirmed', day: 'Wednesday' },
-  { area: 'Rocklin / Lincoln', status: 'Nearly full', day: 'Thursday' },
-  { area: 'Fair Oaks / Carmichael', status: 'Adding nearby orders', day: 'Tuesday' },
-  { area: 'Folsom / Orangevale', status: 'Opening soon', day: 'Friday' }
+  { area: 'Rancho Cordova Hub', status: 'Active local delivery', day: 'Priority routing' },
+  { area: 'Folsom / Fair Oaks / Carmichael', status: 'Core route', day: 'Grouped windows' },
+  { area: 'Roseville / Granite Bay / Rocklin', status: 'North route', day: 'Grouped windows' },
+  { area: 'Elk Grove / West Sac / Davis', status: 'South-West route', day: 'Opening windows' }
 ];
 
 export default function Home() {
@@ -77,7 +78,7 @@ export default function Home() {
         <p className="hero-subhead">Triple-trimmed. Cryovac packed. Free delivery.</p>
         <p className="hero-copy">USDA Prime and Choice-style steaks, roasts, burgers, seafood, chicken, pork, and freezer bundles delivered straight to your door across the Sacramento area.</p>
         <div className="hero-actions">
-          <a href="#quick-route">Check My ZIP</a>
+          <a href="#delivery-zone-check">Check My ZIP</a>
           <a href="/freezer-boxes">Compare Packages</a>
         </div>
         <div className="route-confidence" aria-label="Route check confidence">
@@ -91,6 +92,8 @@ export default function Home() {
     <section className="hero-benefit-bar" aria-label="Capital City Provisions benefits">
       {heroStats.map((item) => <article key={item}><span>*</span><strong>{item}</strong></article>)}
     </section>
+
+    <DeliveryZoneCheck />
 
     <section className="drool-gallery" aria-label="Premium food photography gallery">
       {droolGallery.map((item) => <article key={item.title}>
@@ -125,7 +128,7 @@ export default function Home() {
         <p className="brand-kicker">Delivery Areas</p>
         <h2>Know the route before you order.</h2>
         <p className="lead">Check your ZIP first so the delivery expectation is clear before you choose a package.</p>
-        <div className="hero-actions"><a href="#quick-route">Check ZIP</a><a href="/contact">Ask About My Area</a></div>
+        <div className="hero-actions"><a href="#delivery-zone-check">Check ZIP</a><a href="/delivery-map">See Full Delivery Map</a><a href="/contact">Ask About My Area</a></div>
       </div>
       <div className="route-list">{routes.map((route) => <article key={route.area}><h3>{route.area}</h3><p>{route.status}</p><strong>{route.day}</strong></article>)}</div>
     </section>
@@ -134,7 +137,7 @@ export default function Home() {
       <p className="brand-kicker">Ready To Fill Your Freezer?</p>
       <h2>Build your box in minutes.</h2>
       <p>Start with your ZIP, household size, and budget. We will help match the right freezer package.</p>
-      <div className="hero-actions"><a href="#quick-route">Build My Box</a><a href="/giveaway">Enter Giveaway Free</a><a href="/freezer-boxes">View Packages</a></div>
+      <div className="hero-actions"><a href="#delivery-zone-check">Check My ZIP</a><a href="/giveaway">Enter Giveaway Free</a><a href="/freezer-boxes">View Packages</a></div>
     </section>
   </main>;
 }
