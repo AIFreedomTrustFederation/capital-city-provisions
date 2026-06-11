@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { applyPayment, createPayment, createReceipt, invoiceEmail, receiptEmail, sanitizeInvoice } from '../../../../lib/billing';
+import { applyPayment, createPayment, createReceipt, invoiceEmail, receiptEmail, sanitizeInvoice, type InvoiceRecord, type PaymentProvider } from '../../../../lib/billing';
 import { billingPostgresConfigured, readBillingFromPostgres, saveInvoiceToPostgres, savePaymentAndReceiptToPostgres } from '../../../../lib/pg-billing';
 import { withContextTrust, type ContextRecordSource } from '../../../../lib/context-trust';
 
@@ -10,7 +10,8 @@ function emailLog(subject:string,body:string,customerEmail:string,type:string,in
 function requiresPostgres(){return process.env.NODE_ENV==='production'||process.env.CCP_REQUIRE_POSTGRES==='true'}
 function labelRows(rows:any[],source:ContextRecordSource,reason?:string){return (rows||[]).map(row=>row?.contextTrust?row:withContextTrust(row,source,reason?{reason}:{}))}
 function labelBilling(billing:any,source:ContextRecordSource){return {invoices:labelRows(billing?.invoices||[],source),payments:labelRows(billing?.payments||[],source),receipts:labelRows(billing?.receipts||[],source),emails:labelRows(billing?.emails||[],source)}}
-function findInvoice(invoices:any[],input:any){return invoices.find((item:any)=>item.id===input.invoiceId||item.invoiceNumber===input.invoiceNumber)}
+function findInvoice(invoices:any[],input:any){return invoices.find((item:any)=>item.id===input.invoiceId||item.invoiceNumber===input.invoiceNumber) as InvoiceRecord|undefined}
+function paymentProvider(value:any):PaymentProvider{const provider=String(value||'manual');return ['manual','cash','ach','zelle','check','btcpay','hosted-card'].includes(provider)?provider as PaymentProvider:'manual'}
 
 export async function GET(request:Request){
   if(accessRole(request)!=='owner')return NextResponse.json({ok:false,message:'Owner access required'},{status:401});
@@ -32,7 +33,7 @@ export async function POST(request:Request){
     const hasPg=billingPostgresConfigured();
     if(!hasPg&&requiresPostgres())return NextResponse.json({ok:false,storage:'unavailable',databaseRequired:true,message:'PostgreSQL is required for live billing writes.'},{status:503});
     if(action==='create-invoice'){
-      const invoice=withContextTrust(sanitizeInvoice(input.invoice||input),hasPg?'postgres':'memory',{reason:hasPg?'Official invoice queued for PostgreSQL persistence.':'Working invoice stored in MVP runtime memory.'});
+      const invoice=withContextTrust(sanitizeInvoice(input.invoice||input) as InvoiceRecord,hasPg?'postgres':'memory',{reason:hasPg?'Official invoice queued for PostgreSQL persistence.':'Working invoice stored in MVP runtime memory.'});
       const email=invoiceEmail(invoice);
       invoice.status='sent';invoice.sentAt=new Date().toISOString();invoice.updatedAt=invoice.sentAt;
       const persistence=hasPg?await saveInvoiceToPostgres(invoice,email):{configured:false,ok:false,skipped:true};
@@ -44,7 +45,8 @@ export async function POST(request:Request){
       const billing=hasPg?await readBillingFromPostgres():store;
       const invoice=findInvoice(billing?.invoices||[],input);
       if(!invoice)return NextResponse.json({ok:false,message:'Invoice not found'},{status:404});
-      const payment=withContextTrust(createPayment(invoice,input.provider||'manual',Number(input.amount||invoice.balanceDue),input.method||input.provider||'manual',{processorPaymentId:input.processorPaymentId,processorFee:input.processorFee,cardBrand:input.cardBrand,cardLast4:input.cardLast4,notes:input.notes}),hasPg?'postgres':'memory',{reason:hasPg?'Official payment record for PostgreSQL persistence.':'Working payment stored in MVP runtime memory.'});
+      const provider=paymentProvider(input.provider);
+      const payment=withContextTrust(createPayment(invoice,provider,Number(input.amount||invoice.balanceDue),String(input.method||provider),{processorPaymentId:input.processorPaymentId,processorFee:input.processorFee,cardBrand:input.cardBrand,cardLast4:input.cardLast4,notes:input.notes}),hasPg?'postgres':'memory',{reason:hasPg?'Official payment record for PostgreSQL persistence.':'Working payment stored in MVP runtime memory.'});
       const updated=applyPayment(invoice,payment);
       Object.assign(invoice,updated);
       const labeledInvoice=withContextTrust(invoice,hasPg?'postgres':'memory',{reason:hasPg?'Official invoice updated after payment.':'Working invoice updated in MVP runtime memory.'});
