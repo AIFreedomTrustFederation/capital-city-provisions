@@ -1,5 +1,6 @@
 import { getPgPool } from './pg-database';
 import { generateCustomerMessage, type CustomerMessageInput } from './customer-messages';
+import { sendWithOptionalNodemailer, smtpReady } from './smtp-transport';
 
 export type EmailDirection='outbound'|'inbound';
 export type EmailStatus='draft'|'queued'|'sent'|'failed'|'received'|'archived';
@@ -10,7 +11,7 @@ function now(){return new Date().toISOString()}
 function id(prefix='MSG'){return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`}
 function json(value:unknown){return JSON.stringify(value||{})}
 
-export function smtpConfigured(){return Boolean(process.env.SMTP_HOST&&process.env.SMTP_FROM)}
+export function smtpConfigured(){return smtpReady()}
 export function makeCustomerEmail(input:CustomerMessageInput&{source?:string;invoiceId?:string;receiptId?:string;appointmentId?:string}):EmailRecord{
   const message=generateCustomerMessage(input);
   return {id:id('EMAIL'),direction:'outbound',customerEmail:clean(input.customerEmail).toLowerCase(),customerName:input.customerName||'',subject:message.subject,body:message.body,status:'draft',stage:input.stage,source:input.source||'ai-generated',invoiceId:input.invoiceId,receiptId:input.receiptId,appointmentId:input.appointmentId,provider:'manual',createdAt:now(),metadata:{zip:input.zip,box:input.box,offerCode:input.offerCode,offerText:input.offerText}}
@@ -42,6 +43,11 @@ export async function markEmailSent(record:EmailRecord,providerMessageId='manual
 export async function markEmailFailed(record:EmailRecord,error='send failed'){return await saveEmailRecord({...record,status:'failed',metadata:{...(record.metadata||{}),error}})}
 
 export async function sendEmailOpenTransport(record:EmailRecord){
-  if(!smtpConfigured())return {configured:false,ok:false,message:'SMTP is not configured. Email remains queued for manual sending.',record};
-  return {configured:true,ok:false,message:'SMTP adapter is configured in environment, but runtime sender dependency is not installed yet. Email remains queued.',record};
+  const queued={...record,status:'queued' as EmailStatus,provider:smtpConfigured()?'smtp':'manual'};
+  await saveEmailRecord(queued);
+  if(!smtpConfigured())return {configured:false,ok:false,message:'SMTP is not configured. Email remains queued.',record:queued};
+  const result=await sendWithOptionalNodemailer(queued);
+  if(result.ok){await markEmailSent({...queued,provider:'smtp'},result.providerMessageId||'smtp-sent');return {...result,record:{...queued,status:'sent',providerMessageId:result.providerMessageId}}}
+  await markEmailFailed({...queued,provider:'smtp'},result.error||result.message);
+  return {...result,record:{...queued,status:'failed'}};
 }
