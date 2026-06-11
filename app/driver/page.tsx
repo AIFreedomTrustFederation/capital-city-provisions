@@ -3,6 +3,10 @@ import DriverMobileWorkflow from '../../components/DriverMobileWorkflow';
 import InternalOpsHub from '../../components/InternalOpsHub';
 import RoleAIWorkspace from '../../components/RoleAIWorkspace';
 import { fullSystemSnapshot } from '../../lib/ccp-database';
+import PortalStatusCards from '../../components/PortalStatusCards';
+import DriverTaskInbox from '../../components/DriverTaskInbox';
+import DriverRouteExecutionPanel from '../../components/DriverRouteExecutionPanel';
+import DailyCloseoutChecklist from '../../components/DailyCloseoutChecklist';
 
 export const metadata={title:'Driver Ops | Capital City Provisions',description:'Driver route workspace for assigned stops, delivery status, fulfillment notes, restock issues, fuel efficiency, and daily turn-ins.'};
 
@@ -54,6 +58,6 @@ export default function DriverPage(){
       </section>
       <section id="driver-ai"><RoleAIWorkspace role="driver" title="Driver Ops" subtitle="Ask about assigned live routes, stop order, customer notes, fulfillment issues, restock flags, fuel efficiency, and turn-ins." memory={memory}/></section>
       <style>{`@media(min-width:781px){.mobile-sales-entry{display:none!important}}`}</style>
-    </main>
+    <PortalStatusCards role="driver" title="Driver Portal Status" subtitle="Open tasks, route issues, payment items, and approved messages for field execution."/><DriverTaskInbox/><DriverRouteExecutionPanel/><DailyCloseoutChecklist/></main>
   </AccessGate>
 }
