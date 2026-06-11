@@ -218,6 +218,26 @@ create table if not exists customer_email_messages (
   metadata jsonb not null default '{}'::jsonb
 );
 
+create table if not exists internal_board_messages (
+  id text primary key,
+  audience text not null default 'owner',
+  created_by text not null default 'system',
+  subject text not null,
+  body text not null,
+  status text not null default 'open',
+  priority text not null default 'normal',
+  customer_email text default '',
+  customer_name text default '',
+  route_id text default '',
+  order_id text default '',
+  source text default 'manual',
+  ai_approved boolean not null default false,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  closed_at timestamptz
+);
+
 create table if not exists delivery_appointments (
   id text primary key,
   invoice_id text references invoices(id) on delete set null,
@@ -299,6 +319,9 @@ create index if not exists idx_billing_email_log_invoice_id on billing_email_log
 create index if not exists idx_customer_email_messages_customer_email on customer_email_messages(customer_email);
 create index if not exists idx_customer_email_messages_direction on customer_email_messages(direction);
 create index if not exists idx_customer_email_messages_status on customer_email_messages(status);
+create index if not exists idx_internal_board_messages_audience on internal_board_messages(audience);
+create index if not exists idx_internal_board_messages_status on internal_board_messages(status);
+create index if not exists idx_internal_board_messages_customer_email on internal_board_messages(customer_email);
 create index if not exists idx_delivery_appointments_invoice_id on delivery_appointments(invoice_id);
 create index if not exists idx_delivery_appointments_status on delivery_appointments(status);
 create index if not exists idx_delivery_appointments_route_id on delivery_appointments(route_id);
