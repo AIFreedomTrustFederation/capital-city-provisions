@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { upsertDriverSalesLead } from '../../../../lib/ccp-database';
 import { postgresConfigured, saveDriverSalesLeadToPostgres } from '../../../../lib/pg-database';
+import { withZipZone } from '../../../../lib/zip-zone';
 
 function clean(value:unknown){return String(value||'').trim()}
 async function postJson(url:string|undefined,body:unknown){
@@ -15,27 +16,37 @@ export async function POST(request:Request){
     const hasDb=postgresConfigured();
     if(required&&!hasDb)return NextResponse.json({ok:false,mode:'live',storage:'unavailable',databaseRequired:true,message:'PostgreSQL is required for live sales queue writes.'},{status:503});
     const input=await request.json();
+    const enriched=withZipZone(input);
     const lead=upsertDriverSalesLead({
-      id:clean(input.id),
-      driver:clean(input.driver)||'Driver',
-      sourceStopId:clean(input.sourceStopId),
-      sourceCustomer:clean(input.sourceCustomer),
-      routeId:clean(input.routeId),
-      leadName:clean(input.leadName),
-      email:clean(input.email),
-      phone:clean(input.phone),
-      address:clean(input.address),
-      zip:clean(input.zip),
-      area:clean(input.area),
-      need:clean(input.need),
-      offer:clean(input.offer),
-      estimatedValue:Number(input.estimatedValue||0),
-      status:input.status,
-      temperature:input.temperature,
-      note:clean(input.note),
-      ownerOverride:clean(input.ownerOverride),
-      aiInstruction:clean(input.aiInstruction),
-      driverRoutePlan:clean(input.driverRoutePlan)
+      id:clean(enriched.id),
+      driver:clean(enriched.driver)||'Driver',
+      sourceStopId:clean(enriched.sourceStopId),
+      sourceCustomer:clean(enriched.sourceCustomer),
+      routeId:clean(enriched.routeId),
+      leadName:clean(enriched.leadName),
+      email:clean(enriched.email),
+      phone:clean(enriched.phone),
+      address:clean(enriched.address),
+      zip:clean(enriched.zip),
+      area:clean(enriched.area||enriched.deliveryZoneCity),
+      need:clean(enriched.need),
+      offer:clean(enriched.offer),
+      estimatedValue:Number(enriched.estimatedValue||0),
+      status:enriched.status,
+      temperature:enriched.temperature,
+      note:clean(enriched.note),
+      deliveryZoneStatus:clean(enriched.deliveryZoneStatus),
+      deliveryZoneCity:clean(enriched.deliveryZoneCity),
+      deliveryZoneCounty:clean(enriched.deliveryZoneCounty),
+      deliveryZoneRing:clean(enriched.deliveryZoneRing),
+      deliveryZoneMinutes:enriched.deliveryZoneMinutes,
+      deliveryZonePriority:enriched.deliveryZonePriority,
+      deliveryZoneMessage:clean(enriched.deliveryZoneMessage),
+      deliveryZoneNotes:clean(enriched.deliveryZoneNotes),
+      zipZone:enriched.zipZone,
+      ownerOverride:clean(enriched.ownerOverride),
+      aiInstruction:clean(enriched.aiInstruction),
+      driverRoutePlan:clean(enriched.driverRoutePlan)
     });
     const persistence=hasDb?await saveDriverSalesLeadToPostgres(lead):{configured:false,ok:false,skipped:true};
     if(hasDb&&!persistence.ok)return NextResponse.json({ok:false,mode:'live',storage:'postgres',persistence,message:'PostgreSQL save failed.'},{status:503});
@@ -46,6 +57,8 @@ export async function POST(request:Request){
       `Contact: ${lead.phone||'no phone'} ${lead.email||'no email'}`,
       `Address: ${lead.address||'no address'}`,
       `Area / ZIP: ${lead.area} ${lead.zip}`,
+      `Delivery zone: ${lead.deliveryZoneStatus||'unknown'} ${lead.deliveryZoneCity||''} ${lead.deliveryZoneRing||''} ${lead.deliveryZoneMinutes||''}`.trim(),
+      `Delivery note: ${lead.deliveryZoneMessage||lead.deliveryZoneNotes||'none'}`,
       `Need: ${lead.need}`,
       `Offer: ${lead.offer}`,
       `Estimated value: ${lead.estimatedValue}`,
