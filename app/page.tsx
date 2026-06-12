@@ -37,5 +37,5 @@ export default function Home(){return <main className="site ccp-steakhouse">
   </section>
 
   <section className="steakhouse-final-cta"><p className="brand-kicker">Ready?</p><h2>Start with your ZIP.</h2><p>That is the cleanest first step. From there, choose a package, request help, or enter the giveaway.</p><div className="hero-actions"><a href="#quick-route">Check My ZIP</a><a href="/menu">View Menu</a><a href="/customer-concierge">Get Help Choosing</a></div></section>
-  <PublicMobileStickyCTA />
+  <PublicMobileStickyCTA zipHref="#quick-route" quoteHref="/customer-concierge" />
 </main>}
