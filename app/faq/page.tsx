@@ -13,7 +13,7 @@ const faqs=[
 ];
 
 export default function FAQPage(){return <main className="site page-flow">
-  <section className="page-hero poster-frame"><div><p className="eyebrow">FAQ</p><h1>Quick answers before you build a box.</h1><p className="lead">The essentials on availability, box options, waitlists, wholesale supply, and follow-up.</p><div className="actions"><a href="/#delivery-zone-check">Check ZIP</a><a href="/freezer-boxes">Compare Boxes</a></div></div><img src="/images/freezer-starter.png" alt="Capital City Provisions FAQ"/></section>
+  <section className="page-hero poster-frame"><div><p className="eyebrow">FAQ</p><h1>Quick answers before you build a box.</h1><p className="lead">The essentials on availability, box options, waitlists, wholesale supply, and follow-up.</p><div className="actions"><a href="/#quick-route">Check ZIP</a><a href="/freezer-boxes">Compare Boxes</a></div></div><img src="/images/freezer-starter.png" alt="Capital City Provisions FAQ"/></section>
   <section className="section"><p className="eyebrow">Questions</p><h2>What most customers ask first.</h2><div className="route-list">{faqs.map(item=><article key={item.q} className="marble"><h3>{item.q}</h3><p>{item.a}</p></article>)}</div></section>
-  <section className="cta poster-frame final-cta"><p className="eyebrow">Still Deciding?</p><h2>Start with the fastest signal.</h2><p>Your ZIP tells the concierge what kind of follow-up makes sense.</p><div className="actions"><a href="/#delivery-zone-check">Check ZIP</a><a href="/contact">Ask A Question</a></div></section>
+  <section className="cta poster-frame final-cta"><p className="eyebrow">Still Deciding?</p><h2>Start with the fastest signal.</h2><p>Your ZIP tells the concierge what kind of follow-up makes sense.</p><div className="actions"><a href="/#quick-route">Check ZIP</a><a href="/contact">Ask A Question</a></div></section>
 </main>}
