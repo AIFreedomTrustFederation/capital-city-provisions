@@ -1,8 +1,8 @@
 'use client';
 
 const boxes=[
-  {name:'Starter Family Box',best:'New customers and smaller households',size:'5 cu ft friendly',mix:'Ground beef, chicken, pork basics',note:'A simple first stock-up without overfilling your freezer.'},
-  {name:'Premium Steak Box',best:'Steak lovers and weekend grilling',size:'7-10 cu ft friendly',mix:'Steaks, roasts, burger, specialty cuts',note:'Premium cuts with availability confirmed before final order.'},
+  {name:'Starter Family Box',best:'New customers and smaller households',size:'5 cu ft friendly',mix:'Ground beef, chicken, pork basics',note:'A clean first stock-up with useful proteins instead of random filler.'},
+  {name:'Premium Steak Box',best:'Steak lovers and weekend grilling',size:'7-10 cu ft friendly',mix:'Steaks, roasts, burger, specialty cuts',note:'Beef-forward value for grill nights, hosting, and freezer confidence.'},
   {name:'Monthly Restock Box',best:'Families who cook at home weekly',size:'Flexible refill',mix:'Balanced beef, chicken, pork, seafood',note:'Built for repeat delivery and practical household planning.'},
   {name:'Freezer Fill-Up Box',best:'Large families and food security',size:'10-22 cu ft friendly',mix:'Bulk premium proteins and freezer planning',note:'Best after ZIP, freezer space, and delivery timing are confirmed.'},
   {name:'Wholesale Trial Box',best:'Events, churches, food service, and bulk buyers',size:'Bulk case planning',mix:'Chef-friendly larger quantity proteins',note:'A team member confirms volume, timing, and route fit.'},
@@ -10,9 +10,9 @@ const boxes=[
 
 const why=[
   {title:'No warehouse run',text:'Skip the long trip and start with a delivery-area check.'},
-  {title:'Freezer-ready packaging',text:'Cryovac packed and built around real household storage.'},
+  {title:'Freezer-ready packaging',text:'Cryovac packed for cleaner storage and easier meal planning.'},
   {title:'Simple follow-up',text:'Your ZIP, box fit, and delivery details are confirmed before anything is final.'},
-  {title:'Family-sized value',text:'Choose around how your home actually cooks and restocks.'},
+  {title:'Family-sized value',text:'Choose around how your home actually cooks, grills, and restocks.'},
 ];
 
 const questions=[
@@ -30,7 +30,7 @@ export default function HomePageConversionSections(){
       <div className="conversion-heading">
         <p className="ccp-section-kicker">Build Your Freezer Box</p>
         <h2>Choose the freezer package that fits your home.</h2>
-        <p>Start with your ZIP, pick the style of box you want, and request a simple follow-up before anything is final.</p>
+        <p>Start with your ZIP, choose the style of box that matches your household, and let the team confirm the right fit before anything is final.</p>
       </div>
 
       <div className="conversion-box-grid">
