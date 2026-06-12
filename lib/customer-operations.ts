@@ -76,6 +76,7 @@ export type CustomerOpsItem={
   createdAt:string;
   updatedAt:string;
   metadata:Record<string,any>;
+  internalBoardRecord?:{id:string;subject:string;audience:'owner'|'driver'|'customer-approved';status:string;priority:string;createdAt:string};
 };
 
 export type CustomerOperationsStore={
@@ -116,6 +117,58 @@ function score(value:any){
 
 function uniq(prefix:string){
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2,8)}`.toUpperCase();
+}
+
+function boardAudienceForKind(kind:CustomerOpsKind):'owner'|'driver'|'customer-approved'{
+  return 'owner';
+}
+
+function boardPriorityForKind(kind:CustomerOpsKind,priority:CustomerOpsPriority):CustomerOpsPriority{
+  if(kind==='recovery-case')return 'urgent';
+  if(kind==='quote-request'||kind==='reorder-opportunity')return priority==='low'?'normal':priority;
+  return priority;
+}
+
+function bridgeKindToReviewAction(kind:CustomerOpsKind){
+  if(kind==='quote-request')return 'quote-request';
+  if(kind==='recovery-case')return 'service-recovery';
+  if(kind==='testimonial-candidate')return 'testimonial-review';
+  if(kind==='restock-interest')return 'restock-follow-up';
+  if(kind==='reorder-opportunity')return 'reorder-follow-up';
+  if(kind==='giveaway-interest')return 'giveaway-follow-up';
+  if(kind==='rating')return 'rating-review';
+  return 'customer-profile-review';
+}
+
+function makeInternalBoardRecord(item:CustomerOpsItem){
+  return {
+    id:`BOARD-${item.id}`,
+    audience:boardAudienceForKind(item.kind),
+    createdBy:'owner',
+    subject:item.subject,
+    body:[item.body,`Owner action: ${item.ownerAction}`].filter(Boolean).join('\n\n'),
+    status:item.kind==='quote-request'||item.kind==='recovery-case'?'review':'open',
+    priority:boardPriorityForKind(item.kind,item.priority),
+    routeId:item.zip?`zip-${item.zip}`:'customer-ops',
+    orderId:item.orderId||'',
+    source:'customer-operations-bridge',
+    aiApproved:false,
+    metadata:{
+      reviewAction:bridgeKindToReviewAction(item.kind),
+      customerOpsId:item.id,
+      customerId:item.customerId,
+      customerName:item.customerName,
+      customerEmail:item.customerEmail,
+      phone:item.phone,
+      zip:item.zip,
+      quoteId:item.quoteId,
+      ratingId:item.ratingId,
+      ownerAction:item.ownerAction,
+      kind:item.kind,
+    },
+    createdAt:item.createdAt,
+    updatedAt:item.updatedAt,
+  };
 }
 
 export function getCustomerOperationsStore():CustomerOperationsStore{
@@ -387,6 +440,8 @@ export function createCustomerOpsItem(input:{
     updatedAt:timestamp,
     metadata:input.metadata||{},
   };
+
+  item.internalBoardRecord=makeInternalBoardRecord(item);
 
   store.ops.unshift(item);
   return item;

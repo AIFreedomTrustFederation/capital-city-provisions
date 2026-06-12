@@ -38,6 +38,7 @@ export default function CustomerAccountJourney(){
   const [form,setForm]=useState<FormState>(initial());
   const [status,setStatus]=useState('Start with your ZIP, box interest, and contact info.');
   const [busy,setBusy]=useState(false);
+  const [submitted,setSubmitted]=useState(false);
 
   function update<K extends keyof FormState>(key:K,value:FormState[K]){
     setForm(current=>({...current,[key]:value}));
@@ -66,6 +67,7 @@ export default function CustomerAccountJourney(){
     setBusy(false);
 
     if(account?.ok&&intake?.ok){
+      setSubmitted(true);
       setStatus(`Request received. Your quote request number is ${intake.record?.id||'saved'}.`);
     }else{
       setStatus(account?.message||intake?.message||'Could not save your request yet. Please try again.');
@@ -101,6 +103,20 @@ export default function CustomerAccountJourney(){
         <a href="/giveaway">Enter Giveaway</a>
       </div>
 
+      {submitted&&(
+        <div className="request-success-card">
+          <p className="ccp-section-kicker">Next Steps</p>
+          <h3>Your request is in.</h3>
+          <p>The team can now review your ZIP, freezer box fit, delivery timing, and quote details before anything is final.</p>
+          <div>
+            <a href="/customer">View Customer Portal</a>
+            <a href="#build-your-box">Build Another Box</a>
+            <a href="/giveaway">Enter Giveaway</a>
+            <a href="#customer-rating">Rate Service Later</a>
+          </div>
+        </div>
+      )}
+
       <style>{`
         .customer-account-journey{border:1px solid rgba(248,231,176,.22);border-radius:30px;background:radial-gradient(circle at top left,rgba(212,175,55,.14),transparent 30%),linear-gradient(135deg,#080503,#020202);padding:clamp(1.5rem,4vw,2.5rem)}
         .customer-account-journey h2{font-family:var(--ccp-display);font-size:clamp(2.5rem,6vw,5rem);line-height:.92;text-transform:uppercase;color:var(--ccp-cream);margin:.25rem 0 .8rem}
@@ -115,7 +131,7 @@ export default function CustomerAccountJourney(){
         .account-actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem}
         .account-actions button,.account-actions a{border:1px solid rgba(248,231,176,.42);border-radius:999px;background:#0b0704;color:#fff7ed;text-decoration:none;padding:.85rem 1.15rem;font-weight:900;cursor:pointer;text-transform:uppercase}
         .account-actions button{background:linear-gradient(135deg,var(--ccp-red),var(--ccp-red-hot));color:#fff}
-        .account-actions button:disabled{opacity:.6;cursor:wait}
+        .account-actions button:disabled{opacity:.6;cursor:wait}.request-success-card{border:1px solid rgba(248,231,176,.22);border-radius:22px;background:#050403;padding:14px;margin-top:14px}.request-success-card h3{color:var(--ccp-soft-gold);font-size:1.6rem;margin:.2rem 0}.request-success-card div{display:flex;flex-wrap:wrap;gap:8px}.request-success-card a{border:1px solid rgba(248,231,176,.34);border-radius:999px;background:#0b0704;color:#fff7ed;text-decoration:none;padding:.7rem .9rem;font-weight:900;text-transform:uppercase}
         @media(max-width:900px){.account-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media(max-width:620px){.account-form-grid{grid-template-columns:1fr}.customer-account-journey{border-radius:22px;padding:1rem}}
       `}</style>
