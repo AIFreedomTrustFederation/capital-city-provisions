@@ -2,6 +2,7 @@
 import {useState} from 'react';
 
 const links=[
+  ['Menu','/menu'],
   ['Boxes','/freezer-boxes'],
   ['How It Works','/how-delivery-works'],
   ['Delivery','/delivery-map'],
