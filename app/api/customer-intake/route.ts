@@ -1,29 +1,6 @@
 import {NextResponse} from 'next/server';
 import {createOrder} from '../../../lib/ccp-database';
-
-type IntakeRecord={
-  id:string;
-  name:string;
-  email:string;
-  phone:string;
-  zip:string;
-  box:string;
-  proteins:string;
-  value:number;
-  household:string;
-  freezerSpace:string;
-  interest:string;
-  notes:string;
-  orderId:string;
-  createdAt:string;
-};
-
-const memory=globalThis as typeof globalThis&{ccpCustomerIntake?:IntakeRecord[]};
-
-function records(){
-  if(!memory.ccpCustomerIntake)memory.ccpCustomerIntake=[];
-  return memory.ccpCustomerIntake;
-}
+import {createQuoteRequest,getCustomerOperationsStore} from '../../../lib/customer-operations';
 
 function clean(value:any){
   return String(value||'').trim();
@@ -46,7 +23,8 @@ function products(input:any){
 }
 
 export async function GET(){
-  return NextResponse.json({ok:true,records:records().slice(0,200)});
+  const store=getCustomerOperationsStore();
+  return NextResponse.json({ok:true,records:store.quotes.slice(0,200)});
 }
 
 export async function POST(request:Request){
@@ -75,23 +53,6 @@ export async function POST(request:Request){
     createdAt,
   });
 
-  const record:IntakeRecord={
-    id:`INTAKE-${Date.now()}`,
-    name:clean(input.name)||'New Customer',
-    email:clean(input.email).toLowerCase(),
-    phone:clean(input.phone),
-    zip:clean(input.zip),
-    box,
-    proteins:clean(input.proteins),
-    value,
-    household:clean(input.household),
-    freezerSpace:clean(input.freezerSpace),
-    interest:clean(input.interest)||'Freezer box quote request',
-    notes:clean(input.notes),
-    orderId:order.id,
-    createdAt,
-  };
-
-  records().unshift(record);
-  return NextResponse.json({ok:true,record,order});
+  const {customer,quote}=createQuoteRequest({...input,box,value,orderId:order.id});
+  return NextResponse.json({ok:true,record:quote,customer,order});
 }

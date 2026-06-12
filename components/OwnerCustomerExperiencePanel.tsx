@@ -40,11 +40,12 @@ export default function OwnerCustomerExperiencePanel(){
     Promise.all([
       fetch('/api/customer-account').then(response=>response.json()).catch(()=>null),
       fetch('/api/customer-rating').then(response=>response.json()).catch(()=>null),
-    ]).then(([accountResult,ratingResult])=>{
+      fetch('/api/customer-operations').then(response=>response.json()).catch(()=>null),
+    ]).then(([accountResult,ratingResult,opsResult])=>{
       if(!active)return;
       setAccounts(accountResult?.records||[]);
       setRatings(ratingResult?.records||[]);
-      setStatus('Customer account and rating records loaded.');
+      setStatus(opsResult?.ok?'Customer account, rating, and operations records loaded.':'Customer account and rating records loaded.');
     }).catch(()=>{
       if(active)setStatus('Customer experience records unavailable.');
     });
