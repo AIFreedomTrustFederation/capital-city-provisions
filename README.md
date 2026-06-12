@@ -1,32 +1,80 @@
 # Capital City Provisions
 
-Capital City Provisions is a Next.js customer-facing sales and operations site for premium freezer-box delivery, steak/menu presentation, route-aware ZIP capture, customer quote requests, giveaway entry, and AI-assisted box guidance.
+Capital City Provisions is a Next.js public sales, customer support, and operations site for premium freezer-box delivery, steak/menu presentation, route-aware ZIP capture, customer quote requests, giveaway entry, and stocked-home food planning.
 
-The current build is designed around one rule: **the public site can look simple, but the customer path must stay wired into the CCP AI/lead engine.**
+The current public brand rule is simple:
+
+> **Capital City Provisions should feel like a premium provisions company, not a technology product.**
+
+Customer-facing copy should use concierge, support, guide, delivery review, route check, stock-up plan, customer care, and partner network language. Do not use technical assistant language in public brand copy.
+
+Internal code may contain implementation names for tools and helpers, but those names should not appear in customer-facing UI copy.
+
+## Public language rules
+
+Use:
+
+- Customer Concierge
+- Guide
+- Guided service
+- Help choosing
+- Route review
+- ZIP check
+- Delivery check
+- Stock-up plan
+- Freezer-ready provisions
+- Customer care
+- Partner network
+- Local delivery coordination
+- Premium freezer provisions
+
+Avoid in public UI:
+
+- bot
+- artificial intelligence
+- automation
+- algorithm
+- model
+- LLM
+- machine learning
+- tech stack
+- prompt
+- rules mode
+
+Preferred replacements:
+
+- technical helper language -> concierge
+- bot -> guide or support
+- rules mode -> ready or support ready
+- smart/smarter -> clear, clearer, guided, or dependable
+- command center -> operations center on internal pages only
 
 ## Current public strategy
 
-The homepage is now a lightweight gateway instead of a long duplicated sales funnel. It gives customers one clear starting point, then sends them to the dedicated page that matches their need.
+The homepage is a lightweight gateway instead of a long duplicated sales funnel. It gives customers one clear starting point, then sends them to the dedicated page that matches their need.
 
 Homepage responsibilities:
 
 - Explain the core offer quickly.
-- Show the main menu/box/giveaway paths.
+- Show the main menu, box, delivery, offer, and contact paths.
 - Capture a ZIP through `QuickRouteCapture`.
-- Dispatch the saved ZIP into the global CCP AI/lead system.
+- Send the saved ZIP into the global lead and customer support flow.
 - Keep mobile simple and not overwhelming.
+- Avoid stacked floating CTAs on mobile.
 
 Dedicated pages carry the details:
 
-- `/menu` — premium steak-box menu, QR menu, phone ordering, menu graphics.
+- `/menu` — premium steak-box menu, QR menu, phone ordering, and menu graphics.
 - `/freezer-boxes` — freezer package comparison and box selection.
+- `/family-freezer-boxes` — family-focused freezer stock-up plans.
+- `/steak-delivery` — steak delivery offer page.
 - `/how-delivery-works` — delivery process, route grouping, expectations, and trust.
 - `/delivery-map` — route area confidence and local delivery planning.
 - `/giveaway` — free giveaway entry, rules clarity, and separate order bonus messaging.
+- `/official-rules` — giveaway rules and no-purchase-required language.
 - `/contact` — sales, support, wholesale, and general questions.
 - `/customer` — customer portal.
 - `/customer-concierge` — guided help choosing a box.
-- `/pay` — deposit/invoice/payment path.
 - `/reviews` — social proof.
 - `/faq` — quick answers and objections.
 - `/about` — founder story, trust system, and who CCP serves.
@@ -35,22 +83,14 @@ Dedicated pages carry the details:
 
 These anchors are part of the public customer journey and should not be renamed casually.
 
-- `#quick-route` — rendered by `QuickRouteCapture` on the homepage. This is the primary homepage ZIP route check.
-- `#delivery-zone-check` — rendered by `DeliveryZoneCheck` wherever that component is mounted. This performs the API-backed delivery-zone lookup.
-- `#customer-account-journey` — rendered by `CustomerAccountJourney` wherever that component is mounted. This handles the full account/quote request flow.
+- `#quick-route` — rendered by `QuickRouteCapture` on the homepage.
+- `#delivery-zone-check` — rendered by `DeliveryZoneCheck` wherever that component is mounted.
+- `#customer-account-journey` — rendered by `CustomerAccountJourney` wherever that component is mounted.
 - `#qr-menu` — rendered on `/menu` for QR/menu sharing.
 
-Because the homepage was simplified, homepage ZIP links should point to `/#quick-route`, not `/#delivery-zone-check`, unless `DeliveryZoneCheck` is added back to the homepage.
+Homepage ZIP links should point to `/#quick-route`, not `/#delivery-zone-check`, unless `DeliveryZoneCheck` is added back to the homepage.
 
-## CCP AI / lead engine wiring
-
-The global customer AI and lead layer is mounted in `app/layout.tsx`:
-
-```tsx
-<Navbar />{children}<Footer /><LeadCapture />
-```
-
-That means `LeadCapture` is available across the public site.
+## Core components
 
 ### `LeadCapture`
 
@@ -58,11 +98,10 @@ File: `components/LeadCapture.tsx`
 
 Purpose:
 
-- Global AI-assisted customer intake.
+- Global customer intake.
 - Saves customer ZIP and lead memory in the browser.
 - Opens the customer concierge modal.
 - Recommends a plan from customer answers.
-- Passes context into `LocalAIConcierge`.
 - Posts completed leads to `/api/leads`.
 
 Important storage keys:
@@ -78,6 +117,11 @@ Important event:
 Important endpoint:
 
 - `POST /api/leads`
+
+Customer-facing warning:
+
+- Do not expose internal helper language in this component.
+- On mobile, do not re-enable the old bottom action bar if the robot guide button is active.
 
 ### `QuickRouteCapture`
 
@@ -107,42 +151,9 @@ Rendered anchor:
 
 - `id="quick-route"`
 
-### `DeliveryZoneCheck`
+Mobile warning:
 
-File: `components/DeliveryZoneCheck.tsx`
-
-Purpose:
-
-- API-backed ZIP zone lookup.
-- Shows route coverage result.
-- Routes supported ZIPs toward boxes and manual review ZIPs toward contact.
-
-Important endpoint:
-
-- `GET /api/delivery-zone?zip=#####`
-
-Rendered anchor:
-
-- `id="delivery-zone-check"`
-
-### `CustomerAccountJourney`
-
-File: `components/CustomerAccountJourney.tsx`
-
-Purpose:
-
-- Full quote/account intake form.
-- Captures name, email, phone, ZIP, household, freezer space, preferred box, protein mix, budget, restock interest, giveaway interest, and notes.
-- Creates customer/account and intake records.
-
-Important endpoints:
-
-- `POST /api/customer-account`
-- `POST /api/customer-intake`
-
-Rendered anchor:
-
-- `id="customer-account-journey"`
+- `QuickRouteCapture` has a route nudge component. On mobile, that nudge is hidden by `app/mobile-stack-fix.css` to prevent footer clutter.
 
 ### `PublicMobileStickyCTA`
 
@@ -150,9 +161,9 @@ File: `components/PublicMobileStickyCTA.tsx`
 
 Purpose:
 
-- Mobile quick action bar.
-- Defaults to protected quote/ZIP anchors.
-- Can receive page-specific `zipHref` and `quoteHref` props so it does not point to anchors that are not rendered on a given page.
+- Mobile robot-style guide launcher.
+- Should be the only floating mobile action near the bottom of the screen.
+- Can receive page-specific `zipHref` and `quoteHref` props.
 
 Homepage usage:
 
@@ -162,157 +173,104 @@ Homepage usage:
 
 ## Navigation and footer
 
-### Navbar
-
-File: `components/Navbar.tsx`
-
-Core public labels are intentionally stable:
+Navbar public labels should stay simple and customer-focused:
 
 - Menu
 - Boxes
 - How It Works
 - Delivery
-- Giveaway
+- Offer
 - Contact
 - Team
-- Start Quote
+- Concierge
 - Customer Portal
 
-Avoid changing these labels unless the AI/customer system is updated to match.
+The footer is organized by buyer and business need:
 
-### Footer
-
-File: `components/Footer.tsx`
-
-The footer is organized by buyer need:
-
-- Shop By Need
-- Delivery
+- Shop
+- Customers
 - Business
-- Help
-- Promotions
+- Company
+- Legal
 
-It routes customers to the correct dedicated page instead of making the homepage carry every explanation.
+The footer includes the LLC name, trust badges, Partner Network notice, copyright language, legal links, and supplier/driver/vendor partnership links.
+
+Footer pages that should exist:
+
+- `/privacy`
+- `/terms`
+- `/refund-policy`
+- `/official-rules`
+- `/sms-terms`
+- `/accessibility`
+- `/affiliate-suppliers`
+- `/drivers`
+- `/catering-partners`
+- `/vendor-intake`
+- `/route-partnerships`
 
 ## Mobile simplification
 
-File: `app/mobile-simplify.css`
+The mobile experience should feel clean, not stacked or desperate.
 
-Purpose:
+`app/mobile-stack-fix.css` is loaded after the other stylesheets. It hides older floating mobile layers and keeps only the robot guide button floating.
 
-- Makes mobile less overwhelming.
-- Reduces visible hero buttons.
-- Compresses trust bars.
-- Hides lower-priority homepage cards on small screens.
-- Keeps forms, routes, anchors, and APIs intact.
+Current mobile cleanup rules:
 
-This stylesheet is imported last in `app/layout.tsx` so it can override earlier mobile styles without rewriting the whole design system.
+```css
+@media(max-width:760px){
+  .mobile-action-bar{display:none!important}
+  .theme-toggle{display:none!important}
+  .route-nudge{display:none!important}
+  .public-mobile-cta{right:14px!important;bottom:calc(14px + env(safe-area-inset-bottom))!important}
+  body{padding-bottom:0!important}
+}
+```
 
-## Page-by-page plain-language map
+Do not re-enable multiple floating mobile CTAs at the same time.
 
-### `/`
+## Deployment notes
 
-Gateway homepage. It introduces CCP, captures a quick ZIP route request through `QuickRouteCapture`, and sends customers to the right page: menu, boxes, delivery, giveaway, or contact. It does not duplicate the full quote form or detailed delivery page.
+Vercel is connected to GitHub and should deploy from pushes to `main`. If Vercel reports `build-rate-limit`, do not keep pushing small commits. Wait for the build limit to reset, then redeploy once.
 
-### `/menu`
+Recommended deployment discipline:
 
-Graphic menu and QR page. Built for quick sharing, scanning, phone orders, and premium steak-box presentation. Links customers to boxes, ZIP check, and concierge help.
+- Batch small copy/CSS fixes together.
+- Avoid rapid commits while Vercel is rate-limited.
+- Use one final polish commit when ready.
+- Then manually redeploy from Vercel if the automatic deployment was blocked.
 
-### `/freezer-boxes`
+## Verification commands
 
-Main freezer package comparison page. Explains the box options and helps customers choose the right package level.
-
-### `/how-delivery-works`
-
-Trust/process page. Explains ZIP-first delivery, route grouping, confirmation, and how CCP avoids overpromising.
-
-### `/delivery-map`
-
-Local route confidence page. Helps customers understand service area direction and route planning.
-
-### `/giveaway`
-
-Free giveaway page. Keeps no-purchase-required messaging clear and separates giveaway entry from limited order bonuses.
-
-### `/official-rules`
-
-Legal rules page for the giveaway.
-
-### `/contact`
-
-Customer routing page for sales, support, wholesale, and general questions.
-
-### `/customer`
-
-Customer portal path for people who have already started or need to continue.
-
-### `/customer-concierge`
-
-Guided help choosing. This is the best destination for customers who are not sure what to order.
-
-### `/pay`
-
-Payment/deposit/invoice path.
-
-### `/reviews`
-
-Social proof and customer trust page.
-
-### `/faq`
-
-Quick answers about ZIP checks, boxes, waitlists, wholesale, and follow-up.
-
-### `/about`
-
-Founder story, brand trust, service values, and public-versus-private system explanation.
-
-### Local SEO pages
-
-These pages target specific search intent and should route people into the main customer flow instead of duplicating the homepage:
-
-- `/meat-delivery-sacramento`
-- `/beef-delivery-sacramento`
-- `/steak-delivery-sacramento`
-- `/freezer-boxes-sacramento`
-- `/family-freezer-boxes`
-- `/steak-delivery`
-- `/food-security-freezer-boxes`
-
-## Do-not-break list
-
-Do not casually rename, remove, or bypass these without checking the AI/lead flow:
-
-- `LeadCapture`
-- `QuickRouteCapture`
-- `DeliveryZoneCheck`
-- `CustomerAccountJourney`
-- `PublicMobileStickyCTA`
-- `LocalAIConcierge`
-- `ccp_delivery_zip`
-- `ccp_latest_lead`
-- `ccp_customer_saved`
-- `ccp:delivery-zip`
-- `/api/leads`
-- `/api/delivery-review`
-- `/api/delivery-zone`
-- `/api/customer-account`
-- `/api/customer-intake`
-- `/giveaway`
-- `/official-rules`
-
-## Current deployment notes
-
-- The project is deployed on Vercel.
-- GitHub `main` pushes trigger Vercel builds.
-- Do not store Vercel API tokens, GitHub tokens, payment credentials, or mail credentials in the repo.
-- Vercel/API tokens belong in provider settings or environment variables only.
-
-## Development commands
+Full local verification:
 
 ```bash
-npm install
-npm run dev
+npm run verify
+```
+
+That runs typecheck, license audit, and the full Next build.
+
+Build only:
+
+```bash
 npm run build
 ```
 
-Use Node 20+ per the package requirements.
+Typecheck only:
+
+```bash
+npm run typecheck
+```
+
+## Final pre-deploy checklist
+
+Before the next Vercel deploy, verify:
+
+- No technical helper language appears in public UI.
+- The homepage has one clear ZIP path.
+- The mobile footer is not covered by stacked CTAs.
+- Only the robot guide launcher floats on mobile.
+- Footer accordion sections open and close cleanly on mobile.
+- Legal and business footer links resolve to real pages.
+- Customer concierge uses guide, concierge, and support language.
+- Vercel build limit has reset before pushing another final code batch.
