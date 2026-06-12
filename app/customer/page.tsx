@@ -1,6 +1,7 @@
 import DeliveryZoneCheck from '../../components/DeliveryZoneCheck';
 import CustomerAccountJourney from '../../components/CustomerAccountJourney';
 import CustomerServiceRating from '../../components/CustomerServiceRating';
+import CustomerDepositIntent from '../../components/CustomerDepositIntent';
 import PublicMobileStickyCTA from '../../components/PublicMobileStickyCTA';
 
 export const metadata={
@@ -24,6 +25,7 @@ export default function CustomerPage(){
         <div className="mvp-actions">
           <a className="mvp-button" href="#customer-account-journey">Request Quote</a>
           <a className="mvp-button-gold" href="#delivery-zone-check">Check ZIP</a>
+          <a className="mvp-button-secondary" href="/pay">Deposit / Invoice</a>
           <a className="mvp-button-secondary" href="/giveaway">Enter Giveaway</a>
           <a className="mvp-button-secondary" href="/customer-concierge">Get Help Choosing</a>
         </div>
@@ -47,6 +49,8 @@ export default function CustomerPage(){
       </section>
 
       <CustomerAccountJourney/>
+
+      <CustomerDepositIntent/>
 
       <section className="section mvp-panel">
         <p className="mvp-eyebrow">Service Feedback</p>

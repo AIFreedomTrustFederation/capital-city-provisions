@@ -27,12 +27,15 @@ function routeChecks(){
   return [
     {route:'/',label:'Public home',expected:'Homepage, ZIP, box builder, quote request',status:'connected'},
     {route:'/customer',label:'Customer portal',expected:'Delivery status, approved messages, quote/account/rating entry points',status:'connected'},
+    {route:'/pay',label:'Deposit / invoice request',expected:'Customer payment intent creation and owner payment review',status:'connected'},
+    {route:'/reviews',label:'Reviews + trust',expected:'Public trust cards, service rating, testimonial/recovery path',status:'connected'},
     {route:'/owner',label:'Owner command',expected:'Owner operations, customer ops, internal board, status, closeout, owner workspace',status:'connected'},
     {route:'/driver',label:'Driver portal',expected:'Driver tasks, route execution, closeout',status:'connected'},
     {route:'/team/dev',label:'Dev status board',expected:'Owner-gated diagnostics',status:'connected'},
     {route:'/api/customer-account',label:'Customer account API',expected:'Customer profile creation',status:'connected'},
     {route:'/api/customer-intake',label:'Customer intake API',expected:'Quote request and order lead creation',status:'connected'},
     {route:'/api/customer-rating',label:'Customer rating API',expected:'Rating, recovery, testimonial/reorder/restock signals',status:'connected'},
+    {route:'/api/payment-intent',label:'Payment intent API',expected:'Deposit/invoice request records for owner review',status:'connected'},
     {route:'/api/customer-operations',label:'Customer operations API',expected:'Persistent runtime customer operations queue',status:'connected'},
     {route:'/api/customer-operations/bridge',label:'Customer ops bridge',expected:'Internal-board-ready customer operation records',status:'connected'},
     {route:'/api/site-flow-audit',label:'Site flow audit',expected:'Dead-end route and loop checks',status:'connected'},
@@ -98,6 +101,12 @@ export async function GET(request:Request){
       label:'Mobile Public CTA',
       status:'connected',
       detail:'Public mobile sticky CTA is wired on the homepage.',
+    },
+    {
+      key:'payment-trust',
+      label:'Payment + Trust MVP',
+      status:'connected',
+      detail:'Deposit intent, owner payment panel, reviews page, and service rating loops are wired.',
     },
     {
       key:'training-loop',
