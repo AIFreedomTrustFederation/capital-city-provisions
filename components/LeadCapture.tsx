@@ -76,7 +76,7 @@ export default function LeadCapture(){
     <style>{`@media(max-width:760px){.lead-tab{display:none!important}.lead-modal{padding-bottom:20px!important}}`}</style>
     <button className="theme-toggle" onClick={()=>setLight(!light)}>{light?'Luxury Dark':'Clean Light'}</button>
     <button className="lead-tab side-concierge-tab" onClick={()=>setOpen(true)}>{hasSavedLead&&!sent?'Continue Plan':'Build Box'}</button>
-    <div className="mobile-action-bar" aria-label="Quick actions"><button onClick={()=>setOpen(true)}>{hasSavedLead&&!sent?'Continue':'Build Box'}</button><a href="/#delivery-zone-check">Check ZIP</a></div>
+    <div className="mobile-action-bar" aria-label="Quick actions"><button onClick={()=>setOpen(true)}>{hasSavedLead&&!sent?'Continue':'Build Box'}</button><a href="/#quick-route">Check ZIP</a></div>
     {open&&<div className="lead-overlay" role="dialog" aria-modal="true"><div className="lead-modal chat-modal">
       <button className="lead-close" onClick={()=>setOpen(false)} aria-label="Close concierge">x</button>
       <p className="eyebrow">Box Concierge</p><h2>Check your ZIP and shape the right plan.</h2>
