@@ -1,8 +1,5 @@
-import DeliveryZoneCheck from '../components/DeliveryZoneCheck';
 import QuickRouteCapture from '../components/QuickRouteCapture';
-import CustomerAccountJourney from '../components/CustomerAccountJourney';
 import PublicMobileStickyCTA from '../components/PublicMobileStickyCTA';
-import MVPFlowStrip from '../components/MVPFlowStrip';
 import HeroMeatSlideshow from '../components/HeroMeatSlideshow';
 
 const pageLinks=[
@@ -23,8 +20,8 @@ export default function Home(){return <main className="site ccp-steakhouse">
       <p className="brand-kicker">Capital City Provisions</p>
       <h1>Fill your freezer without the warehouse run.</h1>
       <p className="hero-subhead">Premium proteins. Cryovac packed. Free local delivery.</p>
-      <p className="hero-copy">Start with your ZIP, household size, and favorite cuts. We help match the right freezer package before you commit.</p>
-      <div className="hero-actions"><a href="/menu">View Menu</a><a href="#delivery-zone-check">Check ZIP</a><a href="#customer-account-journey">Start Quote</a><a href="/customer">Customer Portal</a><a href="/pay">Deposit</a><a href="/freezer-boxes">See Boxes</a></div>
+      <p className="hero-copy">Start with your ZIP, then jump to the page that matches what you need: menu, boxes, delivery, giveaway, or support.</p>
+      <div className="hero-actions"><a href="/menu">View Menu</a><a href="#quick-route">Check ZIP</a><a href="/freezer-boxes">See Boxes</a><a href="/giveaway">Giveaway</a></div>
       <div className="route-confidence" aria-label="Customer confidence"><span>ZIP checked first</span><span>No pressure checkout</span><span>Giveaway stays free</span></div>
       <QuickRouteCapture />
     </div>
@@ -34,18 +31,11 @@ export default function Home(){return <main className="site ccp-steakhouse">
 
   <section className="hero-benefit-bar" aria-label="Benefits"><article><span>*</span><strong>Triple-trimmed value</strong></article><article><span>*</span><strong>Cryovac freezer-ready</strong></article><article><span>*</span><strong>Grouped local delivery</strong></article></section>
 
-  <MVPFlowStrip />
-
   <section className="freezer-section" id="home-paths">
-    <div className="section-heading steakhouse-heading"><p className="brand-kicker">Choose Your Next Step</p><h2>Simple homepage. Focused pages.</h2><p>The homepage keeps the AI-connected customer flow intact while sending details to the right page instead of repeating everything here.</p></div>
+    <div className="section-heading steakhouse-heading"><p className="brand-kicker">Choose Your Next Step</p><h2>One homepage. Clear paths.</h2><p>Use the homepage as the doorway. The details live on the pages built for each customer need.</p></div>
     <div className="package-grid">{pageLinks.map(item=><article key={item.label}><p>Capital City Provisions</p><h3>{item.label}</h3><span>{item.text}</span><a href={item.href}>{item.label}</a></article>)}</div>
   </section>
 
-  <DeliveryZoneCheck />
-  <CustomerAccountJourney />
-
-  <section className="route-section steakhouse-route" id="delivery"><div><p className="brand-kicker">Need help choosing?</p><h2>Get help choosing before you decide.</h2><p className="lead">Our customer team can help with box size, delivery basics, steak value, family meals, wholesale, and giveaway rules.</p><div className="hero-actions"><a href="/menu">View Menu</a><a href="/customer-concierge">Get Help Choosing</a><a href="#delivery-zone-check">Check ZIP</a><a href="/reviews">Reviews</a><a href="/contact">Contact Us</a></div></div><div className="route-list"><article><h3>Local route first</h3><p>Delivery timing depends on ZIP and grouped windows.</p><strong>Start with ZIP</strong></article><article><h3>Free giveaway entry</h3><p>No purchase necessary. Buying does not improve odds.</p><strong><a href="/giveaway">Enter free</a></strong></article></div></section>
-
-  <section className="steakhouse-final-cta"><p className="brand-kicker">Ready?</p><h2>Start with your ZIP.</h2><p>That is the cleanest first step. From there, choose a package, request a quote, or get help choosing.</p><div className="hero-actions"><a href="/menu">View Steak Menu</a><a href="#delivery-zone-check">Check My ZIP</a><a href="/customer-concierge">Get Help Choosing</a><a href="/pay">Deposit / Invoice</a><a href="/reviews">Reviews</a><a href="/freezer-boxes">View Boxes</a></div></section>
+  <section className="steakhouse-final-cta"><p className="brand-kicker">Ready?</p><h2>Start with your ZIP.</h2><p>That is the cleanest first step. From there, choose a package, request help, or enter the giveaway.</p><div className="hero-actions"><a href="#quick-route">Check My ZIP</a><a href="/menu">View Menu</a><a href="/customer-concierge">Get Help Choosing</a></div></section>
   <PublicMobileStickyCTA />
 </main>}
