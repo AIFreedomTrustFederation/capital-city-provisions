@@ -1,21 +1,16 @@
 import DeliveryZoneCheck from '../components/DeliveryZoneCheck';
 import QuickRouteCapture from '../components/QuickRouteCapture';
 import CustomerAccountJourney from '../components/CustomerAccountJourney';
-import HomePageConversionSections from '../components/HomePageConversionSections';
 import PublicMobileStickyCTA from '../components/PublicMobileStickyCTA';
 import MVPFlowStrip from '../components/MVPFlowStrip';
 
-const packages=[
-  {name:'Baby Freezer Package',fit:'Couples & small freezers',size:'5 cu ft',text:'A simple first stock-up for smaller households.'},
-  {name:'Mama Freezer Package',fit:'Small families',size:'7 cu ft',text:'More variety for busy weekly meals.'},
-  {name:'Papa Freezer Package',fit:'Family stock-up',size:'10 cu ft',text:'A deeper freezer fill for regular home cooking.'},
-  {name:'Big Papa Package',fit:'Food security reserve',size:'22 cu ft',text:'A serious stocked-home reserve for larger households.'}
-];
-
-const steps=[
-  {title:'Check your ZIP',text:'Make sure your area fits an active or grouped delivery route.'},
-  {title:'Pick a package',text:'Choose by household size, freezer space, and how often you cook at home.'},
-  {title:'Get follow-up',text:'The team confirms timing, package fit, and delivery details before anything is final.'}
+const pageLinks=[
+  {label:'View Menu',href:'/menu',text:'See the current steak-box menu and QR-ready menu graphics.'},
+  {label:'See Boxes',href:'/freezer-boxes',text:'Compare Baby Freezer through Big Papa package options.'},
+  {label:'How It Works',href:'/how-delivery-works',text:'Understand ZIP checks, route grouping, confirmation, and delivery.'},
+  {label:'Delivery',href:'/delivery-map',text:'Review delivery areas and local route direction.'},
+  {label:'Giveaway',href:'/giveaway',text:'Enter free. No purchase necessary. Buying does not improve odds.'},
+  {label:'Contact',href:'/contact',text:'Ask sales, support, wholesale, or general questions.'}
 ];
 
 export default function Home(){return <main className="site ccp-steakhouse">
@@ -39,19 +34,13 @@ export default function Home(){return <main className="site ccp-steakhouse">
 
   <MVPFlowStrip />
 
+  <section className="freezer-section" id="home-paths">
+    <div className="section-heading steakhouse-heading"><p className="brand-kicker">Choose Your Next Step</p><h2>Simple homepage. Focused pages.</h2><p>The homepage keeps the AI-connected customer flow intact while sending details to the right page instead of repeating everything here.</p></div>
+    <div className="package-grid">{pageLinks.map(item=><article key={item.label}><p>Capital City Provisions</p><h3>{item.label}</h3><span>{item.text}</span><a href={item.href}>{item.label}</a></article>)}</div>
+  </section>
+
   <DeliveryZoneCheck />
-
-  <HomePageConversionSections />
   <CustomerAccountJourney />
-
-  <section className="quality-strip">
-    {steps.map(step=><article key={step.title}><h3>{step.title}</h3><p>{step.text}</p></article>)}
-  </section>
-
-  <section className="freezer-section" id="boxes">
-    <div className="section-heading steakhouse-heading"><p className="brand-kicker">Freezer Packages</p><h2>Choose the package that fits your home.</h2><p>Not sure? Get help choosing or start with a ZIP check. Keep it simple.</p></div>
-    <div className="package-grid">{packages.map(box=><article key={box.name}><p>{box.fit}</p><h3>{box.name}</h3><strong>{box.size}</strong><span>{box.text}</span><a href="/freezer-boxes">Compare</a></article>)}</div>
-  </section>
 
   <section className="route-section steakhouse-route" id="delivery"><div><p className="brand-kicker">Need help choosing?</p><h2>Get help choosing before you decide.</h2><p className="lead">Our customer team can help with box size, delivery basics, steak value, family meals, wholesale, and giveaway rules.</p><div className="hero-actions"><a href="/menu">View Menu</a><a href="/customer-concierge">Get Help Choosing</a><a href="#delivery-zone-check">Check ZIP</a><a href="/reviews">Reviews</a><a href="/contact">Contact Us</a></div></div><div className="route-list"><article><h3>Local route first</h3><p>Delivery timing depends on ZIP and grouped windows.</p><strong>Start with ZIP</strong></article><article><h3>Free giveaway entry</h3><p>No purchase necessary. Buying does not improve odds.</p><strong><a href="/giveaway">Enter free</a></strong></article></div></section>
 
