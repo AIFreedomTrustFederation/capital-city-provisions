@@ -1,0 +1,7 @@
+@media(max-width:760px){
+  .mobile-action-bar{display:none!important}
+  .theme-toggle{display:none!important}
+  .route-nudge{display:none!important}
+  .public-mobile-cta{right:14px!important;bottom:calc(14px + env(safe-area-inset-bottom))!important}
+  body{padding-bottom:0!important}
+}
