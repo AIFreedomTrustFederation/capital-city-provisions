@@ -1,5 +1,7 @@
 import DeliveryZoneCheck from '../components/DeliveryZoneCheck';
 import QuickRouteCapture from '../components/QuickRouteCapture';
+import CustomerAccountJourney from '../components/CustomerAccountJourney';
+import HomePageConversionSections from '../components/HomePageConversionSections';
 
 const packages=[
   {name:'Baby Freezer Package',fit:'Couples & small freezers',size:'5 cu ft',text:'A simple first stock-up for smaller households.'},
@@ -24,7 +26,7 @@ export default function Home(){return <main className="site ccp-steakhouse">
       <h1>Fill your freezer without the warehouse run.</h1>
       <p className="hero-subhead">Premium proteins. Cryovac packed. Free local delivery.</p>
       <p className="hero-copy">Start with your ZIP, household size, and favorite cuts. We help match the right freezer package before you commit.</p>
-      <div className="hero-actions"><a href="#delivery-zone-check">Check ZIP</a><a href="/customer-concierge">Ask Concierge</a><a href="/freezer-boxes">See Boxes</a></div>
+      <div className="hero-actions"><a href="#delivery-zone-check">Check ZIP</a><a href="/customer-concierge">Get Help Choosing</a><a href="/freezer-boxes">See Boxes</a></div>
       <div className="route-confidence" aria-label="Customer confidence"><span>ZIP checked first</span><span>No pressure checkout</span><span>Giveaway stays free</span></div>
       <QuickRouteCapture />
     </div>
@@ -35,6 +37,9 @@ export default function Home(){return <main className="site ccp-steakhouse">
 
   <DeliveryZoneCheck />
 
+  <HomePageConversionSections />
+  <CustomerAccountJourney />
+
   <section className="quality-strip">
     {steps.map(step=><article key={step.title}><h3>{step.title}</h3><p>{step.text}</p></article>)}
   </section>
@@ -44,7 +49,7 @@ export default function Home(){return <main className="site ccp-steakhouse">
     <div className="package-grid">{packages.map(box=><article key={box.name}><p>{box.fit}</p><h3>{box.name}</h3><strong>{box.size}</strong><span>{box.text}</span><a href="/freezer-boxes">Compare</a></article>)}</div>
   </section>
 
-  <section className="route-section steakhouse-route" id="delivery"><div><p className="brand-kicker">Need help choosing?</p><h2>Ask the concierge before you decide.</h2><p className="lead">The customer concierge can help with box size, delivery basics, steak value, family meals, wholesale, and giveaway rules.</p><div className="hero-actions"><a href="/customer-concierge">Ask Concierge</a><a href="#delivery-zone-check">Check ZIP</a><a href="/contact">Contact Us</a></div></div><div className="route-list"><article><h3>Local route first</h3><p>Delivery timing depends on ZIP and grouped windows.</p><strong>Start with ZIP</strong></article><article><h3>Free giveaway entry</h3><p>No purchase necessary. Buying does not improve odds.</p><strong><a href="/giveaway">Enter free</a></strong></article></div></section>
+  <section className="route-section steakhouse-route" id="delivery"><div><p className="brand-kicker">Need help choosing?</p><h2>Get help choosing before you decide.</h2><p className="lead">Our customer team can help with box size, delivery basics, steak value, family meals, wholesale, and giveaway rules.</p><div className="hero-actions"><a href="/customer-concierge">Get Help Choosing</a><a href="#delivery-zone-check">Check ZIP</a><a href="/contact">Contact Us</a></div></div><div className="route-list"><article><h3>Local route first</h3><p>Delivery timing depends on ZIP and grouped windows.</p><strong>Start with ZIP</strong></article><article><h3>Free giveaway entry</h3><p>No purchase necessary. Buying does not improve odds.</p><strong><a href="/giveaway">Enter free</a></strong></article></div></section>
 
-  <section className="steakhouse-final-cta"><p className="brand-kicker">Ready?</p><h2>Start with your ZIP.</h2><p>That is the cleanest first step. From there, choose a package or ask the concierge.</p><div className="hero-actions"><a href="#delivery-zone-check">Check My ZIP</a><a href="/customer-concierge">Ask Concierge</a><a href="/freezer-boxes">View Boxes</a></div></section>
+  <section className="steakhouse-final-cta"><p className="brand-kicker">Ready?</p><h2>Start with your ZIP.</h2><p>That is the cleanest first step. From there, choose a package or ask the concierge.</p><div className="hero-actions"><a href="#delivery-zone-check">Check My ZIP</a><a href="/customer-concierge">Get Help Choosing</a><a href="/freezer-boxes">View Boxes</a></div></section>
 </main>}
