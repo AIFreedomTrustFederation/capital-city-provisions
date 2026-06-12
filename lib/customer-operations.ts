@@ -408,3 +408,76 @@ export function summarizeCustomerOperations(){
     giveawayInterest:store.ops.filter(item=>item.kind==='giveaway-interest'&&item.status!=='closed').length,
   };
 }
+
+
+export function customerOperationsContext(){
+  const store=getCustomerOperationsStore();
+  const summary=summarizeCustomerOperations();
+  const openOps=store.ops.filter(item=>item.status!=='closed');
+  const urgentOps=openOps.filter(item=>item.priority==='urgent');
+  const quoteOps=openOps.filter(item=>item.kind==='quote-request');
+  const recoveryOps=openOps.filter(item=>item.kind==='recovery-case');
+  const reorderOps=openOps.filter(item=>item.kind==='reorder-opportunity');
+  const restockOps=openOps.filter(item=>item.kind==='restock-interest');
+  const testimonialOps=openOps.filter(item=>item.kind==='testimonial-candidate');
+
+  const ownerActions=[
+    quoteOps.length?`Build ${quoteOps.length} customer quote request(s) into owner-reviewed offers.`:'No open quote requests.',
+    recoveryOps.length?`Resolve ${recoveryOps.length} service recovery case(s) before asking for reorder.`:'No open recovery cases.',
+    reorderOps.length?`Follow up on ${reorderOps.length} reorder opportunity/opportunities.`:'No open reorder opportunities.',
+    restockOps.length?`Review ${restockOps.length} monthly restock interest signal(s).`:'No monthly restock signals waiting.',
+    testimonialOps.length?`Ask permission on ${testimonialOps.length} testimonial candidate(s).`:'No testimonial candidates waiting.',
+  ];
+
+  const recursiveLoop=[
+    'Customer submits ZIP, box interest, account request, quote request, or service rating.',
+    'Customer operations store records profile, quote, rating, recovery, testimonial, restock, reorder, or giveaway signal.',
+    'Owner dashboard surfaces the customer operations queue.',
+    'Owner AI receives customerOperationsContext inside memory/context.',
+    'Owner chooses a decision, quote, invoice, delivery, driver task, customer reply, recovery plan, restock plan, or testimonial follow-up.',
+    'Internal board/work queues move the decision to owner, driver, or customer-approved execution.',
+    'Driver/customer portal updates status, delivery, rating, recovery, reorder, or restock interest.',
+    'Those signals return to customer operations and then back into Owner AI.',
+  ];
+
+  return {
+    generatedAt:now(),
+    summary,
+    ownerActions,
+    recursiveLoop,
+    openOps:openOps.slice(0,80),
+    urgentOps:urgentOps.slice(0,30),
+    quoteOps:quoteOps.slice(0,30),
+    recoveryOps:recoveryOps.slice(0,30),
+    reorderOps:reorderOps.slice(0,30),
+    restockOps:restockOps.slice(0,30),
+    testimonialOps:testimonialOps.slice(0,30),
+    latestCustomers:store.customers.slice(0,30),
+    latestQuotes:store.quotes.slice(0,30),
+    latestRatings:store.ratings.slice(0,30),
+  };
+}
+
+export function customerOperationsTrainingRecords(){
+  const context=customerOperationsContext();
+  return [
+    ...context.latestQuotes.map(quote=>({
+      type:'customer_quote_request',
+      input:`${quote.zip} ${quote.box} ${quote.proteins} ${quote.household} ${quote.freezerSpace}`,
+      output:`status=${quote.status}; priority=${quote.priority}; customer=${quote.name}; order=${quote.orderId}; ownerAction=build quote, confirm promise safety, invoice when ready`,
+      signal:quote.priority==='high'?8:6,
+    })),
+    ...context.latestRatings.map(rating=>({
+      type:'customer_service_rating',
+      input:`rating=${rating.rating}; loved=${rating.loved}; improve=${rating.improve}; reorder=${rating.reorderInterest}; restock=${rating.restockInterest}`,
+      output:`status=${rating.status}; customer=${rating.name}; ownerAction=${rating.status==='needs-recovery'?'service recovery':'reorder/restock/testimonial review'}`,
+      signal:rating.status==='needs-recovery'?10:rating.status==='excellent'?8:6,
+    })),
+    ...context.openOps.map(item=>({
+      type:`customer_operation_${item.kind}`,
+      input:`${item.customerName} ${item.zip} ${item.subject} ${item.body}`,
+      output:`priority=${item.priority}; status=${item.status}; ownerAction=${item.ownerAction}`,
+      signal:item.priority==='urgent'?10:item.priority==='high'?8:5,
+    })),
+  ];
+}

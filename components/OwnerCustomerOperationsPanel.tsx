@@ -97,6 +97,21 @@ export default function OwnerCustomerOperationsPanel(){
         ))}
       </div>
 
+      
+      <div className="recursive-loop-card">
+        <p className="eyebrow">Recursive Owner Loop</p>
+        <h3>No dead-end customer signals.</h3>
+        <p>Customer activity becomes customer operations, customer operations enter Owner AI context, owner decisions create work queues, and execution results return as ratings, recovery, reorder, restock, or testimonial signals.</p>
+        <ol>
+          <li>Customer request or rating</li>
+          <li>Customer operations record</li>
+          <li>Owner AI context</li>
+          <li>Owner decision or work queue</li>
+          <li>Driver/customer execution</li>
+          <li>Closeout, rating, recovery, reorder, or restock signal</li>
+        </ol>
+      </div>
+
       <div className="customer-ops-groups">
         {groups.map(group=>(
           <article key={group.title}>
@@ -121,7 +136,7 @@ export default function OwnerCustomerOperationsPanel(){
         .customer-ops-buckets article,.customer-ops-groups article{border:1px solid rgba(248,231,176,.16);border-radius:20px;background:#050403;padding:14px}
         .customer-ops-buckets small{color:#d4af37;font-weight:900}
         .customer-ops-buckets strong{display:block;font-size:2rem;color:#f8e7b0}
-        .customer-ops-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+        .recursive-loop-card{border:1px solid rgba(248,231,176,.16);border-radius:20px;background:#050403;padding:14px;margin-top:12px}.recursive-loop-card h3{color:#f8e7b0}.recursive-loop-card ol{color:#ded2bd;display:grid;gap:6px;margin:10px 0 0;padding-left:20px}.customer-ops-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
         .customer-ops-groups h3{color:#fff7ed}
         .customer-op-item{border-top:1px solid rgba(248,231,176,.12);padding:.75rem 0}
         .customer-op-item b{display:block;color:#f8e7b0}
