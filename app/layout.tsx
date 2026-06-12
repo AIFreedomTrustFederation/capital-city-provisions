@@ -5,6 +5,7 @@ import './mobile-engagement.css';
 import './mvp-polish.css';
 import './mobile-simplify.css';
 import './homepage-polish.css';
+import './page-system-polish.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import LeadCapture from '../components/LeadCapture';
