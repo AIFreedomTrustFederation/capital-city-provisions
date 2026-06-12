@@ -2,6 +2,7 @@ import './globals.css';
 import './premium.css';
 import './home-refresh.css';
 import './mobile-engagement.css';
+import './mvp-polish.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import LeadCapture from '../components/LeadCapture';

@@ -2,18 +2,15 @@
 import {useState} from 'react';
 
 const links=[
-  ['Concierge','/customer-concierge'],
   ['Boxes','/freezer-boxes'],
-  ['Steak','/steak-delivery'],
   ['How It Works','/how-delivery-works'],
   ['Delivery','/delivery-map'],
-  ['Wholesale','/wholesale'],
   ['Giveaway','/giveaway'],
-  ['About','/about'],
-  ['Reviews','/reviews'],
-  ['FAQ','/faq'],
-  ['Contact','/contact']
-];
+  ['Contact','/contact'],
+  ['Team','/team'],
+  ['Start Quote','#customer-account-journey'],
+  ['Customer Portal','/customer']
+]
 
 export default function Navbar(){
   const [open,setOpen]=useState(false);
