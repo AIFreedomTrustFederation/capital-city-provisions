@@ -46,8 +46,8 @@ export default function MenuPage() {
         </div>
         <nav aria-label="Menu page actions">
           <a href="/freezer-boxes">See Boxes</a>
-          <a href="/#delivery-zone-check">Check ZIP</a>
-          <a href="/#customer-account-journey">Start Quote</a>
+          <a href="/#quick-route">Check ZIP</a>
+          <a href="/customer-concierge">Start Quote</a>
         </nav>
       </section>
 
