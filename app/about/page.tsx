@@ -33,5 +33,5 @@ export default function AboutPage(){return <main className="site page-flow">
 
   <section className="section route-section"><div><p className="eyebrow">Trust System</p><h2>Helpful for customers. Protected for operations.</h2><p className="lead">Public pages stay focused on buying help. Internal tools stay gated for the people running routes, fulfillment, and reporting.</p></div><div className="route-list">{proof.map(item=><article key={item}><h3>{item}</h3><p>Cleaner for customers and stronger for the team.</p></article>)}</div></section>
 
-  <section className="cta poster-frame final-cta"><p className="eyebrow">Promise</p><h2>Better cuts, clearer timing, a fuller kitchen.</h2><p>Start with your ZIP or open the concierge to build a plan around your home.</p><div className="actions"><a href="/#quick-route">Check ZIP</a><a href="/contact">Contact Us</a></div></section>
+  <section className="cta poster-frame final-cta"><p className="eyebrow">Promise</p><h2>Better cuts, clearer timing, a fuller kitchen.</h2><p>Start with your ZIP or open the concierge to build a plan around your home.</p><div className="actions"><a href="/#delivery-zone-check">Check ZIP</a><a href="/contact">Contact Us</a></div></section>
 </main>}
