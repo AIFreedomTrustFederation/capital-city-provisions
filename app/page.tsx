@@ -1,49 +1,60 @@
+import DeliveryZoneCheck from '../components/DeliveryZoneCheck';
 import QuickRouteCapture from '../components/QuickRouteCapture';
-import MeatSlideshow from '../components/MeatSlideshow';
+import CustomerAccountJourney from '../components/CustomerAccountJourney';
+import HomePageConversionSections from '../components/HomePageConversionSections';
 import PublicMobileStickyCTA from '../components/PublicMobileStickyCTA';
+import MVPFlowStrip from '../components/MVPFlowStrip';
 
-const offerCards=[
-  {title:'Family Freezer Boxes',href:'/freezer-boxes',kicker:'Home Stock-Up',text:'Compare Baby, Mama, Papa, Big Mama, and Big Papa freezer packages by household size and freezer space.'},
-  {title:'Premium Steak Packages',href:'/steak-delivery',kicker:'Steak Lovers',text:'Ribeye, filet, New York strip, sirloin, and grill-night boxes for customers who want beef first.'},
-  {title:'Monthly Restock Club',href:'/monthly-restock',kicker:'Recurring Buyers',text:'Keep the freezer ready with a practical restock rhythm built around your home and route.'},
-  {title:'Wholesale / Bulk Orders',href:'/wholesale',kicker:'Business & Events',text:'Supply support for restaurants, food trucks, churches, lodges, caterers, events, and group buyers.'},
-  {title:'Freezer Giveaway',href:'/giveaway',kicker:'Promotion',text:'Enter the giveaway separately. No purchase necessary, and buying does not improve odds.'},
-  {title:'How Delivery Works',href:'/how-delivery-works',kicker:'Start Here',text:'See how ZIP checks, grouped delivery routes, follow-up, and freezer-box planning connect.'}
+const packages=[
+  {name:'Baby Freezer Package',fit:'Couples & small freezers',size:'5 cu ft',text:'A simple first stock-up for smaller households.'},
+  {name:'Mama Freezer Package',fit:'Small families',size:'7 cu ft',text:'More variety for busy weekly meals.'},
+  {name:'Papa Freezer Package',fit:'Family stock-up',size:'10 cu ft',text:'A deeper freezer fill for regular home cooking.'},
+  {name:'Big Papa Package',fit:'Food security reserve',size:'22 cu ft',text:'A serious stocked-home reserve for larger households.'}
 ];
 
-const trustPoints=['Free local delivery routing','Cryovac freezer-ready packing','Triple-trimmed value focus','ZIP checked before promises'];
-const steps=['See the food','Choose your path','Check delivery','Build the right box'];
+const steps=[
+  {title:'Check your ZIP',text:'Make sure your area fits an active or grouped delivery route.'},
+  {title:'Pick a package',text:'Choose by household size, freezer space, and how often you cook at home.'},
+  {title:'Get follow-up',text:'The team confirms timing, package fit, and delivery details before anything is final.'}
+];
 
-export default function Home(){return <main className="site page-flow ccp-home-refresh">
-  <section className="promo-ribbon"><strong>Launch Offer:</strong> Premium freezer meats, local route planning, and a free giveaway entry path that stays separate from purchase.</section>
+export default function Home(){return <main className="site ccp-steakhouse">
+  <section className="steakhouse-promo"><strong>Launch Offer:</strong> First-time stocked-home customers may qualify for a limited order gift. Giveaway entry stays free.</section>
 
-  <section className="landing-hero poster-frame">
-    <div className="hero-copy">
-      <p className="eyebrow">Capital City Provisions</p>
-      <h1>Premium freezer meats delivered locally.</h1>
-      <p className="lead">Stock your home with steakhouse-style beef, practical family proteins, and freezer-ready boxes without turning the homepage into a long intake form.</p>
-      <div className="actions"><a href="/freezer-boxes">View Freezer Boxes</a><a href="/catalog">View Catalog</a><a href="#quick-route">Check ZIP</a></div>
-      <div className="promo-grid">{trustPoints.map(point=><span key={point}>{point}</span>)}</div>
+  <section className="steakhouse-hero">
+    <div className="hero-overlay" />
+    <div className="hero-content">
+      <p className="brand-kicker">Capital City Provisions</p>
+      <h1>Fill your freezer without the warehouse run.</h1>
+      <p className="hero-subhead">Premium proteins. Cryovac packed. Free local delivery.</p>
+      <p className="hero-copy">Start with your ZIP, household size, and favorite cuts. We help match the right freezer package before you commit.</p>
+      <div className="hero-actions"><a href="/menu">View Menu</a><a href="#delivery-zone-check">Check ZIP</a><a href="#customer-account-journey">Start Quote</a><a href="/customer">Customer Portal</a><a href="/pay">Deposit</a><a href="/freezer-boxes">See Boxes</a></div>
+      <div className="route-confidence" aria-label="Customer confidence"><span>ZIP checked first</span><span>No pressure checkout</span><span>Giveaway stays free</span></div>
+      <QuickRouteCapture />
     </div>
-    <div className="landing-art"><MeatSlideshow/></div>
+    <div className="prime-badge" aria-label="Premium badge"><span>USDA</span><strong>Choice</strong></div>
   </section>
 
-  <section className="section">
-    <div className="section-heading compact"><p className="eyebrow">Choose Your Path</p><h2>One homepage. Focused offer pages.</h2><p className="lead">The homepage now works like a simple advertisement hub. Customers see the food, understand the promise, then choose the page that matches their buying intent.</p></div>
-    <div className="grid">{offerCards.map(card=><article key={card.title}><p className="eyebrow">{card.kicker}</p><h3>{card.title}</h3><p>{card.text}</p><a href={card.href}>Open Page</a></article>)}</div>
+  <section className="hero-benefit-bar" aria-label="Benefits"><article><span>*</span><strong>Triple-trimmed value</strong></article><article><span>*</span><strong>Cryovac freezer-ready</strong></article><article><span>*</span><strong>Grouped local delivery</strong></article></section>
+
+  <MVPFlowStrip />
+
+  <DeliveryZoneCheck />
+
+  <HomePageConversionSections />
+  <CustomerAccountJourney />
+
+  <section className="quality-strip">
+    {steps.map(step=><article key={step.title}><h3>{step.title}</h3><p>{step.text}</p></article>)}
   </section>
 
-  <section className="section route-section">
-    <div><p className="eyebrow">Simple Flow</p><h2>Make them hungry first. Collect details second.</h2><p className="lead">Detailed forms now belong on the focused offer and contact paths. The homepage should sell the appetite, the convenience, and the clear next step.</p></div>
-    <div className="route-list">{steps.map((step,index)=><article key={step}><span className="badge">Step {index+1}</span><h3>{step}</h3><p>{index===0?'The slideshow creates the first crave moment.':index===1?'Cards route families, steak buyers, restock customers, wholesale buyers, and giveaway entrants.':index===2?'The current ZIP logic stays connected through the existing quick route capture.':'The global concierge and contact paths keep lead capture wired to the current app.'}</p></article>)}</div>
+  <section className="freezer-section" id="boxes">
+    <div className="section-heading steakhouse-heading"><p className="brand-kicker">Freezer Packages</p><h2>Choose the package that fits your home.</h2><p>Not sure? Get help choosing or start with a ZIP check. Keep it simple.</p></div>
+    <div className="package-grid">{packages.map(box=><article key={box.name}><p>{box.fit}</p><h3>{box.name}</h3><strong>{box.size}</strong><span>{box.text}</span><a href="/freezer-boxes">Compare</a></article>)}</div>
   </section>
 
-  <section className="section" id="delivery-start">
-    <div className="section-heading compact"><p className="eyebrow">Delivery Check</p><h2>One quick ZIP check, not repeated forms.</h2><p className="lead">This keeps the landing page connected to the existing route capture, local storage, lead API, and customer concierge flow.</p></div>
-    <QuickRouteCapture/>
-  </section>
+  <section className="route-section steakhouse-route" id="delivery"><div><p className="brand-kicker">Need help choosing?</p><h2>Get help choosing before you decide.</h2><p className="lead">Our customer team can help with box size, delivery basics, steak value, family meals, wholesale, and giveaway rules.</p><div className="hero-actions"><a href="/menu">View Menu</a><a href="/customer-concierge">Get Help Choosing</a><a href="#delivery-zone-check">Check ZIP</a><a href="/reviews">Reviews</a><a href="/contact">Contact Us</a></div></div><div className="route-list"><article><h3>Local route first</h3><p>Delivery timing depends on ZIP and grouped windows.</p><strong>Start with ZIP</strong></article><article><h3>Free giveaway entry</h3><p>No purchase necessary. Buying does not improve odds.</p><strong><a href="/giveaway">Enter free</a></strong></article></div></section>
 
-  <section className="cta poster-frame final-cta"><p className="eyebrow">Ready</p><h2>Start with the page that fits the customer.</h2><p>Family boxes, steak packages, restock club, wholesale, giveaway, and delivery education now live on their own focused pages.</p><div className="actions"><a href="/freezer-boxes">Shop Freezer Boxes</a><a href="/steak-delivery">Steak Packages</a><a href="/contact">Ask For Help</a></div></section>
-
+  <section className="steakhouse-final-cta"><p className="brand-kicker">Ready?</p><h2>Start with your ZIP.</h2><p>That is the cleanest first step. From there, choose a package, request a quote, or get help choosing.</p><div className="hero-actions"><a href="/menu">View Steak Menu</a><a href="#delivery-zone-check">Check My ZIP</a><a href="/customer-concierge">Get Help Choosing</a><a href="/pay">Deposit / Invoice</a><a href="/reviews">Reviews</a><a href="/freezer-boxes">View Boxes</a></div></section>
   <PublicMobileStickyCTA />
 </main>}
