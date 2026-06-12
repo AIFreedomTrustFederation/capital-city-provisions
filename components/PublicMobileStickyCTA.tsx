@@ -1,9 +1,9 @@
 export default function PublicMobileStickyCTA(){
   return (
     <nav className="public-mobile-cta" aria-label="Quick actions">
-      <a href="#delivery-zone-check">ZIP</a>
-      <a href="#customer-account-journey">Quote</a>
-      <a href="/pay">Pay</a>
+      <a href="#quick-route">ZIP</a>
+      <a href="/freezer-boxes">Boxes</a>
+      <a href="/catalog">Menu</a>
       <a href="/reviews">Reviews</a>
       <a href="/giveaway">Free</a>
       <style>{`
