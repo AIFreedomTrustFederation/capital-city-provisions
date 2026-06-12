@@ -3,6 +3,7 @@ import QuickRouteCapture from '../components/QuickRouteCapture';
 import CustomerAccountJourney from '../components/CustomerAccountJourney';
 import PublicMobileStickyCTA from '../components/PublicMobileStickyCTA';
 import MVPFlowStrip from '../components/MVPFlowStrip';
+import HeroMeatSlideshow from '../components/HeroMeatSlideshow';
 
 const pageLinks=[
   {label:'View Menu',href:'/menu',text:'See the current steak-box menu and QR-ready menu graphics.'},
@@ -27,6 +28,7 @@ export default function Home(){return <main className="site ccp-steakhouse">
       <div className="route-confidence" aria-label="Customer confidence"><span>ZIP checked first</span><span>No pressure checkout</span><span>Giveaway stays free</span></div>
       <QuickRouteCapture />
     </div>
+    <HeroMeatSlideshow />
     <div className="prime-badge" aria-label="Premium badge"><span>USDA</span><strong>Choice</strong></div>
   </section>
 
