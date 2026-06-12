@@ -110,9 +110,9 @@ export default function CustomerAccountJourney(){
           <p>The team can now review your ZIP, freezer box fit, delivery timing, and quote details before anything is final.</p>
           <div>
             <a href="/customer">View Customer Portal</a>
-            <a href="#build-your-box">Build Another Box</a>
+            <a href="/freezer-boxes">Build Another Box</a>
             <a href="/giveaway">Enter Giveaway</a>
-            <a href="#customer-rating">Rate Service Later</a>
+            <a href="/reviews">Reviews</a>
           </div>
         </div>
       )}
