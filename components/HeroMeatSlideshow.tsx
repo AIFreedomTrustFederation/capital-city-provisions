@@ -32,7 +32,7 @@ export default function HeroMeatSlideshow(){
       .hero-slide-dots button{width:10px;height:10px;border:1px solid rgba(255,255,255,.82);border-radius:999px;background:rgba(0,0,0,.62);padding:0}
       .hero-slide-dots button.active{background:#e2c98f;border-color:#e2c98f;box-shadow:0 0 0 4px rgba(226,201,143,.15)}
       @media(max-width:1100px){.hero-meat-slideshow{width:min(380px,42vw);margin-right:1rem}}
-      @media(max-width:760px){.hero-meat-slideshow{width:100%;margin:1.15rem 0 0;justify-self:stretch}.hero-meat-slideshow figure{border-radius:24px}.hero-meat-slideshow img{aspect-ratio:1.35/1}.hero-meat-slideshow figcaption{left:10px;right:10px;bottom:10px;padding:12px}.hero-slide-dots{top:12px;right:12px}}
+      @media(max-width:760px){.hero-meat-slideshow{display:block!important;width:100%;margin:1.15rem 0 0;justify-self:stretch}.hero-meat-slideshow figure{border-radius:24px}.hero-meat-slideshow img{aspect-ratio:1.35/1}.hero-meat-slideshow figcaption{left:10px;right:10px;bottom:10px;padding:12px}.hero-slide-dots{top:12px;right:12px}}
     `}</style>
   </aside>;
 }
