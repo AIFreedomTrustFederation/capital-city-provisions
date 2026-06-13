@@ -8,9 +8,7 @@ import './homepage-polish.css';
 import './page-system-polish.css';
 import './menu-polish.css';
 import './mobile-stack-fix.css';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import LeadCapture from '../components/LeadCapture';
+import AppChrome from '../components/AppChrome';
 
 export const metadata = {
   title: 'Capital City Provisions',
@@ -20,7 +18,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body><Navbar />{children}<Footer /><LeadCapture /></body>
+      <body><AppChrome>{children}</AppChrome></body>
     </html>
   );
 }
