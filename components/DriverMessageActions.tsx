@@ -32,7 +32,7 @@ export default function DriverMessageActions(props:Props){
     const department=departmentForStage(action.stage);
     const url=mode==='gmail'?gmailComposeUrl({to:props.customerEmail,subject:prepared.message.subject,body:prepared.body,department}):mailtoUrl({to:props.customerEmail,subject:prepared.message.subject,body:prepared.body,department});
     setStatus(`${action.label} queued. Confirm send after your mail app opens.`);
-    if(mode==='gmail')window.open(url,'_blank','noopener,noreferrer'); else window.location.href=url;
+    if(mode==='gmail')window.open(url,'_blank','noopener,noreferrer'); else window.location.assign(url);
   }
   async function mark(label:'sent'|'needs-follow-up'){
     if(!lastMessage){setStatus('Open a message first, then mark the result.');return}
