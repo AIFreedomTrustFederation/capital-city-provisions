@@ -19,6 +19,6 @@ const rules=[
 ];
 
 export default function OfficialRulesPage(){return <main className="site page-flow">
-  <section className="page-hero poster-frame"><div><p className="eyebrow">Official Rules</p><h1>Capital City Provisions freezer giveaway.</h1><p className="lead">No purchase necessary. Purchase does not improve odds. Please review the rules before entering.</p><div className="actions"><a href="/giveaway">Enter Giveaway</a><a href="/contact">Contact Us</a></div></div><img src="/images/capital-city-hero.png" alt="Capital City Provisions official rules"/></section>
+  <section className="page-hero poster-frame"><div><p className="eyebrow">Official Rules</p><h1>Capital City Provisions freezer giveaway.</h1><p className="lead">No purchase necessary. Purchase does not improve odds. Please review the rules before entering.</p><div className="actions"><a href="/giveaway">Enter Giveaway</a><a href="/contact">Contact Us</a></div></div><img src="/images/launch-giveaway-freezer.webp" alt="Capital City Provisions official rules"/></section>
   <section className="section"><p className="eyebrow">Rules</p><h2>Freezer giveaway terms.</h2><div className="route-list">{rules.map(([title,copy])=><article key={title}><h3>{title}</h3><p>{copy}</p></article>)}</div></section>
 </main>}

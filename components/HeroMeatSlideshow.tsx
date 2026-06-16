@@ -2,11 +2,11 @@
 import {useEffect,useState} from 'react';
 
 const slides=[
-  {src:'/images/capital-city-hero.png',title:'Steakhouse Stock-Ups',text:'Premium proteins planned around real home cooking.'},
+  {src:'/images/launch-freezer-box-hero.webp',title:'Steakhouse Stock-Ups',text:'Premium proteins planned around real home cooking.'},
   {src:'/images/freezer-family.png',title:'Freezer-Ready Boxes',text:'Cryovac packed and built for household storage.'},
-  {src:'/images/category-beef.svg',title:'Prime Beef Energy',text:'Steaks, burger, roasts, and useful freezer staples.'},
-  {src:'/images/category-chicken.svg',title:'Weeknight Protein',text:'Simple cuts for fast dinners and meal prep.'},
-  {src:'/images/category-pork.svg',title:'Family Comfort Cuts',text:'Ribs, chops, and variety for stocked homes.'}
+  {src:'/images/launch-local-delivery.webp',title:'Local Delivery',text:'Route-aware delivery built around real neighborhoods.'},
+  {src:'/images/launch-giveaway-freezer.webp',title:'Giveaway Ready',text:'A stocked freezer offer customers can picture immediately.'},
+  {src:'/images/launch-consultation-support.webp',title:'Concierge Help',text:'ZIP, freezer size, and household needs guide the plan.'}
 ];
 
 export default function HeroMeatSlideshow(){

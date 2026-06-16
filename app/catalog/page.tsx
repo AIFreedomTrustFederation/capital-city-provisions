@@ -4,9 +4,9 @@ export const metadata={
 };
 
 const categories=[
-  {name:'USDA Prime Beef',image:'/images/category-beef.svg',text:'Ribeyes, T-bones, strips, filets, roasts, burgers, and premium family staples.'},
-  {name:'Chicken',image:'/images/category-chicken.svg',text:'Boneless breasts, marinated selections, wings, and practical weekly favorites.'},
-  {name:'Pork',image:'/images/category-pork.svg',text:'Pork chops, ribs, tenderloin, and comfort-food cuts with real family value.'},
+  {name:'USDA Prime Beef',image:'/images/launch-freezer-box-hero.webp',text:'Ribeyes, T-bones, strips, filets, roasts, burgers, and premium family staples.'},
+  {name:'Chicken',image:'/images/launch-freezer-box-hero.webp',text:'Boneless breasts, marinated selections, wings, and practical weekly favorites.'},
+  {name:'Pork',image:'/images/launch-freezer-box-hero.webp',text:'Pork chops, ribs, tenderloin, and comfort-food cuts with real family value.'},
   {name:'Seafood',image:'/images/freezer-starter.png',text:'Shrimp, scallops, lobster, crab, and surf-and-turf freezer additions.'},
   {name:'Shrimp Collection',image:'/images/freezer-starter.png',text:'Fast dinners for scampi, tacos, pasta, grilling, and quick family meals.'},
   {name:'Bundles',image:'/images/freezer-family.png',text:'Curated mixes for households that want variety without guesswork.'},
@@ -14,7 +14,7 @@ const categories=[
 ];
 
 export default function CatalogPage(){return <main className="site page-flow">
-  <section className="page-hero poster-frame"><div><p className="eyebrow">Catalog</p><h1>Restaurant quality without restaurant prices.</h1><p className="lead">Browse the core categories customers use to build family freezer boxes, steakhouse nights, weekly meals, seafood upgrades, and wholesale accounts.</p><div className="actions"><a href="/freezer-boxes">Compare Freezer Boxes</a><a href="/wholesale">Wholesale Accounts</a></div></div><img src="/images/capital-city-hero.png" alt="Capital City Provisions catalog"/></section>
+  <section className="page-hero poster-frame"><div><p className="eyebrow">Catalog</p><h1>Restaurant quality without restaurant prices.</h1><p className="lead">Browse the core categories customers use to build family freezer boxes, steakhouse nights, weekly meals, seafood upgrades, and wholesale accounts.</p><div className="actions"><a href="/freezer-boxes">Compare Freezer Boxes</a><a href="/wholesale">Wholesale Accounts</a></div></div><img src="/images/launch-freezer-box-hero.webp" alt="Capital City Provisions catalog"/></section>
   <section className="section"><p className="eyebrow">Categories</p><h2>Build a box around the proteins you actually use.</h2><div className="catalog-grid">{categories.map(item=><article key={item.name}><img src={item.image} alt={`${item.name} category`}/><h3>{item.name}</h3><p>{item.text}</p><a href={item.name==='Wholesale'?'/wholesale':'/contact'}>{item.name==='Wholesale'?'Apply For Wholesale':'Request Availability'}</a></article>)}</div></section>
   <section className="cta poster-frame final-cta"><p className="eyebrow">Availability</p><h2>Catalog planning starts with route and stock.</h2><p>Tell us your delivery area, freezer size, and preferred proteins so we can match the right product mix.</p><div className="actions"><a href="/delivery-map">Check Delivery Area</a><a href="/contact">Request Catalog Help</a></div></section>
 </main>}
