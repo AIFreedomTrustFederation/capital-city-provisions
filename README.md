@@ -64,29 +64,29 @@ Homepage responsibilities:
 
 Dedicated pages carry the details:
 
-- `/menu` — premium steak-box menu, QR menu, phone ordering, and menu graphics.
-- `/freezer-boxes` — freezer package comparison and box selection.
-- `/family-freezer-boxes` — family-focused freezer stock-up plans.
-- `/steak-delivery` — steak delivery offer page.
-- `/how-delivery-works` — delivery process, route grouping, expectations, and trust.
-- `/delivery-map` — route area confidence and local delivery planning.
-- `/giveaway` — free giveaway entry, rules clarity, and separate order bonus messaging.
-- `/official-rules` — giveaway rules and no-purchase-required language.
-- `/contact` — sales, support, wholesale, and general questions.
-- `/customer` — customer portal.
-- `/customer-concierge` — guided help choosing a box.
-- `/reviews` — social proof.
-- `/faq` — quick answers and objections.
-- `/about` — founder story, trust system, and who CCP serves.
+- `/menu` - premium steak-box menu, QR menu, phone ordering, and menu graphics.
+- `/freezer-boxes` - freezer package comparison and box selection.
+- `/family-freezer-boxes` - family-focused freezer stock-up plans.
+- `/steak-delivery` - steak delivery offer page.
+- `/how-delivery-works` - delivery process, route grouping, expectations, and trust.
+- `/delivery-map` - route area confidence and local delivery planning.
+- `/giveaway` - free giveaway entry, rules clarity, and separate order bonus messaging.
+- `/official-rules` - giveaway rules and no-purchase-required language.
+- `/contact` - sales, support, wholesale, and general questions.
+- `/customer` - customer portal.
+- `/customer-concierge` - guided help choosing a box.
+- `/reviews` - social proof.
+- `/faq` - quick answers and objections.
+- `/about` - founder story, trust system, and who CCP serves.
 
 ## Key customer-flow anchors
 
 These anchors are part of the public customer journey and should not be renamed casually.
 
-- `#quick-route` — rendered by `QuickRouteCapture` on the homepage.
-- `#delivery-zone-check` — rendered by `DeliveryZoneCheck` wherever that component is mounted.
-- `#customer-account-journey` — rendered by `CustomerAccountJourney` wherever that component is mounted.
-- `#qr-menu` — rendered on `/menu` for QR/menu sharing.
+- `#quick-route` - rendered by `QuickRouteCapture` on the homepage.
+- `#delivery-zone-check` - rendered by `DeliveryZoneCheck` wherever that component is mounted.
+- `#customer-account-journey` - rendered by `CustomerAccountJourney` wherever that component is mounted.
+- `#qr-menu` - rendered on `/menu` for QR/menu sharing.
 
 Homepage ZIP links should point to `/#quick-route`, not `/#delivery-zone-check`, unless `DeliveryZoneCheck` is added back to the homepage.
 
@@ -248,7 +248,7 @@ Full local verification:
 npm run verify
 ```
 
-That runs typecheck, license audit, and the full Next build.
+That runs typecheck, lint, license audit, and the full Next build.
 
 Build only:
 

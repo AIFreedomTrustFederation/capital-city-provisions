@@ -36,7 +36,7 @@ export default function Home(){return <main className="site ccp-steakhouse">
     <div className="prime-badge" aria-label="Premium badge"><span>Premium</span><strong>Beef</strong></div>
   </section>
 
-  <section className="hero-benefit-bar luxury-badges" aria-label="Benefits">{benefits.map(([title,text])=><article key={title}><span>✦</span><div><strong>{title}</strong><small>{text}</small></div></article>)}</section>
+  <section className="hero-benefit-bar luxury-badges" aria-label="Benefits">{benefits.map(([title,text])=><article key={title}><span className="benefit-mark" aria-hidden="true" /><div><strong>{title}</strong><small>{text}</small></div></article>)}</section>
 
   <section className="freezer-section" id="home-paths">
     <div className="section-heading steakhouse-heading"><p className="brand-kicker">Choose Your Next Step</p><h2>One premium doorway. Clear paths.</h2><p>The homepage now stays simple: luxury advertising up front, then clean links to the deeper pages instead of repeated forms and duplicate sales blocks.</p></div>
