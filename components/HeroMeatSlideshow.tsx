@@ -2,11 +2,11 @@
 import {useEffect,useState} from 'react';
 
 const slides=[
-  {src:'/images/launch-freezer-box-hero.webp',title:'Steakhouse Stock-Ups',text:'Premium proteins planned around real home cooking.'},
-  {src:'/images/freezer-family.png',title:'Freezer-Ready Boxes',text:'Cryovac packed and built for household storage.'},
-  {src:'/images/launch-local-delivery.webp',title:'Local Delivery',text:'Route-aware delivery built around real neighborhoods.'},
-  {src:'/images/launch-giveaway-freezer.webp',title:'Giveaway Ready',text:'A stocked freezer offer customers can picture immediately.'},
-  {src:'/images/launch-consultation-support.webp',title:'Concierge Help',text:'ZIP, freezer size, and household needs guide the plan.'}
+  {src:'/images/launch-freezer-box-hero.webp',title:'Premium Stock-Ups',text:'Steaks, seafood, chicken, and family staples in one clean plan.'},
+  {src:'/images/freezer-family.png',title:'Freezer-Ready Boxes',text:'Portioned packs that stack neatly and cook when you need them.'},
+  {src:'/images/launch-local-delivery.webp',title:'Local Delivery',text:'We check your area first so the next step is clear.'},
+  {src:'/images/launch-giveaway-freezer.webp',title:'Freezer Giveaway',text:'A full freezer prize with free entry and clear rules.'},
+  {src:'/images/launch-consultation-support.webp',title:'Personal Help',text:'Tell us your ZIP, freezer space, and favorite meals.'}
 ];
 
 export default function HeroMeatSlideshow(){
