@@ -2,6 +2,68 @@
 
 Capital City Provisions is a Next.js public sales, customer support, and operations site for premium freezer-box delivery, steak/menu presentation, route-aware ZIP capture, customer quote requests, giveaway entry, and stocked-home food planning.
 
+## Federation Status
+
+| Field | Value |
+| --- | --- |
+| Status | Active product |
+| Federation layer | Applied Systems |
+| Repository role | Practical business proof-of-work for customer operations and concierge workflows |
+| Visibility | Public |
+| Primary language | TypeScript / Next.js |
+| Deployment | Vercel from `main` |
+
+## Purpose
+
+`capital-city-provisions` proves the federation model through a real public business workflow: customer intake, ZIP-aware delivery review, concierge support, quote requests, premium provisions presentation, and operational trust language.
+
+This repository should stay customer-first. It may benefit from AIFT tooling internally, but the public surface should feel like a premium provisions company, not a technology product.
+
+## Current Capabilities
+
+- Next.js public site.
+- Customer concierge and lead capture flow.
+- ZIP-aware route capture and delivery review.
+- Menu, freezer box, delivery, giveaway, contact, customer, reviews, FAQ, and legal pages.
+- Vercel deployment path.
+- Local verification script covering typecheck, lint, license audit, and build.
+
+## Setup
+
+```bash
+npm install
+npm run dev
+```
+
+Requires Node.js `>=20`.
+
+## Verification
+
+Full local verification:
+
+```bash
+npm run verify
+```
+
+Focused checks:
+
+```bash
+npm run typecheck
+npm run lint
+npm run build
+```
+
+## Roadmap
+
+1. Keep public copy concierge-led and non-technical.
+2. Maintain one clean mobile action path.
+3. Keep legal, business, and customer footer links resolving.
+4. Use this repo as the applied-systems proof point for trustworthy customer operations.
+
+## Public Claims Note
+
+Do not expose internal AI, model, bot, automation, or technical helper language in customer-facing UI. Public copy should emphasize concierge support, route review, delivery coordination, customer care, and premium provisions.
+
 The current public brand rule is simple:
 
 > **Capital City Provisions should feel like a premium provisions company, not a technology product.**
