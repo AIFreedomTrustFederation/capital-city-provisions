@@ -17,6 +17,7 @@ body:after{background:linear-gradient(115deg,transparent 0 24%,rgba(255,255,255,
 
 .nav{background:rgba(255,248,237,.96)!important;border-bottom:1px solid rgba(184,137,45,.28)!important;box-shadow:0 10px 30px rgba(69,39,20,.12)!important}
 .brand{color:var(--ccp-text-warm)!important;text-shadow:none!important}
+.nav-links{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:18px!important;flex-wrap:wrap!important}
 .nav-links a{color:var(--ccp-text-warm)!important;text-shadow:none!important}
 .nav-links a:hover{color:var(--ccp-oxblood)!important}
 .menu-button{background:#fff8ed!important;color:var(--ccp-oxblood)!important;border-color:rgba(138,58,34,.38)!important}
@@ -27,7 +28,7 @@ body:after{background:linear-gradient(115deg,transparent 0 24%,rgba(255,255,255,
 .ccp-steakhouse .steakhouse-hero{background:linear-gradient(135deg,#2b1a12,#3a2418 48%,#17100d);border-color:rgba(255,248,237,.36);box-shadow:0 26px 76px rgba(43,26,18,.28),inset 0 0 0 1px rgba(255,255,255,.08)}
 .ccp-steakhouse .steakhouse-hero:before{background:linear-gradient(90deg,rgba(43,26,18,.94) 0%,rgba(43,26,18,.68) 48%,rgba(43,26,18,.16) 100%),radial-gradient(circle at 72% 38%,rgba(232,200,120,.22),transparent 18rem)}
 .ccp-steakhouse .brand-kicker{background:rgba(255,248,237,.12);border-color:rgba(255,248,237,.34);color:#f4d88a!important;text-shadow:none}
-.ccp-steakhouse .steakhouse-hero h1{color:#fff8ed;text-shadow:0 5px 0 rgba(43,26,18,.62),0 22px 46px rgba(0,0,0,.4)}
+.ccp-steakhouse .steakhouse-hero h1{color:#fff8ed;font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(3rem,6.2vw,5.35rem)!important;font-weight:900;letter-spacing:-.055em!important;line-height:.96!important;text-transform:none!important;text-shadow:0 16px 42px rgba(0,0,0,.36)}
 .ccp-steakhouse .hero-subhead{border-color:rgba(232,200,120,.46);color:#f8e7b0!important}
 .ccp-steakhouse .hero-copy{color:#f6e7d1!important;text-shadow:none}
 .ccp-steakhouse .hero-actions a:first-child,.ccp-steakhouse .hero-actions a:nth-child(2){background:linear-gradient(135deg,#f5d976,#c7922e);border-color:#fff4c7;color:#271913!important}
@@ -54,3 +55,9 @@ body:after{background:linear-gradient(115deg,transparent 0 24%,rgba(255,255,255,
 .ccp-steakhouse .steakhouse-final-cta{background:linear-gradient(135deg,#3a2418,#271913 64%,#4a2419);border-color:rgba(255,248,237,.24);box-shadow:0 22px 60px rgba(43,26,18,.24)}
 .ccp-steakhouse .steakhouse-final-cta h2{color:#fff8ed}
 .ccp-steakhouse .steakhouse-final-cta p{color:#f1dfc6!important}
+
+@media(max-width:760px){
+  .nav-links{display:none!important}
+  .nav-menu[open] .nav-links{display:grid!important}
+  .ccp-steakhouse .steakhouse-hero h1{font-size:clamp(2.35rem,11vw,3.6rem)!important;letter-spacing:-.045em!important;line-height:1!important}
+}
