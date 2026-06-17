@@ -8,6 +8,7 @@ import './homepage-polish.css';
 import './page-system-polish.css';
 import './menu-polish.css';
 import './mobile-stack-fix.css';
+import './public-theme.css';
 import AppChrome from '../components/AppChrome';
 
 export const metadata = {
