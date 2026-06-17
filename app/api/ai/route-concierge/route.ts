@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import {enumerateCustomerGuideAnswer} from '../../../../lib/customer-guide-enumerator';
 
 type ConciergeInput=Record<string,any>;
 
@@ -47,6 +48,7 @@ function fallbackRecommendation(input:ConciergeInput){
   }
   const zip=clean(input.zip||input.address);
   const route=routePlan(zip);
+  const customerGuide=enumerateCustomerGuideAnswer({question:clean(input.question||input.interest),zip,route});
   const budget=clean(input.budget)||'$300-$500';
   const familySize=clean(input.familySize).toLowerCase();
   const interest=clean(input.interest).toLowerCase();
@@ -57,6 +59,7 @@ function fallbackRecommendation(input:ConciergeInput){
     budget,
     promo:{code:'CHEESECAKE-48',deadlineHours:48,description:'Free cheesecake with a qualifying first freezer-box order reserved within 48 hours of route check, while supplies last.'},
     giveaway:{available:true,entryPath:'/giveaway',purchaseRequired:false,purchaseImprovesOdds:false},
+    customerGuide,
     ownerNote:'Use this recommendation for customer engagement. Do not claim fake scarcity and do not connect giveaway odds to purchase.'
   };
 }
@@ -85,7 +88,8 @@ export async function POST(request:Request){
   try{
     const input=await request.json();
     const modelAnswer=await askSelfHostedModel(input);
-    return NextResponse.json({ok:true,source:modelAnswer?'self-hosted-open-source-llm':'rules-fallback',recommendation:modelAnswer||fallbackRecommendation(input)});
+    const fallback=fallbackRecommendation(input);
+    return NextResponse.json({ok:true,source:modelAnswer?'self-hosted-open-source-llm':'rules-fallback',recommendation:modelAnswer?{...fallback,...modelAnswer,customerGuide:fallback.customerGuide}:fallback});
   }catch(error){
     return NextResponse.json({ok:false,message:'AI route concierge failed',fallback:fallbackRecommendation({})},{status:500});
   }
