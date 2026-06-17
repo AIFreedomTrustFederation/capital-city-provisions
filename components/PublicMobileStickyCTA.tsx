@@ -1,6 +1,6 @@
 'use client';
 
-import {useId,useState} from 'react';
+import {useEffect,useId,useRef,useState} from 'react';
 import {saveAiExchange} from '../lib/ai-memory-client';
 import {enumerateCustomerGuideAnswer,extractCustomerZip} from '../lib/customer-guide-enumerator';
 
@@ -38,8 +38,12 @@ export default function PublicMobileStickyCTA({zipHref='#delivery-zone-check',qu
   const [input,setInput]=useState('');
   const [session,setSession]=useState('');
   const [loading,setLoading]=useState(false);
+  const [topicsOpen,setTopicsOpen]=useState(true);
   const [messages,setMessages]=useState<Msg[]>([{role:'assistant',content:'Ask me one direct question: delivery ZIP, which freezer box, steak value, giveaway rules, wholesale, menu, or support. I will give you the clean next step.'}]);
+  const chatEndRef=useRef<HTMLSpanElement|null>(null);
   const href=quoteHref || zipHref;
+
+  useEffect(()=>{if(open)chatEndRef.current?.scrollIntoView({block:'end',behavior:'smooth'});},[messages,open,loading]);
 
   async function ask(value?:string){
     const question=clean(value||input);
@@ -48,6 +52,7 @@ export default function PublicMobileStickyCTA({zipHref='#delivery-zone-check',qu
     if(!session)setSession(id);
     setInput('');
     setLoading(true);
+    setTopicsOpen(false);
     const userMsg={role:'user' as const,content:question};
     const localGuide=enumerateCustomerGuideAnswer({question,zip:zipFrom(question)});
     setMessages(current=>[...current,userMsg,{role:'assistant',content:`Checking ${localGuide.intent.replaceAll('_',' ')}...`}]);
@@ -66,9 +71,12 @@ export default function PublicMobileStickyCTA({zipHref='#delivery-zone-check',qu
   return (
     <aside className={`public-mobile-cta ${open?'open':''}`} aria-label="Capital City Provisions guide">
       {open&&<section className="guide-panel" role="dialog" aria-modal="false" aria-label="CCP Guide">
-        <header><div><p className="eyebrow">CCP Guide</p><h3>Ask before you choose.</h3></div><button type="button" onClick={()=>setOpen(false)} aria-label="Close CCP Guide">x</button></header>
-        <div className="guide-chat">{messages.map((message,index)=><p key={`${message.role}-${index}`} className={message.role}>{message.content}</p>)}</div>
-        <div className="guide-prompts">{prompts.map(prompt=><button key={prompt} type="button" onClick={()=>ask(prompt)} disabled={loading}>{prompt}</button>)}</div>
+        <header><div><p className="eyebrow">Concierge Desk</p><h3>Capital City Guide</h3></div><button type="button" onClick={()=>setOpen(false)} aria-label="Close CCP Guide">x</button></header>
+        <div className="guide-chat" aria-live="polite">{messages.map((message,index)=><p key={`${message.role}-${index}`} className={message.role}>{message.content}</p>)}<span ref={chatEndRef} className="chat-end" aria-hidden="true"></span></div>
+        <details className="guide-topic-drawer" open={topicsOpen} onToggle={event=>setTopicsOpen(event.currentTarget.open)}>
+          <summary>Topics</summary>
+          <div className="guide-prompts">{prompts.map(prompt=><button key={prompt} type="button" onClick={()=>ask(prompt)} disabled={loading}>{prompt}</button>)}</div>
+        </details>
         <form onSubmit={event=>{event.preventDefault();ask()}}>
           <input value={input} onChange={event=>setInput(event.target.value)} placeholder="Ask with your ZIP, budget, or box question..." disabled={loading}/>
           <button type="submit" disabled={loading||!input.trim()}>{loading?'...':'Send'}</button>
@@ -100,10 +108,13 @@ export default function PublicMobileStickyCTA({zipHref='#delivery-zone-check',qu
           .meat-tray{position:absolute;left:5px;right:5px;bottom:0;height:12px;border-radius:999px;background:linear-gradient(180deg,#fff8ed,#d8b66a);box-shadow:0 2px 0 #8a3a22,0 6px 12px rgba(43,26,18,.22)}
           .meat-tray i{position:absolute;top:-5px;width:12px;height:9px;border-radius:70% 45% 65% 45%;background:linear-gradient(135deg,#a83224,#6f1d16);border:1px solid rgba(255,248,237,.55)}.meat-tray i:nth-child(1){left:6px;transform:rotate(-14deg)}.meat-tray i:nth-child(2){left:18px;top:-7px;transform:rotate(9deg)}.meat-tray i:nth-child(3){right:6px;transform:rotate(15deg)}
           .robot-label{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);border:1px solid rgba(255,248,237,.52);border-radius:999px;background:#2b1a12;color:#fff8ed;padding:2px 8px;font-size:.58rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 8px 18px rgba(69,39,20,.24)}
-          .guide-panel{width:min(380px,calc(100vw - 24px));max-height:min(620px,calc(100vh - 118px));overflow:auto;border:1px solid rgba(184,137,45,.34);border-radius:24px;background:linear-gradient(180deg,#fff8ed,#f1dfc6);box-shadow:0 28px 74px rgba(69,39,20,.28);padding:14px;color:#2b1a12}
+          .public-mobile-cta.open{left:0;right:0;top:0;bottom:0;align-items:end;justify-items:center;padding:10px 10px 92px;background:rgba(43,26,18,.22);backdrop-filter:blur(6px)}
+          .public-mobile-cta.open .guide-toggle{position:absolute;right:14px;bottom:14px}
+          .guide-panel{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto auto;width:min(480px,calc(100vw - 20px));height:min(720px,calc(100vh - 112px));overflow:hidden;border:1px solid rgba(184,137,45,.34);border-radius:24px;background:linear-gradient(180deg,#fff8ed,#f1dfc6);box-shadow:0 28px 74px rgba(69,39,20,.28);padding:14px;color:#2b1a12}
           .guide-panel header{display:flex;align-items:start;justify-content:space-between;gap:12px}.guide-panel h3{margin:2px 0 0;color:#2b1a12;font-size:1.35rem}.guide-panel .eyebrow{color:#8a3a22!important}.guide-panel header button{width:32px;height:32px;border:1px solid rgba(43,26,18,.18);border-radius:50%;background:#2b1a12;color:#fff8ed;font-weight:900}
-          .guide-chat{display:grid;gap:8px;max-height:230px;overflow:auto;margin:12px 0}.guide-chat p{margin:0!important;padding:10px 12px;border:1px solid rgba(184,137,45,.22);border-radius:15px;font-size:.92rem;line-height:1.38}.guide-chat .assistant{margin-right:22px!important;background:#fffaf3;color:#4b372b}.guide-chat .user{margin-left:22px!important;background:#3a2418;color:#fff8ed}
-          .guide-prompts{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}.guide-prompts button{border:1px solid rgba(184,137,45,.55);border-radius:999px;background:#fffaf3;color:#2b1a12;padding:8px 10px;font-size:.78rem;font-weight:900}
+          .guide-chat{display:grid;align-content:start;gap:8px;min-height:0;overflow:auto;margin:12px 0;padding:2px 2px 10px;scroll-behavior:smooth}.guide-chat p{margin:0!important;padding:10px 12px;border:1px solid rgba(184,137,45,.22);border-radius:15px;font-size:.92rem;line-height:1.38}.guide-chat .assistant{margin-right:22px!important;background:#fffaf3;color:#4b372b}.guide-chat .user{margin-left:22px!important;background:#3a2418;color:#fff8ed}.chat-end{display:block;height:1px}
+          .guide-topic-drawer{border:1px solid rgba(184,137,45,.25);border-radius:16px;background:rgba(255,250,243,.7);margin-bottom:10px;overflow:hidden}.guide-topic-drawer summary{cursor:pointer;list-style:none;padding:9px 11px;color:#8a3a22;font-size:.78rem;font-weight:950;letter-spacing:.08em;text-transform:uppercase}.guide-topic-drawer summary::-webkit-details-marker{display:none}.guide-topic-drawer summary:after{content:"+";float:right}.guide-topic-drawer[open] summary:after{content:"-"}
+          .guide-prompts{display:flex;flex-wrap:wrap;gap:7px;padding:0 10px 10px}.guide-prompts button{border:1px solid rgba(184,137,45,.55);border-radius:999px;background:#fffaf3;color:#2b1a12;padding:8px 10px;font-size:.78rem;font-weight:900}
           .guide-panel form{display:grid;grid-template-columns:1fr auto;gap:8px}.guide-panel input{min-width:0;border:1px solid rgba(184,137,45,.55);background:#ffffff;color:#2b1a12;border-radius:999px;padding:12px;font-size:.9rem}.guide-panel form button{border:1px solid #d2a547;background:linear-gradient(135deg,#f5d976,#c7922e);color:#271913;border-radius:999px;font-weight:900;padding:0 13px}
           .guide-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.guide-actions a{display:grid;place-items:center;min-height:38px;border:1px solid rgba(43,26,18,.18);border-radius:999px;background:#fffaf3;color:#2b1a12;text-decoration:none;font-weight:900;font-size:.82rem}.guide-actions a:last-child{background:#2b1a12;color:#fff8ed}
           body{padding-bottom:92px}
