@@ -15,6 +15,12 @@ body{background:var(--ccp-ivory);color:var(--ccp-text-warm)}
 body:before{background:radial-gradient(circle at 22% 0%,rgba(232,200,120,.26),transparent 28rem),radial-gradient(circle at 84% 8%,rgba(138,58,34,.12),transparent 24rem),linear-gradient(180deg,#fff8ed,#f1dfc6 48%,#2b1a12);mix-blend-mode:normal}
 body:after{background:linear-gradient(115deg,transparent 0 24%,rgba(255,255,255,.18) 24.4%,transparent 28%),radial-gradient(circle at 50% 104%,rgba(138,58,34,.12),transparent 30%);mix-blend-mode:normal}
 
+.nav{background:rgba(255,248,237,.96)!important;border-bottom:1px solid rgba(184,137,45,.28)!important;box-shadow:0 10px 30px rgba(69,39,20,.12)!important}
+.brand{color:var(--ccp-text-warm)!important;text-shadow:none!important}
+.nav-links a{color:var(--ccp-text-warm)!important;text-shadow:none!important}
+.nav-links a:hover{color:var(--ccp-oxblood)!important}
+.menu-button{background:#fff8ed!important;color:var(--ccp-oxblood)!important;border-color:rgba(138,58,34,.38)!important}
+
 .ccp-steakhouse{background:linear-gradient(180deg,#fff8ed 0%,#f5e7d2 48%,#2b1a12 100%);color:var(--ccp-text-warm)}
 .ccp-steakhouse .steakhouse-promo{background:linear-gradient(90deg,#fffaf3,#efd69f,#fffaf3);border-color:rgba(184,137,45,.36);color:var(--ccp-text-warm);box-shadow:0 12px 28px rgba(69,39,20,.16)}
 .ccp-steakhouse .steakhouse-promo strong{color:var(--ccp-oxblood)}
