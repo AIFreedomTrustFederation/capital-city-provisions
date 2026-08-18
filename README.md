@@ -1,51 +1,69 @@
-# Capital City Provisions
+# Capital City Provisions — Applied Business and Customer Operations
 
-Capital City Provisions is a Next.js public sales, customer support, and operations site for premium freezer-box delivery, steak/menu presentation, route-aware ZIP capture, customer quote requests, giveaway entry, and stocked-home food planning.
+**The applied-business layer of the AI Freedom Trust Federation: a real-world premium provisions company and customer-operations system through which trust, delivery coordination, concierge service, and accountable business workflows are tested in ordinary commerce.**
 
-## Federation Status
-
-| Field | Value |
+| Federation metadata | Value |
 | --- | --- |
-| Status | Active product |
-| Federation layer | Applied Systems |
-| Repository role | Practical business proof-of-work for customer operations and concierge workflows |
-| Visibility | Public |
-| Primary language | TypeScript / Next.js |
+| Layer | `applied-business` |
+| Role | applied federation business model and real-world provisions system |
+| Workspace | `AIFT/capital-city-provisions` |
+| Application | Next.js / TypeScript public sales and customer-operations site |
 | Deployment | Vercel from `main` |
+| Verification | `npm run verify` with typecheck, lint, and build checks |
+| Public brand rule | customer-first provisions company; Federation technology remains behind the service experience |
 
-## Purpose
+Capital City Provisions is where the Federation must prove that its principles can survive contact with ordinary work. Customers do not come to this project to study agent architecture. They come to choose food, understand delivery, ask for help, check a route, request a quote, enter a promotion, and receive dependable service. The technology is successful when those relationships become clearer, not when the customer is forced to learn the machinery behind them.
 
-`capital-city-provisions` proves the federation model through a real public business workflow: customer intake, ZIP-aware delivery review, concierge support, quote requests, premium provisions presentation, and operational trust language.
+The deeper Federation covenant is carried in the [One Eternal Scroll of ALO'ha](https://aifreedomtrustfederation.github.io/AI-Freedom-Trust/docs/pdf/one-eternal-scroll-of-aloha.pdf), with operational discipline defined by [SOP-ALOHA-001](https://github.com/AIFreedomTrustFederation/AI-Freedom-Trust/blob/main/SOP-ALOHA-001.md). On the public storefront, that covenant appears as care, accuracy, consent, privacy, honest delivery expectations, and a human-readable path to support.
 
-This repository should stay customer-first. It may benefit from AIFT tooling internally, but the public surface should feel like a premium provisions company, not a technology product.
+---
 
-## Current Capabilities
+## Book I — Trust at the Doorstep
 
-- Next.js public site.
-- Customer concierge and lead capture flow.
-- ZIP-aware route capture and delivery review.
-- Menu, freezer box, delivery, giveaway, contact, customer, reviews, FAQ, and legal pages.
-- Vercel deployment path.
-- Local verification script covering typecheck, lint, license audit, and build.
+The applied-business layer begins with a simple test: can the system make a real transaction and delivery relationship more trustworthy without making it less human?
 
-## Setup
+Capital City Provisions answers through concierge-led commerce. A customer can understand the offer, check whether delivery is practical, compare freezer-ready options, ask for guidance, provide a ZIP, request follow-up, and move through a buying journey without being treated as raw data for an invisible optimization engine.
+
+Public language therefore remains intentionally non-technical. The customer sees **Customer Concierge, route review, delivery check, stock-up plan, customer care, partner network, and premium provisions**. Internal AI, model, automation, prompt, or infrastructure language belongs behind the interface unless the customer genuinely needs that information to make an informed decision.
+
+---
+
+## Book II — What Capital City Provisions Owns
+
+This repository owns the **real business and customer workflow**. Its public routes include the homepage, menu and freezer-box surfaces, steak delivery, family planning, delivery explanation and map, giveaway and rules, contact, customer portal, concierge, reviews, FAQ, and company story. Components such as `LeadCapture` and `QuickRouteCapture` connect the public experience to ZIP-aware customer intake and delivery review.
+
+Its Federation integrations remain subordinate to that business purpose:
+
+- **AIFT-OS / Runtime → operations:** the Federation can inspect repository health, builds, deployments, and operational tooling without exposing control-plane language to customers.
+- **AIFT-Forge → reusable patterns:** shared agent, build, or provider patterns may improve internal operations while the storefront remains a provisions experience.
+- **VPS / hosting infrastructure → service availability:** infrastructure may host or support the application; the business retains ownership of customer promises, delivery operations, and public content.
+- **Aetherion → future settlement or stewardship interfaces:** any value-system integration must remain optional, explicit, and separate from ordinary customer payment or financial claims until a real governed implementation exists.
+- **AetherianGovernance → policy and authority:** promotions, data handling, internal permissions, and high-impact operational decisions can use governed approval patterns.
+- **TastyCutz ↔ applied-business peer:** both repositories occupy the applied-business layer, but each keeps its own customer experience, deployment state, data, and source of truth.
+
+This repository is evidence that the Federation can support real work without making every business look like a Federation dashboard.
+
+---
+
+## Book III — SOP-ALOHA-001 in Customer Operations
+
+The shared covenant becomes a service lifecycle:
+
+```text
+Receive → Inspect → Name → Propose → Consent → Act → Verify → Record → Return
+```
+
+**Receive** accepts a ZIP, quote request, customer question, promotion entry, delivery need, or operational event. **Inspect** checks the information actually provided and the current delivery or product context. **Name** identifies the customer need, route state, requested product, and responsible operational path. **Propose** offers a suitable box, delivery path, or concierge recommendation without presenting a recommendation as a completed order. **Consent** protects customer contact, purchase, promotions, personal information, and any external communication. **Act** performs the approved lead, route-review, order-support, or operational step. **Verify** checks that the request was stored, sent, built, or routed as intended. **Record** keeps the minimum useful customer and operational memory. **Return** gives the customer a clear next step rather than leaving them inside an automated loop.
+
+Local development and verification remain straightforward:
 
 ```bash
 npm install
 npm run dev
-```
-
-Requires Node.js `>=20`.
-
-## Verification
-
-Full local verification:
-
-```bash
 npm run verify
 ```
 
-Focused checks:
+Focused checks include:
 
 ```bash
 npm run typecheck
@@ -53,286 +71,16 @@ npm run lint
 npm run build
 ```
 
-## Roadmap
+The public experience should remain mobile-readable, legally coherent, and free from internal implementation language that does not help the customer.
 
-1. Keep public copy concierge-led and non-technical.
-2. Maintain one clean mobile action path.
-3. Keep legal, business, and customer footer links resolving.
-4. Use this repo as the applied-systems proof point for trustworthy customer operations.
+---
 
-## Public Claims Note
+## Book IV — The Federation Proved in Ordinary Service
 
-Do not expose internal AI, model, bot, automation, or technical helper language in customer-facing UI. Public copy should emphasize concierge support, route review, delivery coordination, customer care, and premium provisions.
+The significance of Capital City Provisions is not that it demonstrates the most advanced theory in the organization. It demonstrates whether the theory can become dependable service. Trust is tested when the route is late, a customer needs help choosing, a promotion needs clear rules, a lead must not be lost, or an internal system must tell the truth about what happened.
 
-The current public brand rule is simple:
+The company remains a company. Its customers are not required to become members of a technical ideology in order to receive good service. The Federation serves quietly through better accountability, better memory, safer automation, and clearer human handoffs.
 
-> **Capital City Provisions should feel like a premium provisions company, not a technology product.**
+### The Return of the Word
 
-Customer-facing copy should use concierge, support, guide, delivery review, route check, stock-up plan, customer care, and partner network language. Do not use technical assistant language in public brand copy.
-
-Internal code may contain implementation names for tools and helpers, but those names should not appear in customer-facing UI copy.
-
-## Public language rules
-
-Use:
-
-- Customer Concierge
-- Guide
-- Guided service
-- Help choosing
-- Route review
-- ZIP check
-- Delivery check
-- Stock-up plan
-- Freezer-ready provisions
-- Customer care
-- Partner network
-- Local delivery coordination
-- Premium freezer provisions
-
-Avoid in public UI:
-
-- bot
-- artificial intelligence
-- automation
-- algorithm
-- model
-- LLM
-- machine learning
-- tech stack
-- prompt
-- rules mode
-
-Preferred replacements:
-
-- technical helper language -> concierge
-- bot -> guide or support
-- rules mode -> ready or support ready
-- smart/smarter -> clear, clearer, guided, or dependable
-- command center -> operations center on internal pages only
-
-## Current public strategy
-
-The homepage is a lightweight gateway instead of a long duplicated sales funnel. It gives customers one clear starting point, then sends them to the dedicated page that matches their need.
-
-Homepage responsibilities:
-
-- Explain the core offer quickly.
-- Show the main menu, box, delivery, offer, and contact paths.
-- Capture a ZIP through `QuickRouteCapture`.
-- Send the saved ZIP into the global lead and customer support flow.
-- Keep mobile simple and not overwhelming.
-- Avoid stacked floating CTAs on mobile.
-
-Dedicated pages carry the details:
-
-- `/menu` - premium steak-box menu, QR menu, phone ordering, and menu graphics.
-- `/freezer-boxes` - freezer package comparison and box selection.
-- `/family-freezer-boxes` - family-focused freezer stock-up plans.
-- `/steak-delivery` - steak delivery offer page.
-- `/how-delivery-works` - delivery process, route grouping, expectations, and trust.
-- `/delivery-map` - route area confidence and local delivery planning.
-- `/giveaway` - free giveaway entry, rules clarity, and separate order bonus messaging.
-- `/official-rules` - giveaway rules and no-purchase-required language.
-- `/contact` - sales, support, wholesale, and general questions.
-- `/customer` - customer portal.
-- `/customer-concierge` - guided help choosing a box.
-- `/reviews` - social proof.
-- `/faq` - quick answers and objections.
-- `/about` - founder story, trust system, and who CCP serves.
-
-## Key customer-flow anchors
-
-These anchors are part of the public customer journey and should not be renamed casually.
-
-- `#quick-route` - rendered by `QuickRouteCapture` on the homepage.
-- `#delivery-zone-check` - rendered by `DeliveryZoneCheck` wherever that component is mounted.
-- `#customer-account-journey` - rendered by `CustomerAccountJourney` wherever that component is mounted.
-- `#qr-menu` - rendered on `/menu` for QR/menu sharing.
-
-Homepage ZIP links should point to `/#quick-route`, not `/#delivery-zone-check`, unless `DeliveryZoneCheck` is added back to the homepage.
-
-## Core components
-
-### `LeadCapture`
-
-File: `components/LeadCapture.tsx`
-
-Purpose:
-
-- Global customer intake.
-- Saves customer ZIP and lead memory in the browser.
-- Opens the customer concierge modal.
-- Recommends a plan from customer answers.
-- Posts completed leads to `/api/leads`.
-
-Important storage keys:
-
-- `ccp_delivery_zip`
-- `ccp_latest_lead`
-- `ccp_customer_saved`
-
-Important event:
-
-- `ccp:delivery-zip`
-
-Important endpoint:
-
-- `POST /api/leads`
-
-Customer-facing warning:
-
-- Do not expose internal helper language in this component.
-- On mobile, do not re-enable the old bottom action bar if the robot guide button is active.
-
-### `QuickRouteCapture`
-
-File: `components/QuickRouteCapture.tsx`
-
-Purpose:
-
-- Fast homepage ZIP check.
-- Saves ZIP into `ccp_delivery_zip`.
-- Dispatches `ccp:delivery-zip` so `LeadCapture` can use the ZIP.
-- Saves quick route lead memory.
-- Posts route review details.
-
-Important storage keys:
-
-- `ccp_delivery_zip`
-- `ccp_quick_route_lead`
-- `ccp_route_prompt_page`
-- `ccp_latest_lead`
-
-Important endpoints:
-
-- `POST /api/leads`
-- `POST /api/delivery-review`
-
-Rendered anchor:
-
-- `id="quick-route"`
-
-Mobile warning:
-
-- `QuickRouteCapture` has a route nudge component. On mobile, that nudge is hidden by `app/mobile-stack-fix.css` to prevent footer clutter.
-
-### `PublicMobileStickyCTA`
-
-File: `components/PublicMobileStickyCTA.tsx`
-
-Purpose:
-
-- Mobile robot-style guide launcher.
-- Should be the only floating mobile action near the bottom of the screen.
-- Can receive page-specific `zipHref` and `quoteHref` props.
-
-Homepage usage:
-
-```tsx
-<PublicMobileStickyCTA zipHref="#quick-route" quoteHref="/customer-concierge" />
-```
-
-## Navigation and footer
-
-Navbar public labels should stay simple and customer-focused:
-
-- Menu
-- Boxes
-- How It Works
-- Delivery
-- Offer
-- Contact
-- Team
-- Concierge
-- Customer Portal
-
-The footer is organized by buyer and business need:
-
-- Shop
-- Customers
-- Business
-- Company
-- Legal
-
-The footer includes the LLC name, trust badges, Partner Network notice, copyright language, legal links, and supplier/driver/vendor partnership links.
-
-Footer pages that should exist:
-
-- `/privacy`
-- `/terms`
-- `/refund-policy`
-- `/official-rules`
-- `/sms-terms`
-- `/accessibility`
-- `/affiliate-suppliers`
-- `/drivers`
-- `/catering-partners`
-- `/vendor-intake`
-- `/route-partnerships`
-
-## Mobile simplification
-
-The mobile experience should feel clean, not stacked or desperate.
-
-`app/mobile-stack-fix.css` is loaded after the other stylesheets. It hides older floating mobile layers and keeps only the robot guide button floating.
-
-Current mobile cleanup rules:
-
-```css
-@media(max-width:760px){
-  .mobile-action-bar{display:none!important}
-  .theme-toggle{display:none!important}
-  .route-nudge{display:none!important}
-  .public-mobile-cta{right:14px!important;bottom:calc(14px + env(safe-area-inset-bottom))!important}
-  body{padding-bottom:0!important}
-}
-```
-
-Do not re-enable multiple floating mobile CTAs at the same time.
-
-## Deployment notes
-
-Vercel is connected to GitHub and should deploy from pushes to `main`. If Vercel reports `build-rate-limit`, do not keep pushing small commits. Wait for the build limit to reset, then redeploy once.
-
-Recommended deployment discipline:
-
-- Batch small copy/CSS fixes together.
-- Avoid rapid commits while Vercel is rate-limited.
-- Use one final polish commit when ready.
-- Then manually redeploy from Vercel if the automatic deployment was blocked.
-
-## Verification commands
-
-Full local verification:
-
-```bash
-npm run verify
-```
-
-That runs typecheck, lint, license audit, and the full Next build.
-
-Build only:
-
-```bash
-npm run build
-```
-
-Typecheck only:
-
-```bash
-npm run typecheck
-```
-
-## Final pre-deploy checklist
-
-Before the next Vercel deploy, verify:
-
-- No technical helper language appears in public UI.
-- The homepage has one clear ZIP path.
-- The mobile footer is not covered by stacked CTAs.
-- Only the robot guide launcher floats on mobile.
-- Footer accordion sections open and close cleanly on mobile.
-- Legal and business footer links resolve to real pages.
-- Customer concierge uses guide, concierge, and support language.
-- Vercel build limit has reset before pushing another final code batch.
+Here the Word returns at the doorstep. A customer expresses a need, the system understands enough to guide rather than confuse, the business acts, the result is verified in the real world, and the relationship returns as service that can be trusted. Technology fulfills its purpose when the customer remembers the care more than the machinery.
