@@ -9,9 +9,10 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "typegen": "next typegen",
     "typecheck": "tsc --noEmit --incremental false",
     "license:audit": "node scripts/audit-open-source-licenses.mjs",
-    "verify": "npm run typecheck && npm run lint && npm run license:audit && npm run build",
+    "verify": "npm run typegen && npm run typecheck && npm run lint && npm run license:audit && npm run build",
     "vercel-build": "next build --webpack"
   },
   "engines": {
