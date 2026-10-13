@@ -12,8 +12,9 @@
     "typegen": "next typegen",
     "typecheck": "tsc --noEmit --incremental false",
     "license:audit": "node scripts/audit-open-source-licenses.mjs",
-    "verify": "npm run typegen && npm run typecheck && npm run lint && npm run license:audit && npm run build",
-    "vercel-build": "next build --webpack"
+    "verify": "npm run typegen && npm run typecheck && npm run lint && npm run license:audit:test && npm run license:audit && npm run build",
+    "vercel-build": "next build --webpack",
+    "license:audit:test": "node --test scripts/test-license-audit.mjs"
   },
   "engines": {
     "node": ">=20"

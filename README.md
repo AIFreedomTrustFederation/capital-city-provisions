@@ -71,6 +71,8 @@ npm run lint
 npm run build
 ```
 
+The `npm run verify` gate also executes `npm run license:audit:test` (isolated regression tests) and `npm run license:audit` (dependency license metadata in `package-lock.json`). The audit fails closed when the lockfile lacks its root package or dependency inventory. This checks recorded license metadata, not the completeness of installed dependencies or legal compliance.
+
 The public experience should remain mobile-readable, legally coherent, and free from internal implementation language that does not help the customer.
 
 ---

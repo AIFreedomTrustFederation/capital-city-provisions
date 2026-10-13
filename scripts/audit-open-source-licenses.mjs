@@ -34,9 +34,22 @@ function licenseTokens(license) {
     .filter(Boolean);
 }
 
+// Fail closed when the lockfile has no usable dependency inventory.
+// A zero-package audit cannot establish that any dependency was checked.
+if (
+  !lock.packages ||
+  typeof lock.packages !== 'object' ||
+  Array.isArray(lock.packages) ||
+  !Object.prototype.hasOwnProperty.call(lock.packages, '') ||
+  !Object.keys(lock.packages).some((path) => path.startsWith('node_modules/'))
+) {
+  console.error('Open-source license audit failed: package-lock.json has no complete dependency inventory.');
+  process.exit(1);
+}
+
 const failures = [];
 const warnings = [];
-const packages = Object.entries(lock.packages || {}).filter(([path]) => path);
+const packages = Object.entries(lock.packages).filter(([path]) => path);
 
 for (const [path, meta] of packages) {
   const name = packageName(path);
