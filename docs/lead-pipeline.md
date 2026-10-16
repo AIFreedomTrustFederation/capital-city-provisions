@@ -65,3 +65,7 @@ After setting env vars, submit a test lead from the homepage ZIP checker and con
 2. The owner webhook receives `text` and `lead`.
 3. The sheet receives a new row.
 4. Vercel function logs show `Capital City Provisions lead:`.
+
+## Receipt provenance and limitations
+
+The server assigns `createdAt` and `receivedVia: capital-city-provisions-site` after parsing a submission. Caller-supplied values for these fields are ignored. The existing `source` field remains caller-reported for legacy lead classification and must not be used as authenticated origin evidence. `ok: true` confirms handler acceptance, not successful webhook delivery; inspect `notifications` and `storage` separately. Giveaway, support, and general leads do not create lifecycle orders, and the current handler logs the full lead payload; operational access and retention controls remain necessary.

@@ -63,6 +63,8 @@ npm run dev
 npm run verify
 ```
 
+The `/api/leads` intake assigns `createdAt` and `receivedVia` on the server, so callers cannot substitute the receipt time or the receiving application identity. The existing `source` field remains caller-reported for compatibility and must not be treated as verified provenance. This does not establish durable storage for every lead category or successful webhook delivery; inspect the returned storage and notification statuses. Raw lead payloads are still logged by the current handler, and log retention/access requires a separate privacy review.
+
 Focused checks include:
 
 ```bash

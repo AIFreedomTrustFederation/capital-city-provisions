@@ -171,7 +171,7 @@ export async function POST(request: Request) {
   try {
     const lead = await request.json();
     const createdAt = new Date().toISOString();
-    const enrichedLead = { createdAt, source: 'capital-city-provisions-site', ...lead };
+    const enrichedLead = { source: 'capital-city-provisions-site', ...lead, createdAt, receivedVia: 'capital-city-provisions-site' };
     const routing = classifyLead(enrichedLead);
     const needsOrder = leadNeedsLifecycleOrder(routing);
     const hasPostgres = postgresConfigured();
