@@ -43,8 +43,10 @@ git pull --ff-only
 Verify:
 
 ```bash
-npm run lint --if-present && npm run typecheck --if-present && npm run test --if-present && npm run build --if-present
+npm run verify
 ```
+
+**Verification prerequisites and scope:** Run from the repository root with Node.js 20+ and dependencies installed (`npm ci` with the repository's inert-install `.npmrc` policy). `npm run verify` runs Next.js type generation, TypeScript checking, ESLint, the open-source dependency license audit, and a production build, stopping at the first failure. Do not substitute the previous optional `--if-present` chain: it skipped type generation and the mandatory license audit. There is currently no `test` script in `package.json`, so this verification does not run unit, integration, or browser tests. A successful build does not establish live delivery, customer intake, or production availability.
 
 ## Federation Metadata
 

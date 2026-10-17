@@ -9,7 +9,7 @@
 | Workspace | `AIFT/capital-city-provisions` |
 | Application | Next.js / TypeScript public sales and customer-operations site |
 | Deployment | Vercel from `main` |
-| Verification | `npm run verify` with typecheck, lint, and build checks |
+| Verification | `npm run verify`: type generation, typecheck, lint, dependency license audit, and build |
 | Public brand rule | customer-first provisions company; Federation technology remains behind the service experience |
 
 Capital City Provisions is where the Federation must prove that its principles can survive contact with ordinary work. Customers do not come to this project to study agent architecture. They come to choose food, understand delivery, ask for help, check a route, request a quote, enter a promotion, and receive dependable service. The technology is successful when those relationships become clearer, not when the customer is forced to learn the machinery behind them.
@@ -70,6 +70,8 @@ npm run typecheck
 npm run lint
 npm run build
 ```
+
+`npm run verify` is also the federation manifest and CI verification command. It requires Node.js 20+ and installed dependencies; the repository's `.npmrc` disables package lifecycle scripts during installation. The license audit examines dependency metadata in `package-lock.json`. There is no `test` script at present, so a passing verification does not demonstrate browser behavior, live customer-intake delivery, or production readiness. Avoid replacing this command with optional `--if-present` checks, which bypass the type-generation and license-audit gates.
 
 The public experience should remain mobile-readable, legally coherent, and free from internal implementation language that does not help the customer.
 
