@@ -71,6 +71,12 @@ npm run lint
 npm run build
 ```
 
+### Customer quote read boundary
+
+`POST /api/customer-intake` remains public so customers can request quotes. Quote records contain names, email addresses, phone numbers, and other customer-supplied information. **`GET /api/customer-intake` is private** and requires a server-side `CCP_QUOTE_READ_TOKEN` environment variable of at least 32 non-whitespace characters. Generate a strong random token with `openssl rand -hex 32`, configure it in the deployment's secret environment settings, and send it only from an authorized server-side operator client as `Authorization: Bearer <token>`. Never embed the token in browser JavaScript, public `NEXT_PUBLIC_*` variables, query strings, or documentation.
+
+Without a configured token, GET fails closed with HTTP 503; missing or invalid credentials return HTTP 401. Authorized GET responses are marked `Cache-Control: private, no-store` and return at most 200 records from the existing in-memory quote store. The endpoint does not establish durable quote persistence, individual customer authorization, or protection for other operations APIs. The existing `ccp_access` role cookie is **not** sufficient for this private quote export. The verification command `npm run test:quote-read-access` exercises token acceptance and rejection; `npm run verify` also runs these regression tests before typechecking, linting, license audit, and build.
+
 The public experience should remain mobile-readable, legally coherent, and free from internal implementation language that does not help the customer.
 
 ---
