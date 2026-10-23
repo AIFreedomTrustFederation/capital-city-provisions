@@ -1,4 +1,5 @@
 import {NextResponse} from 'next/server';
+import {quoteReadAccess} from '../../../lib/quote-read-access.mjs';
 import {createOrder} from '../../../lib/ccp-database';
 import {createQuoteRequest,getCustomerOperationsStore} from '../../../lib/customer-operations';
 
@@ -22,9 +23,12 @@ function products(input:any){
   }));
 }
 
-export async function GET(){
+export async function GET(request:Request){
+  const access=quoteReadAccess(request);
+  if(access==='unconfigured')return NextResponse.json({ok:false,message:'Quote read access is not configured'},{status:503});
+  if(access!=='authorized')return NextResponse.json({ok:false,message:'Quote read access required'},{status:401});
   const store=getCustomerOperationsStore();
-  return NextResponse.json({ok:true,records:store.quotes.slice(0,200)});
+  return NextResponse.json({ok:true,records:store.quotes.slice(0,200)},{headers:{'Cache-Control':'private, no-store'}});
 }
 
 export async function POST(request:Request){
