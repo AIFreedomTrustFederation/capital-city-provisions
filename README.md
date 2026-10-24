@@ -71,6 +71,25 @@ npm run lint
 npm run build
 ```
 
+### CI preflight-to-main promotion boundary
+
+The [preflight promotion workflow](.github/workflows/sync-preflight-to-main.yml)
+can update `main` after the **Capital City Provisions CI** workflow passes
+for a push to this repository's `preflight` branch. It now checks the
+completed run's event, result, source branch, and repository identity, then
+reads the current remote `preflight` ref to ensure it still matches the
+tested commit before requesting a non-force fast-forward of `main`.
+Successful pull-request or manual CI runs and stale preflight runs are
+skipped, not treated as authorization to publish their head commits.
+
+Run `npm run test:preflight-sync` to exercise the promotion decision with
+mocked GitHub API responses; `npm run verify` includes these regressions.
+These tests do not update a real GitHub branch. The ref check and subsequent
+update are not atomic, so a concurrent push remains a possible race.
+GitHub branch protection, human review, production deployment, and live
+customer operations require independent verification. A successful CI
+result alone is not proof that Vercel deployed the change.
+
 ### Safe local auto-sync boundary
 
 `bash auto-sync-safe.sh` must start on `main`. When the working tree is dirty, it commits the local changes **on a new backup branch**, pushes that backup to `origin`, and only then returns to `main` to fetch, fast-forward, validate, and potentially push. A failed backup push stops the operation; a failed validation does not publish `main`. Backups may contain any locally staged or untracked files, so **inspect for credentials and customer data before invoking this script**. This is not a deployment-health check. Run `npm run test:git-sync` for disposable-repository Git regressions; `npm run verify` includes them.
