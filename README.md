@@ -81,6 +81,12 @@ npm run build
 
 Without a configured token, GET fails closed with HTTP 503; missing or invalid credentials return HTTP 401. Authorized GET responses are marked `Cache-Control: private, no-store` and return at most 200 records from the existing in-memory quote store. The endpoint does not establish durable quote persistence, individual customer authorization, or protection for other operations APIs. The existing `ccp_access` role cookie is **not** sufficient for this private quote export. The verification command `npm run test:quote-read-access` exercises token acceptance and rejection; `npm run verify` also runs these regression tests before typechecking, linting, license audit, and build.
 
+### Internal owner/driver role-cookie limitation
+
+The internal access form checks a configured access code through [`/api/access`](app/api/access/route.ts), then sets the `ccp_access` cookie to the literal role `owner` or `driver`. The [route proxy](proxy.ts) and some [operational API handlers](app/api/ai/context/route.ts) trust that role value without a cryptographic signature or server-side session verification. Cookie attributes such as `HttpOnly`, `SameSite`, and production `Secure` do not authenticate a caller who supplies their own HTTP cookie header. **This role-cookie mechanism is not a production-grade authorization boundary.**
+
+Do not rely on it alone to protect customer records, owner reports, driver operations, or role-specific AI context. Before exposing sensitive operational routes to untrusted clients, enforce server-verified authentication and per-endpoint authorization, or place the interfaces behind independently enforced access controls; add regression tests for unauthorized direct API requests. The separate `CCP_QUOTE_READ_TOKEN` requirement protects only the private quote-listing GET endpoint and does not secure other internal APIs. This section describes the current implementation, not a completed security repair.
+
 The public experience should remain mobile-readable, legally coherent, and free from internal implementation language that does not help the customer.
 
 ---
