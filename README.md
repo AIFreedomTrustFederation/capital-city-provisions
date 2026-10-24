@@ -71,6 +71,10 @@ npm run lint
 npm run build
 ```
 
+### Safe local auto-sync boundary
+
+`bash auto-sync-safe.sh` must start on `main`. When the working tree is dirty, it commits the local changes **on a new backup branch**, pushes that backup to `origin`, and only then returns to `main` to fetch, fast-forward, validate, and potentially push. A failed backup push stops the operation; a failed validation does not publish `main`. Backups may contain any locally staged or untracked files, so **inspect for credentials and customer data before invoking this script**. This is not a deployment-health check. Run `npm run test:git-sync` for disposable-repository Git regressions; `npm run verify` includes them.
+
 ### Customer quote read boundary
 
 `POST /api/customer-intake` remains public so customers can request quotes. Quote records contain names, email addresses, phone numbers, and other customer-supplied information. **`GET /api/customer-intake` is private** and requires a server-side `CCP_QUOTE_READ_TOKEN` environment variable of at least 32 non-whitespace characters. Generate a strong random token with `openssl rand -hex 32`, configure it in the deployment's secret environment settings, and send it only from an authorized server-side operator client as `Authorization: Bearer <token>`. Never embed the token in browser JavaScript, public `NEXT_PUBLIC_*` variables, query strings, or documentation.
