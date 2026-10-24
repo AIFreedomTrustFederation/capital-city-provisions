@@ -24,7 +24,27 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const sha = context.payload.workflow_run.head_sha;
+            const run = context.payload.workflow_run;
+            // workflow_run can also follow PR and manual CI runs. Only a
+            // successful push to this repository's preflight branch is eligible.
+            if (run.event !== 'push' || run.conclusion !== 'success' ||
+                run.head_branch !== 'preflight' ||
+                run.head_repository?.full_name !== `${owner}/${repo}`) {
+              core.notice('Skipping non-preflight-push or unsuccessful CI run.');
+              return;
+            }
+            const sha = run.head_sha;
+            // A later push can supersede the tested commit before CI finishes.
+            // Never promote a stale run in place of the current branch head.
+            const { data: preflight } = await github.rest.git.getRef({
+              owner,
+              repo,
+              ref: 'heads/preflight',
+            });
+            if (preflight.object.sha !== sha) {
+              core.notice(`Skipping stale CI run ${sha}; preflight is now ${preflight.object.sha}.`);
+              return;
+            }
             await github.rest.git.updateRef({
               owner,
               repo,
