@@ -25,6 +25,9 @@ print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
 error_exit() { print_error "$1"; exit 1; }
 
 if ! git rev-parse --git-dir > /dev/null 2>&1; then error_exit "Not a git repository"; fi
+if [ "$(git branch --show-current)" != "${MAIN_BRANCH}" ]; then
+  error_exit "Auto-sync requires the ${MAIN_BRANCH} branch; switch to it before syncing"
+fi
 
 print_header "Auto-Sync: Capital City Provisions"
 
@@ -33,9 +36,11 @@ if ! git diff-index --quiet HEAD -- || [ -n "$(git status --porcelain)" ]; then
   print_warning "Uncommitted changes detected"
   log "Uncommitted changes found; creating backup branch"
   git add -A
-  git branch "${BACKUP_BRANCH}"
-  git commit -m "Auto-backup: $(date +%Y-%m-%d\ %H:%M:%S)"
-  git push "${REMOTE}" "${BACKUP_BRANCH}" || print_warning "Could not push backup branch"
+  # Commit on the backup branch, never on main before validation.
+  git switch -c "${BACKUP_BRANCH}"
+  git commit -m "Auto-backup: $(date +%Y-%m-%d\\ %H:%M:%S)"
+  git push "${REMOTE}" "${BACKUP_BRANCH}" || error_exit "Backup push failed; main left untouched"
+  git switch "${MAIN_BRANCH}"
   print_success "Changes backed up to ${BACKUP_BRANCH}"
 else
   print_success "Working directory clean"
