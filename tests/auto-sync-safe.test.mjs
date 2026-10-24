@@ -38,9 +38,10 @@ function fixture(t, npmFails = false) {
   return { dir, remote, work, initial, env: { ...process.env, PATH: bin + ':' + process.env.PATH } };
 }
 function backupRef(remote) {
-  const refs = git(remote, 'for-each-ref', '--format=%(refname:short)', 'refs/heads/auto-backup-');
-  assert.equal(refs.split('\n').filter(Boolean).length, 1, 'exactly one remote backup branch');
-  return refs.trim();
+  const refs = git(remote, 'for-each-ref', '--format=%(refname:short)', 'refs/heads')
+    .split('\n').filter(ref => ref.startsWith('auto-backup-'));
+  assert.equal(refs.length, 1, 'exactly one remote backup branch');
+  return refs[0];
 }
 
 test('dirty checkout is backed up remotely without committing unvalidated work on main', t => {
