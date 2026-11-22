@@ -119,3 +119,10 @@ The company remains a company. Its customers are not required to become members 
 ### The Return of the Word
 
 Here the Word returns at the doorstep. A customer expresses a need, the system understands enough to guide rather than confuse, the business acts, the result is verified in the real world, and the relationship returns as service that can be trusted. Technology fulfills its purpose when the customer remembers the care more than the machinery.
+
+
+---
+
+## Proposed AIFT Universal OS Integration
+
+The [repository-specific OS alignment guide](docs/aift-universal-os-alignment.md) documents this repository's independent responsibility in a possible native/hosted AIFT application ecosystem: customer and operations application; no cross-project customer-data access. These are **unverified engineering plans**, linked to the [central architecture and infographics draft](https://github.com/AIFreedomTrustFederation/AIFT-OS/pull/92), not a change to production services or permissions.
